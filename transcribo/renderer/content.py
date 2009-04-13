@@ -1,4 +1,4 @@
-from transcribo.renderer import logger
+from transcribo import logger
 from lines import Line
 from singleton import get_singleton
 
@@ -6,7 +6,7 @@ from singleton import get_singleton
 class ContentManager:
 
     def __init__(self, elements,
-        wrapper = {'module_name': 'textwrap', 'class_name': 'TextWrapper', 'width': 30},
+        wrapper = {'module_name': 'textwrap', 'class_name': 'TextWrapper'},
         translator = None):
 
         self.elements = elements
@@ -15,8 +15,9 @@ class ContentManager:
         
         
 
-    def render(self):
+    def render(self, width):
         # Instantiate the wrapper. This is obligatory.
+        self.wrapper_cfg['width'] = width
         self.wrapper = get_singleton(**self.wrapper_cfg)
         # instantiate the optional translator. Note that each element may have
         # its own translator. However, the content manager's translator
