@@ -35,8 +35,8 @@ class Frame:
         left_indent, right_indent,
         y_anchor, y_hook,y_align,
         lines_above, lines_below,
-        width_from, max_width, width_mode,
-        height_from, max_height, height_mode):
+        max_width, width_mode,
+        max_height, height_mode):
 
         self.parent = parent
         self.content = content
@@ -52,15 +52,14 @@ class Frame:
         self.y_anchor = y_anchor
         self.y_hook = y_hook
         self.y_align = y_align
+        self.lines_above = lines_above
         self.lines_below = lines_below
         # width
-        self.width_from = width_from # same width as another frame
         self.max_width =  max_width
         self.width_mode = width_mode # 'fixed' or 'auto', i.e. the content determines the width
         # height
-        self.height_from = height_from
-        self.max_height =  max_height
-        self.height_mode = height_mode):
+        self.max_height = max_height
+        self.height_mode = height_mode
         
         
     def x(self):
@@ -68,15 +67,15 @@ class Frame:
         result = self.x_anchor.x()
         if self.x_align == 'left':
             result = result + self.left_indent # x_anchor.right_indent is ignored here. Meaningful? Use max. of both instead?
-        elif: self.x_align == 'right':
+        elif self.x_align == 'right':
             result = result - self.width() - self.right_indent
-        elif: self.x_align == 'center':
+        elif self.x_align == 'center':
             result = result - self.width() // 2 # left- and right_indent are ignored here. Meaningful?
         if self.x_hook == 'left': pass # this could be omitted, but it's more clear.
-        elif: self.x_hook == 'right':
-            result = result + self.width_from.width()
-        elif: x_hook == 'center':
-            result += self.width_from.width() // 2
+        elif self.x_hook == 'right':
+            result = result + self.x_anchor.width()
+        elif x_hook == 'center':
+            result += self.x_anchor.width() // 2
         return result
 
             
@@ -86,16 +85,16 @@ class Frame:
         result = self.y_anchor.y()
         if self.y_align == 'top':
             result = result + self.lines_above
-        elif: self.y_align == 'bottom':
+        elif self.y_align == 'bottom':
             result = result - self.height() - self.lines_below
-        elif: self.y_align == 'center':
+        elif self.y_align == 'center':
             result = result - self.height() // 2 # left- and right_indent are ignored here. Meaningful?
         if self.y_hook == 'top': # this could be omitted, but it's more clear.
             pass
-        elif: self.y_hook == 'bottom':
-            result = result + self.height_from.height()
-        elif: y_hook == 'center':
-            result += self.height_from.height() // 2
+        elif self.y_hook == 'bottom':
+            result = result + self.y_anchor.height()
+        elif y_hook == 'center':
+            result = result + self.y_anchor.height() // 2
         return result
 
         
@@ -123,24 +122,15 @@ class Frame:
         if not (self.content or self.children):
             raise RenderingError, 'Either content or children must be present.'
 
-        # calculate max_width and max_hight
+        # calculate max_width 
         if not self.max_width:
-            self.max_width = self.width_from.width() - self.left_indent - self.right_indent
-        if not self.max_height:
-            self.max_height = self.height_from.height() # lines_above and lines_below are ignored here. Meaningful?
+            self.max_width = self.x_anchor.width() - self.left_indent - self.right_indent
 
 
-        # Add lines above
-        for i in range(self.lines_above):
-            self.lines.append(Line(content = ''))
-
-        # render any content
+     # render any content
         if self.content:
-            self.lines.extend(self.content.render(width = self.max_width))
-            # prepend indentation
-            indent_str = ' ' * self.left_indent
-            for l in self.lines: l = indent_str + l
-            logger.debug('Rendered lines %s ... %s' % (self.lines[0], self.lines[-1]))
+            self.lines= self.content.render(width = self.max_width)
+            logger.debug('Rendered lines %s ... %s' % (self.lines[0].content, self.lines[-1].content))
             
             
         # render any children
@@ -148,17 +138,8 @@ class Frame:
             for c in self.children:
                 c.render()
 
-        # add empty lines below
-        for i in range(self.lines_below):
-            self.lines.append(Line(''))
-
-    # check for excess of max_height
-    if self.max_heiht and len(self.lines) > self.max_height:
-        raise RenderingError('Too many lines in frame (%d allowed, %d given).' % (self.max_height, len(self.lines)))
 
     
-
-
 
 
 class RootFrame:
@@ -191,7 +172,7 @@ class RootFrame:
         # logger.debug('Storing line at x = %d, y = %d.', x,y)
         while len(self.cache) - 1 < y: self.cache.append(u'')
         if len(self.cache[y]) > x:
-            raise LineStorageError, 'Line in cache is too long.'
+            raise LineStorageError('Line in cache is too long. (content = %s; length = %d)', self.cache[y], len(self.cache[y]))
         self.cache[y] = self.cache[y].ljust(x)
         self.cache[y] += content
 
