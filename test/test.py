@@ -16,6 +16,8 @@ class TestRenderer(unittest.TestCase):
         self.enum1 = ['1.', '2.', '3.']
         self.enum2 = ['(i)', '(ii)', '(iii)']
         self.output = ''
+        self.bc = BaseContent(self.longtext)
+        self.cm = ContentManager(elements = [bc])
         self.frame_cfg = dict(
             x_anchor = self.root, x_hook = 'left', x_align = 'left',
             left_indent = 0, right_indent = 0,
@@ -61,8 +63,28 @@ class TestRenderer(unittest.TestCase):
         self.assertEqual(True, True)
 
 
+
+    def testLists(self):
+        f1_cfg = self.frame_cfg.copy()
+        f1_cfg.update(max_width = 20)
+        list_body = Frame(parent = self.root, content = self.cm,
+            **f1_cfg)
+        f2_cfg = self.frame_cfg.copy()
+        f2_cfg.update(lines_above = 4,
+        left_indent = 2, right_indent = 3,
+        x_anchor = f1, x_hook = 'right', x_align = 'left',
+        y_anchor = f1, y_align = 'top', y_hook = 'top',
+        max_width = 30)
+        f2 = Frame(parent = self.root, content = cm,
+        **f2_cfg)
+        self.output = '\n\n==========\n\n'.join((self.output, self.root.render()))
+        self.assertEqual(True, True)
+
+
+
+
     def tearDown(self):
-        output_file = open('test1.outt', 'w')
+        output_file = open('test1.outt', 'a')
         output_file.write(self.output)
         output_file.close()
         

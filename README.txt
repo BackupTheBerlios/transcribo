@@ -8,7 +8,7 @@ Version: 0.1
 
 Author: Dr. Leo <fhaxbox66 <at> googlemail.com>
 
-License: GPL 3.0
+License: GPL (http://www.opensource.org/licenses/gpl-license.html)
 
 (c) 2009 Dr. leo
 
