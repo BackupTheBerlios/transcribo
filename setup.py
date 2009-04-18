@@ -20,7 +20,7 @@ arg_dict = dict(
     name = "Transcribo", version = "0.1",
     author = "Dr. Leo",
     author_email = "fhaxbox66@googlemail.com",
-    url = "http://pyhyphen.googlecode.com",
+    url = "http://developer.berlios.de/projects/transcribo/",
     description = "An extensible plain text renderer for arbitrary input sources and content formats including a frontend for reStructuredText",
     long_description = longdescr,
     classifiers = [
