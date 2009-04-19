@@ -32,9 +32,9 @@ class Frame:
 
     def __init__(self, parent = None, content = None,
         x_anchor = None, x_hook = '', x_align = '',
-        left_indent = 0, right_indent = 0,
+        x_offset = 0, right_indent = 0,
         y_anchor = None, y_hook = '', y_align = '',
-        lines_above = 0, lines_below = 0,
+        y_offset = 0, lines_below = 0,
         max_width = 0, width_mode = 'auto',
         max_height = 0, height_mode = 'auto'):
 
@@ -50,14 +50,14 @@ class Frame:
         self.x_anchor = x_anchor # the frame whose x position will be used
         self.x_hook = x_hook # the anchor frame's part to draw on (left, right, center)
         self.x_align = x_align # the part of self to align with the hook (left, right, center)
-        self.left_indent = left_indent # absolute offset relative to the hook etc.
+        self.x_offset = x_offset # absolute offset relative to the hook etc.
         self.right_indent = right_indent
         
         # vertical position
         self.y_anchor = y_anchor
         self.y_hook = y_hook
         self.y_align = y_align
-        self.lines_above = lines_above
+        self.y_offset = y_offset
 
         # width
         self.max_width =  max_width
@@ -74,7 +74,7 @@ class Frame:
         '''return the absolute horizontal position of the frame's left column'''
         result = self.x_anchor.x()
         if self.x_align == 'left':
-            result = result + self.left_indent # x_anchor.right_indent is ignored here. Meaningful? Use max. of both instead?
+            result = result + self.x_offset # x_anchor.right_indent is ignored here. Meaningful? Use max. of both instead?
         elif self.x_align == 'right':
             result = result - self.width() - self.right_indent
         elif self.x_align == 'center':
@@ -92,7 +92,7 @@ class Frame:
         '''return the absolute vertical position of the frame's upper line'''
         result = self.y_anchor.y()
         if self.y_align == 'top':
-            result = result + self.lines_above
+            result = result + self.y_offset
         elif self.y_align == 'bottom':
             result = result - self.height() - self.lines_below
         elif self.y_align == 'center':

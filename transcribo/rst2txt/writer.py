@@ -1,17 +1,23 @@
 # rst2txt - Docutils writer component for text rendering using Transcribo
-# This software is licenced under the RGPL.
+# This software is licenced under the GPL.
 # Contact the author at fhaxbox66@googlemail.com
 
 
-import transcribo, docutils.writers
+try:
+    import json
+except: ImportError:
+    import simplejson as json
+    
+import docutils.writers
 from docutils import frontend
 from docutils.nodes import Node, NodeVisitor
-
+from transcribo.renderer import RootFrame, Frame
+from transcribo.renderer.content import ContentManager, BaseContent
 
 
 class Writer(docutils.writers.Writer):
 
-    supported = ('brl',)
+    supported = ('txt', 'brl',)
     
     config_section = 'Braille-specific Options'
 
@@ -43,27 +49,28 @@ class Writer(docutils.writers.Writer):
 
 
     def translate(self):
-        self.visitor = BrailleVisitor(self.document)
+        self.visitor = TxtVisitor(self.document)
         document = self.document.walkabout(self.visitor)
         self.output = self.visitor.output
 
     
-class BrailleVisitor(NodeVisitor):
+class TxtVisitor(NodeVisitor):
 
     def depart_generic(self, node):
         self.peer.render()
         self.peer = self.peer.parent
 
     def visit_document(self, node):
-        self.peer = transcribo.TextDoc(parent = None)
+        self.root = RootFrame()
     
     
     def depart_document(self, node):
-            self.output = self.peer.render()
+            self.output = self.root.render()
             
 
     def visit_paragraph(self, node):
-        self.peer = transcribo.Paragraph(parent = self.peer)
+        pass
+
         
     depart_paragraph = depart_generic
     

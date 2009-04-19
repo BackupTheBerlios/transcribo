@@ -45,7 +45,7 @@ class ContentManager:
         concat_elements = ''.join([e.render()  for e in self.elements])
         
         # Translate the frame's content altogether, if required
-        if self.translator: concat_elements = self.translator.translate(concat_elements)
+        if self.translator: concat_elements = self.translator.run(concat_elements)
         
         # and wrap it using the wrapper instance. Hyphenation can be implemented using
         # PyHyphen and textwrap2. But by default, the textwrap standard module is used.
@@ -63,7 +63,7 @@ class ContentManager:
         return result
 
 
-class BaseContent:
+class GenericText:
     '''Content element for text. Pass one or more instances to a ContentManager as list items of
     the 'elements' argument.'''
 
@@ -79,7 +79,7 @@ class BaseContent:
         
     def render(self):
         if self.translator:
-            return self.translator.translate(self.content)
+            return self.translator.run(self.content)
         else:
             return self.content
 

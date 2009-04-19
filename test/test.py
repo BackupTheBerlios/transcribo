@@ -1,5 +1,14 @@
+# Transcribo Test
+# This script contains one unittest rendering a nested enumeration. This
+# serves to demonstrate the configuration of the Frame and content objects including the
+# use of translators.
+# The configuration of the YABT translator is though commented out as few
+# users will have the package installed. Those interested will find the URL of the YABT website in
+# transcribo/render/translator.py.
+
+
 from transcribo.renderer import RootFrame, Frame, logger
-from transcribo.renderer.content import ContentManager, BaseContent
+from transcribo.renderer.content import ContentManager, GenericText
 from transcribo.renderer.page import Paginator
 import unittest
 
@@ -13,16 +22,7 @@ class TestRenderer(unittest.TestCase):
                         behavior when dealing with lists, enumerations and such like. Also, it may be useful to demonstrate\
                         the effects of hyphenation and text wrapping."""
         self.output = ''
-        self.bc = BaseContent(self.longtext)
-        self.cm = ContentManager(elements = [self.bc])
-        self.frame_cfg = dict(
-            x_anchor = self.root, x_hook = 'left', x_align = 'left',
-            left_indent = 0, right_indent = 0,
-            y_anchor = self.root, y_hook = 'bottom', y_align = 'top',
-            lines_above = 1, lines_below = 0,
-            max_width = 0, width_mode = 'fixed',
-            max_height = 0, height_mode = 'auto')
-
+            
 
 
     def testEnum(self):
@@ -30,12 +30,12 @@ class TestRenderer(unittest.TestCase):
         def create(outer, previous, symbols):
             # create frame containing the whole list
             container_cfg = dict(parent = outer, content = None,
-                x_anchor = previous, x_align = 'left', x_hook = 'left', left_indent = 0,
+                x_anchor = previous, x_align = 'left', x_hook = 'left', x_offset = 0,
                 y_anchor = previous, y_align = 'top', lines_below = 0,
                 max_width = 0, width_mode = 'fixed',
                 max_height = 0, height_mode = 'auto')
-            if previous is outer: container_cfg.update(y_hook = 'top', lines_above = 0)
-            else: container_cfg.update(y_hook = 'bottom', lines_above = 0)
+            if previous is outer: container_cfg.update(y_hook = 'top', y_offset = 0)
+            else: container_cfg.update(y_hook = 'bottom', y_offset = 0)
             container = Frame(**container_cfg)
             previous = container
 
@@ -46,22 +46,27 @@ class TestRenderer(unittest.TestCase):
                 else:
                     # create frame for the enumerator
                     enum_cfg = dict(parent = container,
-                        content = ContentManager(elements = [BaseContent(content = s)], align = 'right'),
-                        x_anchor = container, x_align = 'left', x_hook = 'left', left_indent = 1,
+                        content = ContentManager(elements = [GenericText(content = s)], align = 'right'),
+                        x_anchor = container, x_align = 'left', x_hook = 'left', x_offset = 1,
                         y_anchor = previous, y_align = 'top',
                         max_width = 4, width_mode = 'fixed',
                         max_height = 1, height_mode = 'fixed')
                     if previous is not container:
-                        enum_cfg.update(y_hook = 'bottom', lines_above = 0)
+                        enum_cfg.update(y_hook = 'bottom', y_offset = 0)
                     else:
-                        enum_cfg.update(y_hook = 'top', lines_above = 0)
+                        enum_cfg.update(y_hook = 'top', y_offset = 0)
                     enum = Frame(**enum_cfg)
+                    
+                    # choose a translator from the list (see below)
+                    cur_translator = translator_cfg[symbols.index(s)]
+                    
                     # create the paragraph
                     para_cfg = dict(
                         parent = container,
-                        content = ContentManager(elements = [BaseContent(content = self.longtext)]),
-                        x_anchor = enum, x_hook = 'right', x_align = 'left', left_indent = 1,
-                        y_anchor = enum, y_hook = 'top', y_align = 'top', lines_above = 0,
+                        content = ContentManager(elements = [GenericText(content = self.longtext)],
+                            translator = cur_translator),
+                        x_anchor = enum, x_hook = 'right', x_align = 'left', x_offset = 1,
+                        y_anchor = enum, y_hook = 'top', y_align = 'top', y_offset = 0,
                         max_width = 0, width_mode = 'fixed',
                         max_height = 0, height_mode = 'auto')
                     previous= Frame(**para_cfg)
@@ -69,10 +74,23 @@ class TestRenderer(unittest.TestCase):
                     
                 
         structure = ['I.', 'II.', 'III.', ['1.', '2.'], 'IV.', ['1.', '2.', '3.', ['a)', 'b)']], 'V.']
+        
+        # Some translator configurations. The create method above will choose
+        # amongst them. Each position in the following list corresponds
+        # to a number in the enumeration, so that each translator
+        # will be invoked.
+        
+        translator_cfg = [None, # no translator
+            dict(module_name = 'translator', class_name = 'UpperTrans'), # uppercase translator
+            # dict(module_name = 'translator', class_name = 'YABTrans', state = 2), # Braille grade 2
+            None, None, None, None, None]
+            
+            # create the frames
         create(self.root, self.root, structure)
+        
+        # and render them
         self.output = '\n\n==========\n\n'.join((self.output, self.root.render()))
         self.assertEqual(True, True)
-
 
 
 
