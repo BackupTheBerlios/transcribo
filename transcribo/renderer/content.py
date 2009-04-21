@@ -15,7 +15,7 @@ class ContentManager:
     ContentManager or one or more child frames. So a ContentManager renders
     the content of a leaf frame.'''
 
-    def __init__(self, elements,
+    def __init__(self, elements = [],
         wrapper = {'module_name': 'textwrap', 'class_name': 'TextWrapper'},
         translator = None, align = 'left'):
 
