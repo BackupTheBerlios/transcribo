@@ -232,7 +232,7 @@ class RootFrame(BuildingBlock):
         y = frame.y()
         count = 0
         for l in frame.lines:
-            self.store(l.text, x, y+count)
+            self.store(str(l), x, y+count)
             count += 1
 
 

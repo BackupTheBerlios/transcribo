@@ -59,24 +59,26 @@ class Writer(docutils.writers.Writer):
 
 class TxtVisitor(NodeVisitor):
 
+    def getContentManager(self, style):
+        content_cfg = styles.content[style]
+        translator_cfg = styles.translator[style]
+        wrapper_cfg = styles.wrappers['indent2']
+        return ContentManager(wrapper = wrapper_cfg,
+            translator = translator_cfg,
+            **content_cfg)
+
+
     def getFrame(self, style):
         frame_cfg = styles.frame[style] # ToDo: allow deviations from hard-coded styles
-        translator_cfg = styles.translator['default'] # ToDo: create translator according to settings, eg. Braille
-        if style.endswith('0'):
-            wrapper_cfg = styles.wrappers['simple'] # ToDo: as before
-        else:
-            wrapper_cfg = styles.wrappers['indent2']
         return Frame(parent = self.parent,
-        x_anchor = self.parent, y_anchor = self.previous,
-        content = ContentManager(wrapper = wrapper_cfg,
-            translator = translator_cfg),
-            **frame_cfg)
+        x_anchor = self.parent, y_anchor = self.currentFrame,
+                    **frame_cfg)
         
 
     def visit_document(self, node):
         self.root = RootFrame() # ToDo: make it customizable, eg. by passing page settings
         self.parent = self.root
-        self.previous = self.root
+        self.currentFrame = self.root
         self.section_level = 0
 
     
@@ -88,17 +90,19 @@ class TxtVisitor(NodeVisitor):
     def visit_paragraph(self, node):
         # determine context and set style accordingly
         index = node.parent.index(node)
-        element_style = 'body1'
-        current = self.getFrame(element_style)
+        frame_style = 'body1'
+        newFrame = self.getFrame(frame_style)
+        self.currentContent = self.getContentManager('body1')
+        newFrame += self.currentContent
         if index == 0:
-            current.update(y_hook = 'top')
-            current.content.wrapper_cfg['initial_indent'] = '  '
+            newFrame.update(y_hook = 'top')
         else:
-            current.update(y_hook = 'bottom')
-        self.previous = current
+            newFrame.update(y_hook = 'bottom')
+        self.currentFrame = newFrame
             
             
     def depart_paragraph(self, node): pass
+        
         
     def visit_section(self, node):
         self.section_level += 1
@@ -111,7 +115,7 @@ class TxtVisitor(NodeVisitor):
         
         
     def visit_Text(self, node):
-         self.previous.content += GenericText(content = node.astext())
+         self.currentContent += GenericText(text = node.astext())
 
         
     def depart_Text(self, node): pass
@@ -119,15 +123,17 @@ class TxtVisitor(NodeVisitor):
     def visit_title(self, node):
         if isinstance(node.parent, nodes.section):
             frame_style = 'heading' + str(self.section_level)
-            try:
-                current = self.getFrame(frame_style)
-            except KeyError:
-                    current = self.getFrame('default_heading')
+            newFrame = self.getFrame(frame_style)
             # first frame within this parent frame?
-            if self.previous == self.parent:
-                current.update(y_hook = 'top')
+            if self.currentFrame == self.parent:
+                newFrame.update(y_hook = 'top')
             else:
-                current.update(y_hook = 'bottom')
-            self.previous = current
+                newFrame.update(y_hook = 'bottom')
+            self.currentContent = self.getContentManager(frame_style)
+            newFrame += self.currentContent
+            self.currentFrame = newFrame
+        else:
+            raise TypeError('Cannot handle title node in this context (parent = %s' % node.parent)
+
 
     def depart_title(self, node): pass

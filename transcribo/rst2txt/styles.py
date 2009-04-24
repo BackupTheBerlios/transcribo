@@ -3,6 +3,19 @@
 
 """Styles for frames, ContentManagers and such like."""
 
+translators = dict(
+    yabt2 = dict(
+        module_name = 'translator',
+        class_name = 'YABTrans',
+        state = 2
+    ),
+    upper = dict(
+        module_name = 'translator',
+        class_name = 'UpperTrans'
+    )
+)
+
+
 
 wrappers = dict(
     indent2 = dict(
@@ -17,17 +30,15 @@ wrappers = dict(
 )
 
 
-translators = dict(
-    yabt2 = dict(
-        module_name = 'translator',
-        class_name = 'YABTrans',
-        state = 2
+content = dict(
+    default = dict(),
+    heading1 = dict(
+        x_align = 'center'
     ),
-    upper = dict(
-        module_name = 'translator',
-        class_name = 'UpperTrans'
-    )
+    heading2 = dict(x_align = 'left'),
+    body1 = dict()
 )
+
 
 
 frames = dict(
@@ -37,7 +48,7 @@ frames = dict(
         x_offset = 0,
         y_align ='top',
         y_hook = 'bottom',
-        y_offset = 1,
+        y_offset = 0,
         right_indent = 0,
         lines_below = 0,
         max_width = 0,
@@ -119,4 +130,4 @@ frame = dict(
     default = frames['body1']
 )
 
-translator = dict(yabt2 = translators['yabt2'], default = None)
+translator = dict(yabt2 = translators['yabt2'], default = None, heading1 = translators['upper'], body1 = None, heading2 = None)
