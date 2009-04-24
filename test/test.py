@@ -29,7 +29,7 @@ class TestRenderer(unittest.TestCase):
     
         def create(outer, previous, symbols):
             # create frame containing the whole list
-            container_cfg = dict(parent = outer, content = None,
+            container_cfg = dict(parent = outer,
                 x_anchor = previous, x_align = 'left', x_hook = 'left', x_offset = 0,
                 y_anchor = previous, y_align = 'top', lines_below = 0,
                 max_width = 0, width_mode = 'fixed',
@@ -46,7 +46,6 @@ class TestRenderer(unittest.TestCase):
                 else:
                     # create frame for the enumerator
                     enum_cfg = dict(parent = container,
-                        content = ContentManager(elements = [GenericText(content = s)], align = 'right'),
                         x_anchor = container, x_align = 'left', x_hook = 'left', x_offset = 1,
                         y_anchor = previous, y_align = 'top',
                         max_width = 4, width_mode = 'fixed',
@@ -56,6 +55,10 @@ class TestRenderer(unittest.TestCase):
                     else:
                         enum_cfg.update(y_hook = 'top', y_offset = 0)
                     enum = Frame(**enum_cfg)
+                    content = ContentManager(x_align = 'right')
+                    content += GenericText(text = s)
+                    enum += content
+                    
                     
                     # choose a translator from the list (see below)
                     cur_translator = translator_cfg[symbols.index(s)]
@@ -63,13 +66,14 @@ class TestRenderer(unittest.TestCase):
                     # create the paragraph
                     para_cfg = dict(
                         parent = container,
-                        content = ContentManager(elements = [GenericText(content = self.longtext)],
-                            translator = cur_translator),
                         x_anchor = enum, x_hook = 'right', x_align = 'left', x_offset = 1,
                         y_anchor = enum, y_hook = 'top', y_align = 'top', y_offset = 0,
                         max_width = 0, width_mode = 'fixed',
                         max_height = 0, height_mode = 'auto')
-                    previous= Frame(**para_cfg)
+                    previous = Frame(**para_cfg)
+                    content = ContentManager(translator = cur_translator)
+                    content += GenericText(text = self.longtext)
+                    previous += content
             return container
                     
                 

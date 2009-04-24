@@ -22,15 +22,53 @@ class LineStorageError(RenderingError):
     pass
         
         
+class BuildingBlock:
+    def __init__(self):
+        self.children = []
 
+    def __add__(self, other):
+        return self.children + other
 
+    def __radd__(self, other):
+        return other + self.children
 
-class Frame:
+    def __iadd__(self, other):
+        """Append a node or a list of nodes to `self.children`."""
+        if isinstance(other, list):
+            self.children.extend(other)
+        else:
+            self.children.append(other)
+        return self
+
+    def append(self, item):
+        self.children.append(item)
+
+    def update(self, **args):
+        for k,v in args.items():
+            setattr(self, k, v)
+            
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self.children[key]
+        else:
+            raise TypeError('Argument must be of type int, not %s.' % type(key))
+            
+            
+    def __setitem__(self, key, item):
+        if isinstance(key, int):
+            self.children[key] = item
+        else:
+            raise TypeError('Argument must be of type int, not %s.' % type(key))
+
+        
+        
+            
+class Frame(BuildingBlock):
     '''Represents a rectangular area within the rendered document.
 
     '''
 
-    def __init__(self, parent = None, content = None,
+    def __init__(self, parent = None,
         x_anchor = None, x_hook = '', x_align = '',
         x_offset = 0, right_indent = 0,
         y_anchor = None, y_hook = '', y_align = '',
@@ -38,12 +76,12 @@ class Frame:
         max_width = 0, width_mode = 'auto',
         max_height = 0, height_mode = 'auto'):
 
+        BuildingBlock.__init__(self)
         self.parent = parent
-        self.content = content
 
         # initialization
         self.children = []
-        parent.children.append(self)
+        parent += self
         self.lines = []
 
         # horizontal position
@@ -121,7 +159,7 @@ class Frame:
         if self.width_mode == 'fixed':
             return self.max_width
         if self.lines:
-            return max([len(l.content) for l in self.lines])
+            return max([len(l) for l in self.lines])
         else:
             return             max([(c.x() - self.x() + c.width()) for c in self.children])
 
@@ -130,8 +168,8 @@ class Frame:
         '''render the frame's content or its child frames' content and store it
         as a list of lines.Line instances in self.lines.'''
 
-        if not (self.content or self.children):
-            raise RenderingError, 'Either content or children must be present.'
+        if not self.children:
+            raise RenderingError, 'Nothing to render.'
 
         # calculate max_width 
         if not self.max_width:
@@ -139,9 +177,9 @@ class Frame:
 
 
      # render any content
-        if self.content:
-            self.lines= self.content.render(width = self.max_width)
-            logger.debug('Rendered lines %s ... %s' % (self.lines[0].content, self.lines[-1].content))
+        if not isinstance(self[0], Frame):
+            self.lines= self[0].render(width = self.max_width)
+            # logger.debug('Rendered lines %s ... %s' % (self.lines[0].content, self.lines[-1].content))
             
             
         # render any children
@@ -151,17 +189,16 @@ class Frame:
 
 
 
-class RootFrame:
+class RootFrame(BuildingBlock):
     '''Ancestor of all frames. Its render method generates the final output from the
     rendered children. The RootFrame has just children and no content.
     Future versions may add pagination, footnotes etc.'''
     
     def __init__(self, max_width = 60, paginator = None):
 
-
+        BuildingBlock.__init__(self)
         self.max_width = max_width
         self.paginator = paginator
-        self.children = []
         self.cache = []
 
 
@@ -189,12 +226,13 @@ class RootFrame:
 
 
     def assemble(self, frame):
-        for c in frame.children: self.assemble(c)
+        for c in frame.children:
+            if isinstance(c, Frame): self.assemble(c)
         x = frame.x()
         y = frame.y()
         count = 0
         for l in frame.lines:
-            self.store(l.content, x, y+count)
+            self.store(l.text, x, y+count)
             count += 1
 
 

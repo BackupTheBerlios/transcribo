@@ -1,4 +1,6 @@
-# rst2txt - Docutils writer component for text rendering using Transcribo
+"""
+rst2txt - Docutils writer component for text rendering using Transcribo
+"""
 # This software is licenced under the GPL.
 # Contact the author at fhaxbox66@googlemail.com
 
@@ -57,22 +59,25 @@ class Writer(docutils.writers.Writer):
 
 class TxtVisitor(NodeVisitor):
 
-    def get_frame(self, style, parent):
+    def getFrame(self, style):
         frame_cfg = styles.frame[style] # ToDo: allow deviations from hard-coded styles
         translator_cfg = styles.translator['default'] # ToDo: create translator according to settings, eg. Braille
         if style.endswith('0'):
             wrapper_cfg = styles.wrappers['simple'] # ToDo: as before
         else:
             wrapper_cfg = styles.wrappers['indent2']
-        return Frame(parent = parent, content = ContentManager(wrapper = wrapper_cfg,
+        return Frame(parent = self.parent,
+        x_anchor = self.parent, y_anchor = self.previous,
+        content = ContentManager(wrapper = wrapper_cfg,
             translator = translator_cfg),
             **frame_cfg)
         
 
     def visit_document(self, node):
         self.root = RootFrame() # ToDo: make it customizable, eg. by passing page settings
-        self.current = self.root
         self.parent = self.root
+        self.previous = self.root
+        self.section_level = 0
 
     
     
@@ -83,30 +88,46 @@ class TxtVisitor(NodeVisitor):
     def visit_paragraph(self, node):
         # determine context and set style accordingly
         index = node.parent.index(node)
-        if isinstance(node.parent, nodes.document) or isinstance(node.parent, nodes.section):
-            element_style = 'normal'
-        else:
-            element_style = 'default'
-        if index == 0: element_style += '0'
-        self.previous = self.current
-        self.current = self.get_frame(element_style, self.parent)
-        self.current.x_anchor = self.current.parent
+        element_style = 'body1'
+        current = self.getFrame(element_style)
         if index == 0:
-            self.current.y_anchor = self.current.parent
-            self.current.y_hook = 'top'
+            current.update(y_hook = 'top')
+            current.content.wrapper_cfg['initial_indent'] = '  '
         else:
-            self.current.y_anchor = self.previous
-            self.current.y_hook = 'bottom'
+            current.update(y_hook = 'bottom')
+        self.previous = current
             
             
     def depart_paragraph(self, node): pass
         
-    
+    def visit_section(self, node):
+        self.section_level += 1
+        
+        
+        
+    def depart_section(self, node):
+        self.section_level -= 1
+        
+        
+        
     def visit_Text(self, node):
-         self.current.content.elements.append(GenericText(content = node.astext()))
+         self.previous.content += GenericText(content = node.astext())
 
         
     def depart_Text(self, node): pass
 
-        
+    def visit_title(self, node):
+        if isinstance(node.parent, nodes.section):
+            frame_style = 'heading' + str(self.section_level)
+            try:
+                current = self.getFrame(frame_style)
+            except KeyError:
+                    current = self.getFrame('default_heading')
+            # first frame within this parent frame?
+            if self.previous == self.parent:
+                current.update(y_hook = 'top')
+            else:
+                current.update(y_hook = 'bottom')
+            self.previous = current
 
+    def depart_title(self, node): pass
