@@ -1,6 +1,6 @@
 # Transcribo - a library to convert various document formats into plain text
 
-__all__ = ['core', 'contenttypes', 'lines', 'singleton']
+__all__ = ['RootFrame', 'Frame', 'content']
 
 from transcribo import logger
 from lines import Line
@@ -8,13 +8,7 @@ from lines import Line
 
 
 class RenderingError(Exception):
-    def __init__(self, message, *values):
-        self.message = message
-        self.values = values
-        
-    def __str__(self):
-        s = self.message % self.values
-        return repr(s)
+    pass
 
 
 
@@ -61,7 +55,11 @@ class BuildingBlock:
             raise TypeError('Argument must be of type int, not %s.' % type(key))
 
         
-        
+    def __len__(self):
+        return len(self.children)
+       
+       
+       
             
 class Frame(BuildingBlock):
     '''Represents a rectangular area within the rendered document.
@@ -120,7 +118,7 @@ class Frame(BuildingBlock):
         if self.x_hook == 'left': pass # this could be omitted, but it's more clear.
         elif self.x_hook == 'right':
             result = result + self.x_anchor.width()
-        elif x_hook == 'center':
+        elif self.x_hook == 'center':
             result += self.x_anchor.width() // 2
         return result
 
@@ -152,16 +150,27 @@ class Frame(BuildingBlock):
             return len(self.lines) + self.lines_below
         else:
             return max([(c.y() - self.y() + c.height()) for c in self.children]) + self.lines_below
+            
+            
+    def get_max_width(self):
+        result = self.parent.width() - (self.x() - self.parent.x()) - self.right_indent
+        return result
 
 
     def width(self):
         '''return the actual width of the frame'''
         if self.width_mode == 'fixed':
-            return self.max_width
-        if self.lines:
+            if self.max_width:
+                return self.max_width
+            else: 
+                return self.get_max_width()
+        # so width_mode must be auto, so take the width of the content or the biggest child frame
+        elif self.lines:
             return max([len(l) for l in self.lines])
+        elif isinstance(self[0], Frame):
+            return             max([(child.x() - self.x() + child.width()) for child in self])
         else:
-            return             max([(c.x() - self.x() + c.width()) for c in self.children])
+            raise FrameError('Cannot calculate width.')
 
 
     def render(self):
@@ -171,21 +180,22 @@ class Frame(BuildingBlock):
         if not self.children:
             raise RenderingError, 'Nothing to render.'
 
-        # calculate max_width 
+ 
         if not self.max_width:
-            self.max_width = self.parent.width() - (self.x() - self.parent.x()) - self.right_indent
+            self.max_width = self.get_max_width()
+            
 
 
      # render any content
         if not isinstance(self[0], Frame):
             self.lines= self[0].render(width = self.max_width)
-            # logger.debug('Rendered lines %s ... %s' % (self.lines[0].content, self.lines[-1].content))
+            logger.debug('Rendered lines %s ... %s' % (self.lines[0], self.lines[-1]))
             
             
         # render any children
         else:
-            for c in self.children:
-                c.render()
+            for child in self:
+                child.render()
 
 
 
@@ -220,7 +230,8 @@ class RootFrame(BuildingBlock):
     def store(self, content, x, y):
         while len(self.cache) - 1 < y: self.cache.append(u'')
         if len(self.cache[y]) > x:
-            raise LineStorageError('Line in cache is too long. (content = %s; length = %d)', self.cache[y], len(self.cache[y]))
+            raise LineStorageError('Line in cache is too long. (content = %s; length = %d, x = %d, y = %d)'
+            % (self.cache[y], len(self.cache[y]), x, y))
         self.cache[y] = self.cache[y].ljust(x)
         self.cache[y] += content
 

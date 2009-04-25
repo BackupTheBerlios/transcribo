@@ -97,15 +97,64 @@ frames = dict(
         width_mode = 'fixed',
         max_height = 0,
         height_mode = 'auto'
+    ),
+    list_container = dict(
+        x_align = 'left',
+        x_hook = 'left',
+        x_offset = 0,
+        y_align ='top',
+        y_hook = 'top',
+        y_offset = 0,
+        right_indent = 0,
+        lines_below = 0,
+        max_width = 0,
+        width_mode = 'fixed',
+        max_height = 0,
+        height_mode = 'auto'
+    ),
+    list_body = dict(
+        x_hook = 'right',
+        x_offset = 3,
+        y_hook = 'bottom',
+        y_offset = 0
+    ),
+    list_item_container = dict(
+        x_align = 'left',
+        x_hook = 'leftt',
+        x_offset = 0,
+        y_align ='top',
+        y_hook = 'top',
+        y_offset = 0,
+        right_indent = 0,
+        lines_below = 0,
+        max_width = 0,
+        width_mode = 'fixed',
+        max_height = 0,
+        height_mode = 'auto'
+    ),
+    list_item = dict(
+        x_align = 'left',
+        x_hook = 'leftt',
+        x_offset = 0,
+        y_align ='top',
+        y_hook = 'top',
+        y_offset = 0,
+        right_indent = 0,
+        lines_below = 0,
+        max_width = 0,
+        width_mode = 'auto',
+        max_height = 1,
+        height_mode = 'fixed'
     )
 )
+
 frames['default_heading'] = frames['heading3']
 
 
 
 ContentMan = dict(
     body1_indent = dict(
-        wrapper = wrappers['indent2']
+        wrapper = wrappers['simple']
     ),
     body1 = dict(
         wrapper = wrappers['simple']
@@ -118,8 +167,9 @@ ContentMan = dict(
 )
 
 
+BulletSymbols = ['-', '-', '+', '*']
 
-# map docutils nodes to styles
+# map docutils nodes to styles. Used by getFrame()
 
 frame = dict(
     body1 = frames['body1'],
@@ -127,7 +177,11 @@ frame = dict(
     heading2 = frames['heading2'],
     heading3 = frames['heading3'],
     default_heading = frames['heading3'],
-    default = frames['body1']
+    default = frames['body1'],
+    list_container = frames['list_container'],
+    list_item = frames['list_item'],
+    list_body = frames['list_body'],
+    list_item_container = frames['list_item_container']
 )
 
 translator = dict(yabt2 = translators['yabt2'], default = None, heading1 = translators['upper'], body1 = None, heading2 = None)
