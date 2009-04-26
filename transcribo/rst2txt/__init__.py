@@ -9,6 +9,7 @@ rst2txt - Docutils writer component for text rendering using Transcribo
 import docutils.writers
 from docutils import frontend, nodes
 from docutils.nodes import Node, NodeVisitor
+import numbers
 from transcribo.renderer import RootFrame, Frame
 from transcribo.renderer.content import ContentManager, GenericText
 import styles
@@ -59,10 +60,19 @@ class Writer(docutils.writers.Writer):
 
 class TxtVisitor(NodeVisitor):
 
-    def getContentManager(self, style):
-        content_cfg = styles.content[style]
-        translator_cfg = styles.translator[style]
-        wrapper_cfg = styles.wrappers['simple'] # make all this configurable!
+    def getContentManager(self, content_style = 'default', translator_style = 'default', wrapper_style = 'default'):
+        try:
+            content_cfg = styles.content[content_style]
+        except KeyError:
+            content_cfg = styles.content['default']
+        try:
+            translator_cfg = styles.translators[translator_style]
+        except KeyError:
+            translator_cfg = styles.translators['default']
+        try:
+            wrapper_cfg = styles.wrappers[wrapper_style]
+        except KeyError:
+            wrapper_cfg = styles.wrappers['default']
         return ContentManager(wrapper = wrapper_cfg,
             translator = translator_cfg,
             **content_cfg)
@@ -81,7 +91,6 @@ class TxtVisitor(NodeVisitor):
         
 
     def visit_bullet_list(self, node):
-        self.list_level += 1
         newFrame = self.getFrame('list_container')
         if self.parent is not self.currentFrame:
             newFrame.update(x_anchor = self.currentFrame)
@@ -89,7 +98,6 @@ class TxtVisitor(NodeVisitor):
         
         
     def depart_bullet_list(self, node):
-        self.list_level -= 1
         self.currentFrame = self.parent
         self.parent = self.parent.parent
         
@@ -101,13 +109,23 @@ class TxtVisitor(NodeVisitor):
         self.parent = self.root
         self.currentFrame = self.root
         self.section_level = 0
-        self.list_level = 0
 
     
     
     def depart_document(self, node):
             self.output = self.root.render()
-            
+
+    def visit_enumerated_list(self, node):
+        newFrame = self.getFrame('list_container')
+        if self.parent is not self.currentFrame:
+            newFrame.update(x_anchor = self.currentFrame)
+        self.currentFrame = self.parent = newFrame
+
+
+    def depart_enumerated_list(self, node):
+        self.currentFrame = self.parent
+        self.parent = self.parent.parent
+
             
     def visit_list_item(self, node):
         # First create a container frame for the whole item. Its first child}
@@ -115,9 +133,17 @@ class TxtVisitor(NodeVisitor):
         newFrame = self.getFrame('list_item_container')
         self.parent = self.currentFrame = newFrame
         newFrame = self.getFrame('list_item')
-        translator_cfg = styles.translator['default']
-        itemtext = styles.BulletSymbols[self.list_level - 1]
-        newText = GenericText(text = itemtext, translator = translator_cfg)
+        if isinstance(node.parent, nodes.bullet_list):
+            itemtext = node.parent['bullet']
+        else: # enumerated_list
+            itemtext = node.parent['prefix']
+            func = getattr(numbers, 'to_' + node.parent['enumtype'])
+            number = node.parent.index(node) + 1
+            if node.parent.hasattr('start'):
+                number += node.parent['start']
+            itemtext += func(number)
+            itemtext += node.parent['suffix']
+        newText = GenericText(text = itemtext, translator = styles.translators['default']) # write a getGenericText factory function?
         content = ContentManager()
         content += newText
         newFrame += content
@@ -140,7 +166,7 @@ class TxtVisitor(NodeVisitor):
             newFrame.update(x_anchor = self.parent[0])
             if len(self.parent) == 2:
                 newFrame.update(y_hook = 'top')
-        self.currentContent = self.getContentManager('body1')
+        self.currentContent = self.getContentManager()
         newFrame += self.currentContent
         self.currentFrame = newFrame
 
@@ -166,7 +192,7 @@ class TxtVisitor(NodeVisitor):
     def depart_Text(self, node): pass
 
     def visit_title(self, node):
-        if isinstance(node.parent, nodes.section):
+        if isinstance(node.parent, nodes.section) or isinstance(node.parent, nodes.document):
             frame_style = 'heading' + str(self.section_level)
             newFrame = self.getFrame(frame_style)
             # first frame within this parent frame?
@@ -174,7 +200,7 @@ class TxtVisitor(NodeVisitor):
                 newFrame.update(y_hook = 'top')
             else:
                 newFrame.update(y_hook = 'bottom')
-            self.currentContent = self.getContentManager(frame_style)
+            self.currentContent = self.getContentManager()
             newFrame += self.currentContent
             self.currentFrame = newFrame
         else:

@@ -4,6 +4,7 @@
 """Styles for frames, ContentManagers and such like."""
 
 translators = dict(
+    default = None,
     yabt2 = dict(
         module_name = 'translator',
         class_name = 'YABTrans',
@@ -23,7 +24,7 @@ wrappers = dict(
         class_name = 'TextWrapper',
         initial_indent = '  '
     ),
-    simple = dict(
+    default = dict(
         module_name = 'textwrap',
         class_name = 'TextWrapper'
     )
@@ -32,6 +33,9 @@ wrappers = dict(
 
 content = dict(
     default = dict(),
+    heading0 = dict(
+        x_align = 'center'
+    ),
     heading1 = dict(
         x_align = 'center'
     ),
@@ -148,26 +152,7 @@ frames = dict(
     )
 )
 
-frames['default_heading'] = frames['heading3']
 
-
-
-ContentMan = dict(
-    body1_indent = dict(
-        wrapper = wrappers['simple']
-    ),
-    body1 = dict(
-        wrapper = wrappers['simple']
-    ),
-    heading1 = dict(
-        align = 'center',
-        translator = translators['upper'],
-        wrapper = wrappers['simple']
-    )
-)
-
-
-BulletSymbols = ['-', '-', '+', '*']
 
 # map docutils nodes to styles. Used by getFrame()
 
@@ -176,7 +161,7 @@ frame = dict(
     heading1 = frames['heading1'],
     heading2 = frames['heading2'],
     heading3 = frames['heading3'],
-    default_heading = frames['heading3'],
+    heading0 = frames['heading1'], # for document title
     default = frames['body1'],
     list_container = frames['list_container'],
     list_item = frames['list_item'],
@@ -184,4 +169,3 @@ frame = dict(
     list_item_container = frames['list_item_container']
 )
 
-translator = dict(yabt2 = translators['yabt2'], default = None, heading1 = translators['upper'], body1 = None, heading2 = None)
