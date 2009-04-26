@@ -32,11 +32,15 @@ consists of two subpackages:
 In combination with the renderer, this will be a Writer component for Docutils (http://docutils.sourceforge.net/).
 Once finished, it will allow to render
 reStructuredText files as plain text. At the same time it demonstrates how the renderer (see below) can be
-used. rst2txt roughly maps the nodes of the Docutils doctree to Frame instances.
+used. rst2txt roughly maps the nodes of the Docutils doctree to Frame instances that form a fram tree. However, the frame tree
+has a somewhat different structure than the docutils doc tree as frames do not
+necessarily reflect the document structure. E.g., sections are not rendered as parent frames of the section content,
+but at the same level.
 
-Note: Currently, rst2txt is heavily under construction. Do not use it at this stage.
-To see the renderer at work, run the test script in the test/ subdirectory.
+The rst2txt package is heavily under construction. Currently, the following
+node types are supported:
 
+document, title, section, paragraph, text, bullet_list, enumerated_list, list_item
 
 
 1.2 The renderer
@@ -50,12 +54,13 @@ complete abstraction of layout and content.
     rectangular area within the final output. Its position and size are determined dynamically
     relative to other frames during the rendering process. Frames can be nested.
     The RootFrame instance controls the rendering process and assembles the line
-    snippits rendered by each frame to form complete text lines. This allows
+    snippets rendered by each frame to form complete text lines. This allows
     things like multiple columns, nested enumerations etc. In future versions,
     the RootFrame will also control pagination features.
     
-*   Content: Leafs of the tree of Frame instances store the actual content, i.e. text,
-    mathematical expressions, MusicXML etc. Currently, only GenericText is supported.
+*   Content: Leafs of the tree of Frame instances store the actual content within a
+    content.ContentManager instance which, in turn, may store various content elements such as
+    text, mathematical expressions, MusicXML etc. Currently, only GenericText is supported.
     More precisely, each leaf Frame must have a ContentManager instance which controls the
     rendering of the content it contains. Each content element is rendered separately.
     A special feature is the possibility to attach a translator instance to each
@@ -64,7 +69,7 @@ complete abstraction of layout and content.
     for wrapping and hyphenating the content, if required.
     
 All aforementioned features are highly configurable through dictionaries passed to the
-constructors. Future versions should support configuration through JSON files.
+constructors. 
     
     
 2. the Frame API
@@ -77,4 +82,22 @@ constructors. Future versions should support configuration through JSON files.
 ==============================
 
 (to be completed; meanwhile please see the documented sources and the test.py script)
+
+
+
+4. Testing
+==============
+
+The tst subdirectory contains two test scripts that should work out of the box:
+
+* test.py: demonstrates the renderer API by rendering a nested enumeration.
+* rst2txt.py is a command line tool. A demo text file shows some of the features of the rst2txt writer.
+
+
+
+5. Contributing
+==================
+
+Development is in an early stage. Any help is very much appreciated. Feel free to join the mailing
+list, check out the Mercurial repository and start coding, 
 
