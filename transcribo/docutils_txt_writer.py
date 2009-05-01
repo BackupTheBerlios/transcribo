@@ -9,10 +9,10 @@ rst2txt - Docutils writer component for text rendering using Transcribo
 import docutils.writers
 from docutils import frontend, nodes
 from docutils.nodes import Node, NodeVisitor
-import numbers
-from transcribo.renderer import RootFrame, Frame
+from transcribo.renderer import RootFrame, Frame, page, styles
 from transcribo.renderer.content import ContentManager, GenericText
-import styles
+
+from transcribo import logger
 
 
 
@@ -21,12 +21,12 @@ class Writer(docutils.writers.Writer):
 
     supported = ('brl',)
     
-    config_section = 'rst2txt'
+    config_section = 'docutils_txt_writer'
 
     config_section_dependencies = ('writers',)
     
     settings_specs = (
-        ('rst2txt', 'no description on this item',
+        ('docutils_txt_writer', 'no description on this item',
             (
                 (
                     "Braille translation, default is 'no'",
@@ -37,7 +37,7 @@ class Writer(docutils.writers.Writer):
                     }
                 ),
                 (
-                    "Pagination, default is 'no''",
+                    "Page width, default is 'no''",
                     ('--pagination', '-PG'),
                     {'default': 'no',
                         'action': 'store_false',
@@ -60,13 +60,23 @@ class Writer(docutils.writers.Writer):
 
 class TxtVisitor(NodeVisitor):
 
+    def __init__(self, document):
+        nodes.NodeVisitor.__init__(self, document)
+        self.settings = document.settings
+        
+        
+        
+
     def getContentManager(self, content_style = 'default', translator_style = 'default', wrapper_style = 'default'):
         try:
             content_cfg = styles.content[content_style]
         except KeyError:
             content_cfg = styles.content['default']
         try:
-            translator_cfg = styles.translators[translator_style]
+            if self.settings.braille == 'yes':
+                translator_cfg = styles.translators['yabt2']
+            else:
+                translator_cfg = styles.translators['default']
         except KeyError:
             translator_cfg = styles.translators['default']
         try:
@@ -105,7 +115,7 @@ class TxtVisitor(NodeVisitor):
         
 
     def visit_document(self, node):
-        self.root = RootFrame() # ToDo: make it customizable, eg. by passing page settings
+        self.root = RootFrame()
         self.parent = self.root
         self.currentFrame = self.root
         self.section_level = 0
@@ -137,10 +147,10 @@ class TxtVisitor(NodeVisitor):
             itemtext = node.parent['bullet']
         else: # enumerated_list
             itemtext = node.parent['prefix']
-            func = getattr(numbers, 'to_' + node.parent['enumtype'])
+            func = getattr(page, 'to_' + node.parent['enumtype'])
             number = node.parent.index(node) + 1
             if node.parent.hasattr('start'):
-                number += node.parent['start']
+                number += node.parent['start'] - 1
             itemtext += func(number)
             itemtext += node.parent['suffix']
         newText = GenericText(text = itemtext, translator = styles.translators['default']) # write a getGenericText factory function?

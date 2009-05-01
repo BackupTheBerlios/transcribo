@@ -31,8 +31,7 @@ arg_dict = dict(
         'Programming Language :: Python',
                 'Topic :: Text Processing',
     ],
-    packages = ['transcribo', 'transcribo.renderer', 'transcribo.rst2txt'],
-    package_data = {'transcribo.rst2txt':['docutils.conf']},
+    packages = ['transcribo', 'transcribo.renderer']
 )
 
 

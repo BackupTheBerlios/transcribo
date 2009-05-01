@@ -7,7 +7,7 @@ except:
 
 from docutils.core import publish_cmdline, default_description
 
-from transcribo import rst2txt
+from transcribo import docutils_txt_writer
 
-publish_cmdline(writer = rst2txt.Writer(), description = default_description)
+publish_cmdline(writer = docutils_txt_writer.Writer(), description = default_description)
 
