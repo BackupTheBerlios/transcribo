@@ -2,17 +2,14 @@
 
 
 class Line:
-    def __init__(self, text, commands = None, ref = [], targets = []):
-        self.text= text
-        self.commands = commands
-        self.ref = ref
-        self.targets = targets
-    
+    def __init__(self, elements):
+        self.elements = elements
+        
     def __len__(self):
-        return len(self.text)
+        return sum((len(e) for e in self.elements))
         
     def __str__(self):
-        return self.text
+        return ''.join((str(e) for e in self.elements))
         
         
         

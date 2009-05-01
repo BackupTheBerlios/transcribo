@@ -51,17 +51,43 @@ class Paginator:
     def get_width(self):
         return self.width - self.left_margin - self.inner_margin - self.right_margin
         
+    def gross_length(self):
+        return self.length - self.top_margin - self.bottom_margin
         
+    def net_length(self):
+        result = self.gross_length()
+        if self.header: result -= 1
+        if self.footer: result -= 1
+        return result
+        
+    def page_no(self, line_index):
+        return line_index // self.net_page_length()
+    
 
 
 class PageNumber:
-    def __init__(self, start = 1, format = 'arabic',
-        prefix = '', suffix = '', position = 'up-right', first_page = False):
-        
+
+
+
+    def __init__(self, paginator = None, start = 1, format = 'arabic',
+            prefix = '', suffix = '', position = 'up-right', first_page = False):
+
+        self.paginator = paginator
         self.start = start
         self.prefix = prefix
         self.suffix = suffix
         self.count = start
         self.position = position
+        self.converters = dict(arabic = to_arabic,
+            loweralpha = to_loweralpha, upperalpha = to_upperalpha,
+            lowerroman = to_lowerroman,
+            upperroman = to_upperroman)
         
         
+    def as_string(page_number):
+        return ''.join((self.prefix,
+            self.converters[self.format](page_number),
+            self.suffix))
+        
+
+    

@@ -11,7 +11,6 @@ from docutils import frontend, nodes
 from docutils.nodes import Node, NodeVisitor
 from transcribo.renderer import RootFrame, Frame, page, styles
 from transcribo.renderer.content import ContentManager, GenericText
-
 from transcribo import logger
 
 
@@ -26,22 +25,20 @@ class Writer(docutils.writers.Writer):
     config_section_dependencies = ('writers',)
     
     settings_specs = (
-        ('docutils_txt_writer', 'no description on this item',
+        ('Options specific to  Transcribo`s docutils_txt_writer', 'no description on this item',
             (
                 (
                     "Braille translation, default is 'no'",
                     ('--braille', '-brl'),
                     {'default': 0,
-                        'action': 'store_true',
-                        'validator': frontend.validate_boolean
+                        'type': 'int'
                     }
                 ),
                 (
-                    "Page width, default is 'no''",
-                    ('--pagination', '-PG'),
-                    {'default': 'no',
-                        'action': 'store_false',
-                        'validator': frontend.validate_boolean
+                    "Page width, default is 60'",
+                    ('--page_width'),
+                    {'default': 60,
+                        'type': 'int'
                     }
                 )
             )
@@ -63,6 +60,10 @@ class TxtVisitor(NodeVisitor):
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = document.settings
+        # Convert some settings to int
+        for s in ['braille', 'page_width']:
+            v = getattr(self.settings, s)
+            setattr(self.settings, s, int(v))
         
         
         
@@ -73,7 +74,7 @@ class TxtVisitor(NodeVisitor):
         except KeyError:
             content_cfg = styles.content['default']
         try:
-            if self.settings.braille == 'yes':
+            if self.settings.braille == 2:
                 translator_cfg = styles.translators['yabt2']
             else:
                 translator_cfg = styles.translators['default']
@@ -115,7 +116,7 @@ class TxtVisitor(NodeVisitor):
         
 
     def visit_document(self, node):
-        self.root = RootFrame()
+        self.root = RootFrame(max_width = self.settings.page_width)
         self.parent = self.root
         self.currentFrame = self.root
         self.section_level = 0

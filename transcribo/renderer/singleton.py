@@ -21,9 +21,9 @@ def get_singleton(**args):
         for k, v in args2.items():
             if isinstance(v, dict) and 'module_name' in v:
                 args2[k] = get_singleton(**v)
-    m = __import__(module_name, globals(), locals(), [class_name], -1)
-    c = getattr(m, class_name)
-    result = c(**args2)
-    register.append([args, result])
-    return result
+        m = __import__(module_name, globals(), locals(), [class_name], -1)
+        c = getattr(m, class_name)
+        result = c(**args2)
+        register.append([args, result])
+        return result
         
