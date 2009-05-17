@@ -5,14 +5,10 @@
 
 translators = dict(
     default = None,
-    yabt2 = dict(
-        module_name = 'translator',
-        class_name = 'YABTrans',
-        state = 2
-    ),
+    en_UK = dict(
+        class_path = 'translators.YABTrans2'),
     upper = dict(
-        module_name = 'translator',
-        class_name = 'UpperTrans'
+        class_path = 'translators.UpperTrans'
     )
 )
 
@@ -20,19 +16,18 @@ translators = dict(
 
 wrappers = dict(
     indent2 = dict(
-        module_name = 'textwrap',
-        class_name = 'TextWrapper',
+        class_path = 'textwrap.TextWrapper',
         initial_indent = '  '
     ),
-    default = dict(
-        module_name = 'textwrap',
-        class_name = 'TextWrapper'
+    simple = dict(
+        class_path = 'textwrap.TextWrapper'
     )
 )
 
 
+
 content = dict(
-    default = dict(),
+    simple = dict(),
     heading0 = dict(
         x_align = 'center'
     ),
@@ -155,6 +150,7 @@ frames = dict(
 
 
 # map docutils nodes to styles. Used by getFrame()
+# somewhat questionable. to be rethought.
 
 frame = dict(
     body1 = frames['body1'],

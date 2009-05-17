@@ -1,13 +1,21 @@
-from transcribo import logger
-from transcribo.renderer import BuildingBlock
-from lines import Line
-from singleton import get_singleton
+
 
 """This module contains the ContentManager class and various content classes
 to be passed on to a ContentManager instance. Each leaf frame must have exactly
-one ContentManager instance to render. Each ContentManager stores at least one
+ one ContentManager instance to render. Each ContentManager stores at least one
 content object in its children attribute as list items.
 """
+
+
+
+
+from transcribo import logger
+from transcribo.renderer import BuildingBlock, environment as env
+from lines import Line
+from singleton import get_singleton
+from references import Reference, Target
+
+
 
 
 class ContentManager(BuildingBlock):
@@ -16,17 +24,18 @@ class ContentManager(BuildingBlock):
     ContentManager or one or more child frames. So a ContentManager renders
     the content of a leaf frame.'''
 
-    def __init__(self,
-        wrapper = {'module_name': 'textwrap', 'class_name': 'TextWrapper'},
+    def __init__(self, parent = None,
+        wrapper = None,
         translator = None, x_align = 'left'):
 
         BuildingBlock.__init__(self)
+            self.parent = parent
         self.wrapper_cfg = wrapper
         self.translator_cfg = translator
         self.x_align = x_align
-        
-        
 
+        
+        
     def render(self, width):
         # Instantiate the wrapper. This is obligatory.
         self.wrapper_cfg['width'] = width
@@ -41,27 +50,51 @@ class ContentManager(BuildingBlock):
         else:
             self.translator = None
             
-        # Render each element and puth the results together. Future versions
+        # Render each element and put the results together. Future versions
         # may need to handle other content types.
-        concat_children = ''.join([e.render()  for e in self])
+        raw_content = []
+        refs = []
+        count = 0
+        for child in self:
+            tmp = child.render()
+            if isinstance(tmp, unicode) or isinstance(tmp, str):
+                raw_content.append(tmp)
+                
+            # unresolved references have returned themselves rather than a string:
+            # a placeholder will be inserted instead and the reference instances will be
+            # stored separately to be rendered finally upon pagination.
+            else:
+                refs.append(tmp)
+                raw_content.append(str(count).join(('\{', '}')))
+                count += 1
+
+
+        # Translate the frame's content altogether, if required,
+        # skipping any placeholders for later substitution.
+        if self.translator:
+            for i in range(len(raw_content)):
+                if not raw_content[i].startswith('\}'_
+                    raw_content[i] = self.translator.run(raw_content[i])
         
-        # Translate the frame's content altogether, if required
-        if self.translator: concat_children = self.translator.run(concat_children)
+        raw_content = ''.join(raw_content)
         
         # and wrap it using the wrapper instance. Hyphenation can be implemented using
         # PyHyphen and textwrap2. But by default, the textwrap standard module is used.
-        wrapped = self.wrapper.wrap(concat_children)
+        raw_content = self.wrapper.wrap(raw_content)
         
-        # alignment
-        if self.x_align == 'right':
-            for i in range(len(wrapped)): wrapped[i] = wrapped[i].rjust(width)
-        elif self.x_align == 'center':
-            for i in range(len(wrapped)): wrapped[i] = wrapped[i].center(width)
-            
+        # Get the lines cache:
+        root = self.parent
+        while not hasattr(root, 'cache'): root = root.parent
+        
         # pack the strings into Line objects. Future versions will
         # handle non-string content such as references, inline-commands etc.
-        result = [Line(w) for w in wrapped]
-        return result
+        for l in raw_content:
+            # Handle references
+            c = l.count('\{')
+            r = refs[:c]
+            root.cache.append(Line(l, self.width, self.parent, self.x_align, refs = r))
+            refs[:c] = []
+        return len(raw_content)
 
 
 class GenericText:
@@ -82,5 +115,35 @@ class GenericText:
             return self.translator.run(self.text)
         else:
             return self.text
+
+
+
+class PageRef(Reference):
+    '''Page number of the instance itself or an optional target'''
+    
+    def __init__(self, id = None, translator = None):
+        Reference.__init__(self, id)
+                if not id:
+            self.translator_cfg = translator
+            
+
+    def render(self, line_num = None):
+        if line_num:
+            if self.translator_cfg:
+                self.translator = get_singleton(self.translator_cfg)
+            else: self.translator = None
+            p = env.paginator
+            result = p..as_string(p.line2page(line_num))
+            if self.translator:
+                return self.translator(result)
+            else:
+                return result
+        else:
+            return None
+        
+        
+
+
+
 
         

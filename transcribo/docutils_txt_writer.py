@@ -9,7 +9,8 @@ rst2txt - Docutils writer component for text rendering using Transcribo
 import docutils.writers
 from docutils import frontend, nodes
 from docutils.nodes import Node, NodeVisitor
-from transcribo.renderer import RootFrame, Frame, page, styles
+from transcribo.renderer.frames import RootFrame, Frame
+from transcribo.renderer import pages, styles, environment as env
 from transcribo.renderer.content import ContentManager, GenericText
 from transcribo import logger
 
