@@ -8,7 +8,7 @@ content object in its children attribute as list items.
 
 
 
-
+import bisect
 from transcribo import logger
 from transcribo.renderer import BuildingBlock, environment as env
 from lines import Line
@@ -33,10 +33,13 @@ class ContentManager(BuildingBlock):
         self.wrapper_cfg = wrapper
         self.translator_cfg = translator
         self.x_align = x_align
+        self.render_count = 0
 
         
         
     def render(self, width):
+        self.render_count += 1 # count number of calls of render for efficiency reasons.
+        
         # Instantiate the wrapper. This is obligatory.
         self.wrapper_cfg['width'] = width
         self.wrapper = get_singleton(**self.wrapper_cfg)
@@ -83,16 +86,20 @@ class ContentManager(BuildingBlock):
         raw_content = self.wrapper.wrap(raw_content)
         
         # Get the lines cache:
-        root = self.parent
+        root = self.parent.parent
         while not hasattr(root, 'cache'): root = root.parent
-        
+
+        # in case this frame has already been rendered, remove the lines from the cache.
+        if self.render_count > 1:
+            for l in [i for i in cache if i.frame == self.parent]:
+                cache.remove(l)
         # pack the strings into Line objects. Future versions will
         # handle non-string content such as references, inline-commands etc.
         for l in raw_content:
             # Handle references
             c = l.count('\{')
             r = refs[:c]
-            root.cache.append(Line(l, self.width, self.parent, self.x_align, refs = r))
+            bisect.insert(root.cache, Line(l, self.width, raw_content.index(l), self.parent, self.x_align, refs = r))
             refs[:c] = []
         return len(raw_content)
 

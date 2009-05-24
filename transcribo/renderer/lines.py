@@ -2,10 +2,11 @@
 
 
 class Line:
-    def __init__(self, text, width, home, alignn = 'left', refs = None):
+    def __init__(self, text, width, number, frame, alignn = 'left', refs = None):
         self.raw_text = text
         self.wicth = width
-        self.home = home
+            self.number = number
+        self.frame = frame
         self.alignn = alignn
         self.refs = refs
         
@@ -26,6 +27,19 @@ class Line:
              self.text = self.text.center(self.width)
         return self.text
 
+    def x(self):
+        return self.frame.x()
+        
+    def y(self):
+        return self.frame.y() + self.number
+        
+    def __cmp__(self, a, b):
+        if a.y() < b.y(): return -1
+        elif a.y() > b.y(): return 1
+        elif a.x() < b.x(): return -1
+        elif a.x() > b.x(): return 1
+        else: return 0
+        
         
         
         

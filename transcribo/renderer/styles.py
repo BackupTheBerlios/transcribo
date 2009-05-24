@@ -165,3 +165,18 @@ frame = dict(
     list_item_container = frames['list_item_container']
 )
 
+page_spec = dict(
+    default = dict(
+        width = 40,
+        length = 60,
+        left_margin = 2,
+        right_margin = 1,
+        inner_margin = 2,
+        top_margin = 2,
+        bottom_margin = 1,
+        duplex = False
+    )
+)
+
+
+        

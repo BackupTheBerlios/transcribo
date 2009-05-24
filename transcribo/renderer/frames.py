@@ -227,40 +227,11 @@ class RootFrame(BuildingBlock):
         else:
             return self.max_width
 
-    def store(self, content, x, y):
-        # add blank lines, if cache is too small to store current line.
-        while len(self.cache) - 1 < y: self.cache.append([u''])
-        
-        # check if line is already too long to store the new content.
-        if sum((len(piece) for piece in self.cache[y])) > x:
-            raise LineStorageError('Line in cache is too long. (content = %s; length = %d, x = %d, y = %d)'
-            % (self.cache[y], len(self.cache[y]), x, y))
-        content.ljust(x)
-# rework this!!!
-
-
-    def get_physical_line_number(self, n):
-        '''return physical line number given the paginator settings.'''
-        
-    
-
-    def assemble(self, frame):
-        for c in frame.children:
-            if isinstance(c, Frame): self.assemble(c)
-        x = frame.x()
-        y = frame.y()
-        count = y
-        for l in frame.lines:
-            # handle page refs here. If necessary, re-render the whole frame with
-            # known page numbers.
-            self.get_physical_line_number(count)
-            self.store(l, x, count)
-            count += 1
-
 
     def render(self):
         for c in self.children: c.render()
-        for c in self.children: self.assemble(c)
+        # paginate the cache
+        result = pages.paginate(self.cache)
         return '\n'.join(self.cache)
 
 
