@@ -5,7 +5,7 @@ class Line:
     def __init__(self, text, width, number, frame, alignn = 'left', refs = None):
         self.raw_text = text
         self.wicth = width
-            self.number = number
+        self.number = number
         self.frame = frame
         self.alignn = alignn
         self.refs = refs

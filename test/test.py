@@ -7,20 +7,24 @@
 # transcribo/render/translator.py.
 
 
-from transcribo.renderer import RootFrame, Frame, logger
+from transcribo.renderer.frames import RootFrame, Frame
+from transcribo import logger
 from transcribo.renderer.content import ContentManager, GenericText
-from transcribo.renderer.page import Paginator
+from transcribo.renderer import styles, pages
 import unittest
 
 
 class TestRenderer(unittest.TestCase):
 
     def setUp(self):
-        self.root = RootFrame(max_width = 80)
+        self.paginator = pages.Paginator(page_spec = styles.pages['default'],
+        header_spec = None, footer_spec = styles.footers['default'],
+        translator_cfg = styles.translators['default'])
+        self.root = RootFrame(max_width = self.paginator.width)
         self.longtext = """This text is so long that it will\
                         span over multiple lines. This is useful to demonstrate the renderer's\
                         behavior when dealing with lists, enumerations and such like. Also, it may be useful to demonstrate\
-                        the effects of hyphenation and text wrapping."""
+                        the effects of hyphenation and text wrapping.""" * 10
         self.output = ''
             
 
@@ -85,15 +89,15 @@ class TestRenderer(unittest.TestCase):
         # will be invoked.
         
         translator_cfg = [None, # no translator
-            dict(module_name = 'translator', class_name = 'UpperTrans'), # uppercase translator
-            # dict(module_name = 'translator', class_name = 'YABTrans', state = 2), # Braille grade 2
+            dict(class_path = 'translators.UpperTrans'), # uppercase translator
+            # dict(class_path = 'translators.YABTrans', state = 2), # Braille grade 2
             None, None, None, None, None]
             
             # create the frames
         create(self.root, self.root, structure)
         
-        # and render them
-        self.output = '\n\n==========\n\n'.join((self.output, self.root.render()))
+        # create the pages
+        self.output = self.paginator.render(self.root.cache)
         self.assertEqual(True, True)
 
 

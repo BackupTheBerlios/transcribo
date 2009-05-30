@@ -29,7 +29,7 @@ class ContentManager(BuildingBlock):
         translator = None, x_align = 'left'):
 
         BuildingBlock.__init__(self)
-            self.parent = parent
+        self.parent = parent
         self.wrapper_cfg = wrapper
         self.translator_cfg = translator
         self.x_align = x_align
@@ -76,7 +76,7 @@ class ContentManager(BuildingBlock):
         # skipping any placeholders for later substitution.
         if self.translator:
             for i in range(len(raw_content)):
-                if not raw_content[i].startswith('\}'_
+                if not raw_content[i].startswith('\}'):
                     raw_content[i] = self.translator.run(raw_content[i])
         
         raw_content = ''.join(raw_content)
@@ -91,8 +91,11 @@ class ContentManager(BuildingBlock):
 
         # in case this frame has already been rendered, remove the lines from the cache.
         if self.render_count > 1:
-            for l in [i for i in cache if i.frame == self.parent]:
-                cache.remove(l)
+            i=0
+            while i < len(cache):
+                if cache[i].frame == self: cache.pop(i)
+            else: i += 1
+            
         # pack the strings into Line objects. Future versions will
         # handle non-string content such as references, inline-commands etc.
         for l in raw_content:
@@ -130,7 +133,7 @@ class PageRef(Reference):
     
     def __init__(self, id = None, translator = None):
         Reference.__init__(self, id)
-                if not id:
+        if not id:
             self.translator_cfg = translator
             
 
@@ -140,7 +143,7 @@ class PageRef(Reference):
                 self.translator = get_singleton(self.translator_cfg)
             else: self.translator = None
             p = env.paginator
-            result = p..as_string(p.line2page(line_num))
+            result = p.as_string(p.line2page(line_num))
             if self.translator:
                 return self.translator(result)
             else:

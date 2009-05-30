@@ -144,6 +144,20 @@ frames = dict(
         width_mode = 'auto',
         max_height = 1,
         height_mode = 'fixed'
+    ),
+    pagenum_right = dict(
+        x_align = 'right',
+        x_hook = 'right',
+        x_offset = 0,
+        y_align ='top',
+        y_hook = 'top',
+        y_offset = 0,
+        right_indent = 0,
+        lines_below = 0,
+        max_width = 0,
+        width_mode = 'auto',
+        max_height = 1,
+        height_mode = 'fixed'
     )
 )
 
@@ -165,7 +179,7 @@ frame = dict(
     list_item_container = frames['list_item_container']
 )
 
-page_spec = dict(
+pages = dict(
     default = dict(
         width = 40,
         length = 60,
@@ -174,9 +188,14 @@ page_spec = dict(
         inner_margin = 2,
         top_margin = 2,
         bottom_margin = 1,
-        duplex = False
+        page_break = '\n\n\n'
     )
 )
 
-
+footers = dict(
+    default = dict(
+        pagenum_cfg = frames['pagenum_right'],
+        pagenumcontent_cfg = content['simple']
+    )
+)
         

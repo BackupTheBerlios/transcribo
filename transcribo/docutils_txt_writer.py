@@ -10,7 +10,7 @@ import docutils.writers
 from docutils import frontend, nodes
 from docutils.nodes import Node, NodeVisitor
 from transcribo.renderer.frames import RootFrame, Frame
-from transcribo.renderer import pages, styles, environment as env
+from transcribo.renderer import pages, utils, styles, environment as env
 from transcribo.renderer.content import ContentManager, GenericText
 from transcribo import logger
 
@@ -117,7 +117,10 @@ class TxtVisitor(NodeVisitor):
         
 
     def visit_document(self, node):
-        self.root = RootFrame(max_width = self.settings.page_width)
+    self.paginator = pages.Paginator(page_spec = styles.pages['default'],
+        header_spec = None, footer_spec = styles.footers['default'],
+        translator_cfg = styles.translators['default']):
+        self.root = RootFrame(max_width = self.paginator.width)
         self.parent = self.root
         self.currentFrame = self.root
         self.section_level = 0
@@ -125,7 +128,9 @@ class TxtVisitor(NodeVisitor):
     
     
     def depart_document(self, node):
-            self.output = self.root.render()
+        cache = self.root.render()
+        self.output = self.paginator(cache)
+            
 
     def visit_enumerated_list(self, node):
         newFrame = self.getFrame('list_container')
@@ -149,7 +154,7 @@ class TxtVisitor(NodeVisitor):
             itemtext = node.parent['bullet']
         else: # enumerated_list
             itemtext = node.parent['prefix']
-            func = getattr(page, 'to_' + node.parent['enumtype'])
+            func = utils.__dict__['to_' + node.parent['enumtype']]
             number = node.parent.index(node) + 1
             if node.parent.hasattr('start'):
                 number += node.parent['start'] - 1

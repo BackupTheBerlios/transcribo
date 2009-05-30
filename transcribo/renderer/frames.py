@@ -3,7 +3,7 @@
 
 from transcribo import logger
 from lines import Line
-from renderer import environment as env
+from transcribo.renderer import environment as env
 
 
 
@@ -204,7 +204,7 @@ class RootFrame(BuildingBlock):
     rendered children. The RootFrame has just children and no content.
     Future versions may add pagination, footnotes etc.'''
     
-    def __init__(self, max_width = 60, paginator = None):
+    def __init__(self, max_width = 60):
 
         BuildingBlock.__init__(self)
         self.max_width = max_width
@@ -230,9 +230,7 @@ class RootFrame(BuildingBlock):
 
     def render(self):
         for c in self.children: c.render()
-        # paginate the cache
-        result = pages.paginate(self.cache)
-        return '\n'.join(self.cache)
+        return self.cache
 
 
 
