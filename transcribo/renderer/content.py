@@ -10,7 +10,7 @@ content object in its children attribute as list items.
 
 import bisect
 from transcribo import logger
-from transcribo.renderer import BuildingBlock, environment as env
+from transcribo.renderer.frames import BuildingBlock
 from lines import Line
 from singleton import get_singleton
 from references import Reference, Target
@@ -88,6 +88,7 @@ class ContentManager(BuildingBlock):
         # Get the lines cache:
         root = self.parent.parent
         while not hasattr(root, 'cache'): root = root.parent
+        cache = root.cache
 
         # in case this frame has already been rendered, remove the lines from the cache.
         if self.render_count > 1:
@@ -102,7 +103,7 @@ class ContentManager(BuildingBlock):
             # Handle references
             c = l.count('\{')
             r = refs[:c]
-            bisect.insert(root.cache, Line(l, self.width, raw_content.index(l), self.parent, self.x_align, refs = r))
+            bisect.insort(cache, Line(l, width, raw_content.index(l), self.parent, self.x_align, refs = r))
             refs[:c] = []
         return len(raw_content)
 
@@ -126,34 +127,3 @@ class GenericText:
         else:
             return self.text
 
-
-
-class PageRef(Reference):
-    '''Page number of the instance itself or an optional target'''
-    
-    def __init__(self, id = None, translator = None):
-        Reference.__init__(self, id)
-        if not id:
-            self.translator_cfg = translator
-            
-
-    def render(self, line_num = None):
-        if line_num:
-            if self.translator_cfg:
-                self.translator = get_singleton(self.translator_cfg)
-            else: self.translator = None
-            p = env.paginator
-            result = p.as_string(p.line2page(line_num))
-            if self.translator:
-                return self.translator(result)
-            else:
-                return result
-        else:
-            return None
-        
-        
-
-
-
-
-        

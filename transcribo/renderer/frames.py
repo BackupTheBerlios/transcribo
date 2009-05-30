@@ -3,7 +3,6 @@
 
 from transcribo import logger
 from lines import Line
-from transcribo.renderer import environment as env
 
 
 
@@ -141,7 +140,11 @@ class Frame(BuildingBlock):
             result = result + self.y_anchor.height() // 2
         return result
 
+
+    def get_max_width(self):
+        return self.parent.width() - self.x_offset - self.right_indent
         
+
     def height(self):
         '''return the actual frame height'''
         if self.height_mode == 'fixed':
@@ -150,11 +153,6 @@ class Frame(BuildingBlock):
             return self.lines + self.lines_below
         else:
             return max([(c.y() - self.y() + c.height()) for c in self.children]) + self.lines_below
-            
-            
-    def get_max_width(self):
-        result = self.parent.width() - (self.x() - self.parent.x()) - self.right_indent
-        return result
 
 
     def width(self):
@@ -170,12 +168,11 @@ class Frame(BuildingBlock):
         elif isinstance(self[0], Frame):
             return             max([(child.x() - self.x() + child.width()) for child in self])
         else:
-            raise FrameError('Cannot calculate width.')
+            raise RenderingError('Cannot calculate width.')
 
 
     def render(self):
-        '''render the frame's content or its child frames' content and store it
-        as a list of lines.Line instances in self.lines.'''
+        '''render the frame's content or its child frames' content '''
 
         if not self.children:
             raise RenderingError, 'Nothing to render.'
@@ -189,7 +186,6 @@ class Frame(BuildingBlock):
             # render the content frame and store the number of lines.
             # the lines themselves will be sent to the cache automatically.
             self.lines = self[0].render(width = self.max_width)
-            logger.debug('Rendered lines %s ... %s' % (self.lines[0], self.lines[-1]))
             
             
         # render any children
@@ -208,7 +204,6 @@ class RootFrame(BuildingBlock):
 
         BuildingBlock.__init__(self)
         self.max_width = max_width
-        self.paginator = paginator
         self.cache = []
 
 
@@ -222,10 +217,7 @@ class RootFrame(BuildingBlock):
         return 0 # any height allowed
 
     def width(self):
-        if self.paginator:
-            return self.paginator.get_width()
-        else:
-            return self.max_width
+        return self.max_width
 
 
     def render(self):
