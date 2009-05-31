@@ -33,14 +33,14 @@ class TestRenderer(unittest.TestCase):
     
         def create(outer, previous, symbols):
             # create frame containing the whole list
-            container_cfg = dict(parent = outer,
+            container_cfg = dict(
                 x_anchor = previous, x_align = 'left', x_hook = 'left', x_offset = 0,
                 y_anchor = previous, y_align = 'top', lines_below = 0,
                 max_width = 0, width_mode = 'fixed',
                 max_height = 0, height_mode = 'auto')
             if previous is outer: container_cfg.update(y_hook = 'top', y_offset = 0)
             else: container_cfg.update(y_hook = 'bottom', y_offset = 0)
-            container = Frame(**container_cfg)
+            container = Frame(outer, **container_cfg)
             previous = container
 
             # Go through the nested enumeration
@@ -49,7 +49,7 @@ class TestRenderer(unittest.TestCase):
                     previous = create(container, previous, s)
                 else:
                     # create frame for the enumerator
-                    enum_cfg = dict(parent = container,
+                    enum_cfg = dict(
                         x_anchor = container, x_align = 'left', x_hook = 'left', x_offset = 1,
                         y_anchor = previous, y_align = 'top',
                         max_width = 4, width_mode = 'fixed',
@@ -58,10 +58,9 @@ class TestRenderer(unittest.TestCase):
                         enum_cfg.update(y_hook = 'bottom', y_offset = 0)
                     else:
                         enum_cfg.update(y_hook = 'top', y_offset = 0)
-                    enum = Frame(**enum_cfg)
+                    enum = Frame(container, **enum_cfg)
                     content = ContentManager(parent = enum, x_align = 'right', wrapper = styles.wrappers['simple'])
-                    content += GenericText(text = s)
-                    enum += content
+                    GenericText(content, text = s)
                     
                     
                     # choose a translator from the list (see below)
@@ -69,15 +68,13 @@ class TestRenderer(unittest.TestCase):
                     
                     # create the paragraph
                     para_cfg = dict(
-                        parent = container,
                         x_anchor = enum, x_hook = 'right', x_align = 'left', x_offset = 1,
                         y_anchor = enum, y_hook = 'top', y_align = 'top', y_offset = 0,
                         max_width = 0, width_mode = 'fixed',
                         max_height = 0, height_mode = 'auto')
-                    previous = Frame(**para_cfg)
+                    previous = Frame(container, **para_cfg)
                     content = ContentManager(parent = previous, wrapper = styles.wrappers['simple'], translator = cur_translator)
-                    content += GenericText(text = self.longtext)
-                    previous += content
+                    GenericText(content, text = self.longtext)
             return container
                     
                 

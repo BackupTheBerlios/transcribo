@@ -12,7 +12,7 @@ class Line:
         self.targets = targets
         
     def __len__(self):
-        return len(self.str(text))
+        return len(self.__str__())
         
     def __str__(self):
         if self.refs:

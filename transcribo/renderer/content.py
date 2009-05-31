@@ -24,12 +24,11 @@ class ContentManager(BuildingBlock):
     ContentManager or one or more child frames. So a ContentManager renders
     the content of a leaf frame.'''
 
-    def __init__(self, parent = None,
+    def __init__(self, parent,
         wrapper = None,
         translator = None, x_align = 'left'):
 
-        BuildingBlock.__init__(self)
-        self.parent = parent
+        BuildingBlock.__init__(self, parent)
         self.wrapper_cfg = wrapper
         self.translator_cfg = translator
         self.x_align = x_align
@@ -104,7 +103,9 @@ class ContentManager(BuildingBlock):
             # Handle references
             c = l.count('\{')
             r = refs[:c]
-            bisect.insort(cache, Line(l, width, raw_content.index(l), self.parent, self.x_align, refs = r))
+            bisect.insort(cache,
+                Line(l, width, raw_content.index(l),
+                self.parent, self.x_align, refs = r))
             refs[:c] = []
             self.lines = raw_content
         return len(raw_content)
@@ -113,7 +114,8 @@ class ContentManager(BuildingBlock):
 class GenericText:
     '''Content class for text. '''
 
-    def __init__(self, text = None, translator = None, **args):
+    def __init__(self, parent, text = None, translator = None, **args):
+        parent += self
         self.text = text
         self.translator_cfg = translator
         for k,v in args:

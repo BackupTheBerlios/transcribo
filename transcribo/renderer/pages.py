@@ -53,15 +53,15 @@ class Page(BuildingBlock):
         if self.footer_spec:
             self.footer = RootFrame(max_width = self.get_width())
             # frame for page number on the right. Alternation to be added.
-            self.footer += Frame(parent = self.footer,
+            Frame(self.footer,
                 x_anchor = self.footer, y_anchor = self.footer,
                 **self.footer_spec['pagenum_cfg'])
             # Generate page number string
             pagenum_str = str(self.index + 1)
-            self.footer[0] += ContentManager(parent = self.footer[0],
+            ContentManager(self.footer[0],
                 wrapper = styles.wrappers['simple'],
                 **self.footer_spec['pagenumcontent_cfg'])
-            self.footer[0][0] += GenericText(text = pagenum_str, translator = self.translator_cfg)
+            GenericText(self.footer[0][0] , text = pagenum_str, translator = self.translator_cfg)
             self.footer.render()
         else:
             self.footer = None
@@ -100,7 +100,7 @@ class Page(BuildingBlock):
                 phys_lines.append(phys_margin)
             
             # line-specific  indentation
-            phys_lines[-1] = phys_lines[-1].ljust(l.x())
+            phys_lines[-1] = phys_lines[-1].ljust(l.x() + len(phys_margin))
             
             # add the actual line content
             phys_lines[-1] += str(l)
@@ -113,10 +113,8 @@ class Page(BuildingBlock):
         # add footer
         if self.footer:
             phys_lines.append(phys_margin)
-            logger.info('Rendering footer. cach length: %d' % len(self.footer.cache))
             for l in self.footer.cache:
-                lx = l.x()
-                while len(phys_lines[-1]) < lx: phys_lines[-1] += ' '
+                phys_lines[-1] = phys_lines[-1].ljust(len(phys_margin) + l.x())
                 phys_lines[-1] += str(l)
                 
         return '\n'.join(phys_lines)
@@ -173,7 +171,7 @@ class Paginator:
 
 
     def render(self, cache):
-        # logger.debug('Positions of lines: %s' % str([(l.x(), l.y()) for l in cache]))
+        logger.info('Positions of lines: %s' % str([(l.x(), l.y(), str(l)) for l in cache]))
         self.create_pages(cache)
         page_break = self.page_spec['page_break']
         result = page_break.join((p.render(cache) for p in self.pages))

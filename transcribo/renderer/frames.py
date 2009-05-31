@@ -16,8 +16,12 @@ class LineStorageError(RenderingError):
         
         
 class BuildingBlock:
-    def __init__(self):
+    def __init__(self, parent):
         self.children = []
+        if isinstance(parent, BuildingBlock):
+            parent.children.append(self)
+        self.parent = parent
+
 
     def __add__(self, other):
         return self.children + other
@@ -65,7 +69,7 @@ class Frame(BuildingBlock):
 
     '''
 
-    def __init__(self, parent = None,
+    def __init__(self, parent,
         x_anchor = None, x_hook = '', x_align = '',
         x_offset = 0, right_indent = 0,
         y_anchor = None, y_hook = '', y_align = '',
@@ -73,13 +77,10 @@ class Frame(BuildingBlock):
         max_width = 0, width_mode = 'auto',
         max_height = 0, height_mode = 'auto'):
 
-        BuildingBlock.__init__(self)
-        self.parent = parent
+        BuildingBlock.__init__(self, parent)
 
         # initialization
-        self.children = []
-        parent += self
-        self.lines = []
+        self.lines = 0
 
         # horizontal position
         self.x_anchor = x_anchor # the frame whose x position will be used
@@ -188,7 +189,7 @@ class Frame(BuildingBlock):
             self.lines = self[0].render(width = self.max_width)
             
             
-        # render any children
+        # render any subframes
         else:
             for child in self:
                 child.render()
@@ -202,7 +203,7 @@ class RootFrame(BuildingBlock):
     
     def __init__(self, max_width = 60):
 
-        BuildingBlock.__init__(self)
+        BuildingBlock.__init__(self, None)
         self.max_width = max_width
         self.cache = []
 
