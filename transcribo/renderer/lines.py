@@ -2,13 +2,14 @@
 
 
 class Line:
-    def __init__(self, text, width, number, frame, alignn = 'left', refs = None):
+    def __init__(self, text, width, number, frame, align = 'left', refs = None, targets = None):
         self.raw_text = text
-        self.wicth = width
+        self.width = width
         self.number = number
         self.frame = frame
-        self.alignn = alignn
+        self.align = align
         self.refs = refs
+        self.targets = targets
         
     def __len__(self):
         return len(self.str(text))
@@ -33,11 +34,11 @@ class Line:
     def y(self):
         return self.frame.y() + self.number
         
-    def __cmp__(self, a, b):
-        if a.y() < b.y(): return -1
-        elif a.y() > b.y(): return 1
-        elif a.x() < b.x(): return -1
-        elif a.x() > b.x(): return 1
+    def __cmp__(self, b):
+        if self.y() < b.y(): return -1
+        elif self.y() > b.y(): return 1
+        elif self.x() < b.x(): return -1
+        elif self.x() > b.x(): return 1
         else: return 0
         
         

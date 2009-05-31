@@ -164,7 +164,7 @@ class Frame(BuildingBlock):
                 return self.get_max_width()
         # so width_mode must be auto, so take the width of the content or the biggest child frame
         elif self.lines:
-            return max([len(l) for l in self.lines])
+            return max((len(l) for l in self[0].lines))
         elif isinstance(self[0], Frame):
             return             max([(child.x() - self.x() + child.width()) for child in self])
         else:

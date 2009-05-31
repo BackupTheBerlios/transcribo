@@ -34,6 +34,7 @@ class ContentManager(BuildingBlock):
         self.translator_cfg = translator
         self.x_align = x_align
         self.render_count = 0
+        self.lines = []
 
         
         
@@ -95,7 +96,7 @@ class ContentManager(BuildingBlock):
             i=0
             while i < len(cache):
                 if cache[i].frame == self: cache.pop(i)
-            else: i += 1
+                else: i += 1
             
         # pack the strings into Line objects. Future versions will
         # handle non-string content such as references, inline-commands etc.
@@ -105,6 +106,7 @@ class ContentManager(BuildingBlock):
             r = refs[:c]
             bisect.insort(cache, Line(l, width, raw_content.index(l), self.parent, self.x_align, refs = r))
             refs[:c] = []
+            self.lines = raw_content
         return len(raw_content)
 
 

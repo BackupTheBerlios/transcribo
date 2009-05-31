@@ -1,5 +1,6 @@
 
 
+from transcribo import logger
 from frames import BuildingBlock, RootFrame, Frame
 from content import ContentManager, GenericText
 import styles
@@ -58,7 +59,8 @@ class Page(BuildingBlock):
             # Generate page number string
             pagenum_str = str(self.index + 1)
             self.footer[0] += ContentManager(parent = self.footer[0],
-            **self.footer_spec['pagenumcontent_cfg'])
+                wrapper = styles.wrappers['simple'],
+                **self.footer_spec['pagenumcontent_cfg'])
             self.footer[0][0] += GenericText(text = pagenum_str, translator = self.translator_cfg)
             self.footer.render()
         else:
@@ -68,6 +70,7 @@ class Page(BuildingBlock):
 
             
     def render(self, cache):
+        logger.info('Rendering page. first = %d, last = %d.' % (self.first, self.last))
         phys_lines = []
         
         # physical left margin of this page
@@ -82,6 +85,8 @@ class Page(BuildingBlock):
         # on the same physical line as the previous one from new physical lines
         # Example: bullet lists.
         prev_y = -1
+        
+        # iterate over the lines on this page
         for l in cache[self.first : self.last + 1]:
             # insert blank lines, if necessary
             ly = l.y()
@@ -95,8 +100,7 @@ class Page(BuildingBlock):
                 phys_lines.append(phys_margin)
             
             # line-specific  indentation
-            lx = l.x()
-            while len(line_str) < lx: phys_lines[-1] += ' '
+            phys_lines[-1] = phys_lines[-1].ljust(l.x())
             
             # add the actual line content
             phys_lines[-1] += str(l)
@@ -109,6 +113,7 @@ class Page(BuildingBlock):
         # add footer
         if self.footer:
             phys_lines.append(phys_margin)
+            logger.info('Rendering footer. cach length: %d' % len(self.footer.cache))
             for l in self.footer.cache:
                 lx = l.x()
                 while len(phys_lines[-1]) < lx: phys_lines[-1] += ' '
@@ -138,6 +143,7 @@ class Paginator:
     def create_pages(self, cache):
         pages = self.pages
         cur_page = pages[-1]
+        logger.info('creating pages for cache of length %d. ' % len(cache))
         for l in cache:
             # does this line fit on current page?
             if cur_page.y <= l.y() <= cur_page.y + cur_page.net_length():
@@ -150,20 +156,24 @@ class Paginator:
             else:
                 # create new page
                 cur_page.close()
-                pages.append(self, Page(page_spec = self.page_spec,
+                logger.info('New page at cache index %d' % cache.index(l))
+                pages.append(Page(self, page_spec = self.page_spec,
                     header_spec = self.header_spec,
                     footer_spec = self.footer_spec, translator_cfg = self.translator_cfg))
                 cur_page = pages[-1]
                 cur_page.setup()
+                logger.info('Page successfully created.')
 
         # close last page
         cur_page.close()
+        logger.info('Last page closed')
         
         # resolve page references (to be implemented)
 
 
 
     def render(self, cache):
+        # logger.debug('Positions of lines: %s' % str([(l.x(), l.y()) for l in cache]))
         self.create_pages(cache)
         page_break = self.page_spec['page_break']
         result = page_break.join((p.render(cache) for p in self.pages))

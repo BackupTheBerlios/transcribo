@@ -2,7 +2,7 @@ import logging
 
 # Set up logging to the console and the log file
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s %(levelname)s %(message)s',
     filename ='transcribo.log')
 

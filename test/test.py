@@ -24,7 +24,7 @@ class TestRenderer(unittest.TestCase):
         self.longtext = """This text is so long that it will\
                         span over multiple lines. This is useful to demonstrate the renderer's\
                         behavior when dealing with lists, enumerations and such like. Also, it may be useful to demonstrate\
-                        the effects of hyphenation and text wrapping.""" * 10
+                        the effects of hyphenation and text wrapping.""" * 2
         self.output = ''
             
 
@@ -59,7 +59,7 @@ class TestRenderer(unittest.TestCase):
                     else:
                         enum_cfg.update(y_hook = 'top', y_offset = 0)
                     enum = Frame(**enum_cfg)
-                    content = ContentManager(x_align = 'right')
+                    content = ContentManager(parent = enum, x_align = 'right', wrapper = styles.wrappers['simple'])
                     content += GenericText(text = s)
                     enum += content
                     
@@ -75,7 +75,7 @@ class TestRenderer(unittest.TestCase):
                         max_width = 0, width_mode = 'fixed',
                         max_height = 0, height_mode = 'auto')
                     previous = Frame(**para_cfg)
-                    content = ContentManager(translator = cur_translator)
+                    content = ContentManager(parent = previous, wrapper = styles.wrappers['simple'], translator = cur_translator)
                     content += GenericText(text = self.longtext)
                     previous += content
             return container
@@ -94,9 +94,12 @@ class TestRenderer(unittest.TestCase):
             None, None, None, None, None]
             
             # create the frames
+        logger.info('Creating frames')
         create(self.root, self.root, structure)
-        
+        logger.info('Rendering frames.')
+        self.root.render()
         # create the pages
+        logger.info('Creating pages')
         self.output = self.paginator.render(self.root.cache)
         self.assertEqual(True, True)
 

@@ -27,9 +27,7 @@ wrappers = dict(
 
 
 content = dict(
-    simple = dict(
-        wrapper = wrappers['simple']
-    ),
+    simple = dict(),
     heading0 = dict(
         x_align = 'center'
     ),
