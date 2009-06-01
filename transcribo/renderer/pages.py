@@ -90,10 +90,7 @@ class Page(BuildingBlock):
         for l in cache[self.first : self.last + 1]:
             # insert blank lines, if necessary
             ly = l.y()
-            i = self.y
-            while i < ly:
-                phys_lines.append('')
-                i += 1
+            phys_lines.extend([''] * (ly - len(phys_lines) - self.y))
 
             # generate new non-empty physical line, if necessary
             if prev_y < ly:

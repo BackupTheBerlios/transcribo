@@ -8,7 +8,6 @@ content object in its children attribute as list items.
 
 
 
-import bisect
 from transcribo import logger
 from transcribo.renderer.frames import BuildingBlock
 from lines import Line
@@ -99,15 +98,14 @@ class ContentManager(BuildingBlock):
             
         # pack the strings into Line objects. Future versions will
         # handle non-string content such as references, inline-commands etc.
-        for l in raw_content:
+        for j in range(len(raw_content)):
             # Handle references
-            c = l.count('\{')
+            c = raw_content[j].count('\{')
             r = refs[:c]
-            bisect.insort(cache,
-                Line(l, width, raw_content.index(l),
+            cache.append(Line(raw_content[j], width, j,
                 self.parent, self.x_align, refs = r))
             refs[:c] = []
-            self.lines = raw_content
+        self.lines = raw_content
         return len(raw_content)
 
 

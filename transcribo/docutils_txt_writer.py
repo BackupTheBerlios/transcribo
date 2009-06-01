@@ -117,7 +117,7 @@ class TxtVisitor(NodeVisitor):
         
 
     def visit_document(self, node):
-    self.paginator = pages.Paginator(page_spec = styles.pages['default'],
+        self.paginator = pages.Paginator(page_spec = styles.pages['default'],
         header_spec = None, footer_spec = styles.footers['default'],
         translator_cfg = styles.translators['default']):
         self.root = RootFrame(max_width = self.paginator.width)

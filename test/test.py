@@ -106,11 +106,20 @@ class TestRenderer(unittest.TestCase):
         output_file = open('test1.out', 'a')
         output_file.write(self.output)
         output_file.close()
+
+def run():
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestRenderer)
+    unittest.TextTestRunner(verbosity=2).run(suite)
+
+
         
 
 # if __name__ == '__main__':
 #     unittest.main()
+run()
+# suite = unittest.TestLoader().loadTestsFromTestCase(TestRenderer)
+# unittest.TextTestRunner(verbosity=2).run(suite)
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestRenderer)
-unittest.TextTestRunner(verbosity=2).run(suite)
+
+
 
