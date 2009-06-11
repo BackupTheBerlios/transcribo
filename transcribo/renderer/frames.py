@@ -189,7 +189,6 @@ class Frame(BuildingBlock):
                         self.x_anchor.width - self.parent.get_x())
                 else: raise RenderingError('Calculation of max_width not implemented for x_hook = %s, x_align = %s.'
                     % (self.x_hook, self.x_align))
-                
 
             
      # render any content
@@ -199,6 +198,7 @@ class Frame(BuildingBlock):
             # The paginator will then operate on the cache.
             (self.width, self.height) = self[0].render(self.max_width,
                 self.width_mode)
+            self.height += self.lines_below
             
             
         # render subframes
@@ -222,7 +222,7 @@ class Frame(BuildingBlock):
                 self.y = 0
                 self.calc_y = False
                 self.notify_dependent('y_dep', 'calc_y')
-                self.height = max((f.get_y() + f.height for f in self))
+                self.height = max((f.get_y() + f.height for f in self)) + self.lines_below
                 self.calc_y = True
                 self.notify_dependent('y_dep', 'calc_y')
 

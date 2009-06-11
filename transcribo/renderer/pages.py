@@ -154,17 +154,14 @@ class Paginator:
             else:
                 # create new page
                 cur_page.close()
-                logger.info('New page at cache index %d' % cache.index(l))
                 pages.append(Page(self, page_spec = self.page_spec,
                     header_spec = self.header_spec,
                     footer_spec = self.footer_spec, translator_cfg = self.translator_cfg))
                 cur_page = pages[-1]
                 cur_page.setup()
-                logger.info('Page successfully created.')
 
         # close last page
         cur_page.close()
-        logger.info('Last page closed')
         
         # resolve page references (to be implemented)
 

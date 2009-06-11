@@ -12,20 +12,22 @@ class Line(BuildingBlock):
         self.align = align
         self.refs = refs
         self.targets = targets
+        self.result = ''
         
         
     def __len__(self):
-        return len(self.__str__())
+        if not self.result:
+            self.result = self.__str__()
+        return len(self.result)
         
     def __str__(self):
+        if self.result: return self.result
         if self.refs:
             self.text = self.raw_text.format((r.render() for r in self.refs))
         else:
             self.text = self.raw_text
         # alignment
-        if self.align == 'left':
-            self.text = self.text.ljust(self.width)
-        elif self.align == 'right':
+        if self.align == 'right':
             self.text = self.text.rjust(self.width)
         elif self.align == 'center':
              self.text = self.text.center(self.width)

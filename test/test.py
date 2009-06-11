@@ -21,8 +21,7 @@ class TestRenderer(unittest.TestCase):
         header_spec = None, footer_spec = styles.footers['default'],
         translator_cfg = styles.translators['default'])
         self.root = RootFrame(max_width = self.paginator.width)
-        self.longtext = """
-I have just returned from a visit to my landlord - the solitary
+        self.longtext = """I have just returned from a visit to my landlord - the solitary
 neighbour that I shall be troubled with. This is certainly a beautiful country!
 In all England, I do not believe that I could have fixed on a situation so
 completely removed from the stir of society. A perfect misanthropist's heaven:
@@ -30,7 +29,7 @@ and Mr. Heathcliff and I are such a suitable pair to divide the desolation
 between us. A capital fellow! He little imagined how my heart warmed towards him
 when I beheld his black eyes withdraw so suspiciously under their brows, as I
 rode up, and when his fingers sheltered themselves, with a jealous resolution,
-still further in his waistcoat, as I announced my name. """
+still further in his waistcoat, as I announced my name. """ * 5
 
 
         self.output = ''
@@ -79,7 +78,7 @@ still further in his waistcoat, as I announced my name. """
                         x_anchor = enum, x_hook = 'right', x_align = 'left', x_offset = 1,
                         y_anchor = enum, y_hook = 'top', y_align = 'top', y_offset = 0,
                         max_width = 0, width_mode = 'fixed',
-                        max_height = 0, height_mode = 'auto')
+                        max_height = 0, height_mode = 'auto', lines_below = 2)
                     previous = Frame(container, **para_cfg)
                     content = ContentManager(parent = previous, wrapper = styles.wrappers['simple'], translator = cur_translator)
                     GenericText(content, text = self.longtext)
@@ -95,7 +94,7 @@ still further in his waistcoat, as I announced my name. """
         
         translator_cfg = [None, # no translator
             dict(class_path = 'translators.UpperTrans'), # uppercase translator
-            dict(class_path = 'translators.YABTrans', state = 2), # Braille grade 2
+            # dict(class_path = 'translators.YABTrans', state = 2), # Braille grade 2
             None, None, None, None, None]
             
             # create the frames
