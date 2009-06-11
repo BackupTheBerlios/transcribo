@@ -11,8 +11,8 @@ class Page(BuildingBlock):
 
     def __init__(self, parent, page_spec = None,
         header_spec = None, footer_spec = None, translator_cfg = None):
-
-        self.parent = parent
+        
+        BuildingBlock.__init__(self, parent)
         self.page_spec = page_spec
         self.header_spec = header_spec
         self.footer_spec = footer_spec
@@ -20,14 +20,13 @@ class Page(BuildingBlock):
         
     def setup(self):
         # index of this page in the page list
-        parent = self.parent
-        self.index = index = parent.pages.index(self)
+        self.index = index = self.parent.pages.index(self)
         # Index and y-coord of first line on this page in the line cache
         if index == 0:
             self.first = 0
             self.y = 0
         else:
-            previous_page = parent.pages[index - 1]
+            previous_page = self.parent.pages[index - 1]
             self.first = previous_page.last + 1 # caller must make sure that this line exists in cache.
             self.y = previous_page.y + previous_page.net_length()
         self.last = self.first # index of last line on this page in line cache
@@ -70,8 +69,12 @@ class Page(BuildingBlock):
 
             
     def render(self, cache):
+    
         phys_lines = []
-        
+
+        # top margin
+        phys_lines.extend([''] * self.page_spec['top_margin'])
+
         # physical left margin of this page
         n = self.page_spec['left_margin']
         if not (self.index % 2): n += self.page_spec['inner_margin']
@@ -112,8 +115,12 @@ class Page(BuildingBlock):
             for l in self.footer.cache:
                 phys_lines[-1] = phys_lines[-1].ljust(len(phys_margin) + l.get_x())
                 phys_lines[-1] += str(l)
-                
+
+        # bottom margin
+        phys_lines.extend([''] * self.page_spec['bottom_margin'])
+        
         return '\n'.join(phys_lines)
+        
 
 
 class Paginator:
@@ -164,7 +171,6 @@ class Paginator:
 
 
     def render(self, cache):
-        logger.info('Positions of lines: %s' % str([(l.get_x(), l.get_y(), str(l)) for l in cache]))
         self.create_pages(cache)
         page_break = self.page_spec['page_break']
         result = page_break.join((p.render(cache) for p in self.pages))

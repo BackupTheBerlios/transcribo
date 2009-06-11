@@ -179,9 +179,18 @@ class Frame(BuildingBlock):
         if not self.children:
             raise RenderingError, 'Nothing to render.'
 
- 
         if not self.max_width:
             self.max_width = self.parent.max_width - self.x_offset - self.right_indent
+            if self.x_anchor is not self.parent:
+                if self.x_hook == self.x_align == 'left':
+                    self.max_width -= (self.x_anchor.get_x() - self.parent.get_x())
+                elif self.x_hook == 'right' and self.x_align == 'left':
+                    self.max_width -= (self.x_anchor.get_x() +
+                        self.x_anchor.width - self.parent.get_x())
+                else: raise RenderingError('Calculation of max_width not implemented for x_hook = %s, x_align = %s.'
+                    % (self.x_hook, self.x_align))
+                
+
             
      # render any content
         if not isinstance(self[0], Frame):

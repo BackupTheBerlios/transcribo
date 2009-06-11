@@ -95,7 +95,7 @@ still further in his waistcoat, as I announced my name. """
         
         translator_cfg = [None, # no translator
             dict(class_path = 'translators.UpperTrans'), # uppercase translator
-            # dict(class_path = 'translators.YABTrans', state = 2), # Braille grade 2
+            dict(class_path = 'translators.YABTrans', state = 2), # Braille grade 2
             None, None, None, None, None]
             
             # create the frames
@@ -119,12 +119,11 @@ def run():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestRenderer)
     unittest.TextTestRunner(verbosity=2).run(suite)
 
-
+run()
         
 
 # if __name__ == '__main__':
 #     unittest.main()
-run()
 # suite = unittest.TestLoader().loadTestsFromTestCase(TestRenderer)
 # unittest.TextTestRunner(verbosity=2).run(suite)
 
