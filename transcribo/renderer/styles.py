@@ -181,14 +181,14 @@ frame = dict(
 
 pages = dict(
     default = dict(
-        width = 40,
-        length = 60,
+        width = 50,
+        length = 40,
         left_margin = 2,
         right_margin = 1,
         inner_margin = 2,
         top_margin = 2,
         bottom_margin = 1,
-        page_break = '\n\n\n'
+        page_break = '\n\n====='
     )
 )
 

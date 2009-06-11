@@ -70,7 +70,6 @@ class Page(BuildingBlock):
 
             
     def render(self, cache):
-        logger.info('Rendering page. first = %d, last = %d.' % (self.first, self.last))
         phys_lines = []
         
         # physical left margin of this page
@@ -89,7 +88,7 @@ class Page(BuildingBlock):
         # iterate over the lines on this page
         for l in cache[self.first : self.last + 1]:
             # insert blank lines, if necessary
-            ly = l.y()
+            ly = l.get_y()
             phys_lines.extend([''] * (ly - len(phys_lines) - self.y))
 
             # generate new non-empty physical line, if necessary
@@ -97,7 +96,7 @@ class Page(BuildingBlock):
                 phys_lines.append(phys_margin)
             
             # line-specific  indentation
-            phys_lines[-1] = phys_lines[-1].ljust(l.x() + len(phys_margin))
+            phys_lines[-1] = phys_lines[-1].ljust(l.get_x() + len(phys_margin))
             
             # add the actual line content
             phys_lines[-1] += str(l)
@@ -111,13 +110,11 @@ class Page(BuildingBlock):
         if self.footer:
             phys_lines.append(phys_margin)
             for l in self.footer.cache:
-                phys_lines[-1] = phys_lines[-1].ljust(len(phys_margin) + l.x())
+                phys_lines[-1] = phys_lines[-1].ljust(len(phys_margin) + l.get_x())
                 phys_lines[-1] += str(l)
                 
         return '\n'.join(phys_lines)
 
-            
-            
 
 class Paginator:
 
@@ -138,10 +135,9 @@ class Paginator:
     def create_pages(self, cache):
         pages = self.pages
         cur_page = pages[-1]
-        logger.info('creating pages for cache of length %d. ' % len(cache))
         for l in cache:
             # does this line fit on current page?
-            if cur_page.y <= l.y() <= cur_page.y + cur_page.net_length():
+            if cur_page.y <= l.get_y() <= cur_page.y + cur_page.net_length():
                 cur_page.last = cache.index(l)
                 if l.targets:
                     l.page = pages.index(cur_page)
@@ -168,7 +164,7 @@ class Paginator:
 
 
     def render(self, cache):
-        logger.info('Positions of lines: %s' % str([(l.x(), l.y(), str(l)) for l in cache]))
+        logger.info('Positions of lines: %s' % str([(l.get_x(), l.get_y(), str(l)) for l in cache]))
         self.create_pages(cache)
         page_break = self.page_spec['page_break']
         result = page_break.join((p.render(cache) for p in self.pages))

@@ -1,15 +1,18 @@
 
+from transcribo.renderer.frames import BuildingBlock
 
 
-class Line:
-    def __init__(self, text, width, number, frame, align = 'left', refs = None, targets = None):
+class Line(BuildingBlock):
+    def __init__(self, text, width, number, parent,  align = 'left', refs = None, targets = None):
+    
+        BuildingBlock.__init__(self, parent)
         self.raw_text = text
         self.width = width
         self.number = number
-        self.frame = frame
         self.align = align
         self.refs = refs
         self.targets = targets
+        
         
     def __len__(self):
         return len(self.__str__())
@@ -19,7 +22,7 @@ class Line:
             self.text = self.raw_text.format((r.render() for r in self.refs))
         else:
             self.text = self.raw_text
-        # alignnment
+        # alignment
         if self.align == 'left':
             self.text = self.text.ljust(self.width)
         elif self.align == 'right':
@@ -28,17 +31,27 @@ class Line:
              self.text = self.text.center(self.width)
         return self.text
 
-    def x(self):
-        return self.frame.x()
+
+    def get_x(self):
+        if  self.calc_x:
+            self.x = self.parent.get_x()
+            self.calc_x = False
+        return self.x
         
-    def y(self):
-        return self.frame.y() + self.number
+        
+    def get_y(self):
+        if self.calc_y:
+            self.y = self.parent.get_y() + self.number
+            self.calc_y = False
+        return self.y
+
+        
         
     def __cmp__(self, b):
-        if self.y() < b.y(): return -1
-        elif self.y() > b.y(): return 1
-        elif self.x() < b.x(): return -1
-        elif self.x() > b.x(): return 1
+        if self.get_y() < b.get_y(): return -1
+        elif self.get_y() > b.get_y(): return 1
+        elif self.get_x() < b.get_x(): return -1
+        elif self.get_x() > b.get_x(): return 1
         else: return 0
         
         

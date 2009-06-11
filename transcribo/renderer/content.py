@@ -36,16 +36,16 @@ class ContentManager(BuildingBlock):
 
         
         
-    def render(self, width):
+    def render(self, max_width, width_mode):
         self.render_count += 1 # count number of calls of render for efficiency reasons.
         
         # Instantiate the wrapper. This is obligatory.
-        self.wrapper_cfg['width'] = width
+        self.wrapper_cfg['width'] = max_width
         self.wrapper = get_singleton(**self.wrapper_cfg)
         
         # instantiate the optional translator. Note that each element may have
         # its own translator. However, the content manager's translator
-        # works on the entire content rather than on each element.
+        # works on the entire content rather than separately on each element.
         
         if self.translator_cfg:
             self.translator = get_singleton(**self.translator_cfg)
@@ -59,7 +59,7 @@ class ContentManager(BuildingBlock):
         count = 0
         for child in self:
             tmp = child.render()
-            if isinstance(tmp, unicode) or isinstance(tmp, str):
+            if isinstance(tmp, basestring):
                 raw_content.append(tmp)
                 
             # unresolved references have returned themselves rather than a string:
@@ -84,6 +84,13 @@ class ContentManager(BuildingBlock):
         # PyHyphen and textwrap2. But by default, the textwrap standard module is used.
         raw_content = self.wrapper.wrap(raw_content)
         
+        # get the relevant width depending on the length of each
+        # line and on whether width_mode is fixed or auto. The width is used when rendering each Line instance.
+        if width_mode == 'fixed': width = max_width
+        else: # it must be 'auto':
+            width = max((len(l) for l in raw_content))
+        
+        
         # Get the lines cache:
         root = self.parent.parent
         while not hasattr(root, 'cache'): root = root.parent
@@ -93,7 +100,7 @@ class ContentManager(BuildingBlock):
         if self.render_count > 1:
             i=0
             while i < len(cache):
-                if cache[i].frame == self: cache.pop(i)
+                if cache[i].parent == self: cache.pop(i)
                 else: i += 1
             
         # pack the strings into Line objects. Future versions will
@@ -105,8 +112,8 @@ class ContentManager(BuildingBlock):
             cache.append(Line(raw_content[j], width, j,
                 self.parent, self.x_align, refs = r))
             refs[:c] = []
-        self.lines = raw_content
-        return len(raw_content)
+        self.lines = raw_content # is this really needed?
+        return (width, len(raw_content))
 
 
 class GenericText:

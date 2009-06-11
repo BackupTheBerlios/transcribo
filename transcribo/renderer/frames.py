@@ -2,7 +2,6 @@
 
 
 from transcribo import logger
-from lines import Line
 
 
 
@@ -16,11 +15,25 @@ class LineStorageError(RenderingError):
         
         
 class BuildingBlock:
+
     def __init__(self, parent):
         self.children = []
+        self.x_dep = []
+        self.y_dep = []
         if isinstance(parent, BuildingBlock):
             parent.children.append(self)
         self.parent = parent
+        
+        # flags indicating if pos and size need to be (re-)calculated
+        self.calc_x = self.calc_y = True
+
+
+
+
+    def notify_dependent(self, dep, flag):
+        for f in getattr(self, dep):
+            setattr(f, flag, True)
+            f.notify_dependent(dep, flag)
 
 
     def __add__(self, other):
@@ -84,6 +97,7 @@ class Frame(BuildingBlock):
 
         # horizontal position
         self.x_anchor = x_anchor # the frame whose x position will be used
+        x_anchor.x_dep.append(self)
         self.x_hook = x_hook # the anchor frame's part to draw on (left, right, center)
         self.x_align = x_align # the part of self to align with the hook (left, right, center)
         self.x_offset = x_offset # absolute offset relative to the hook etc.
@@ -91,6 +105,7 @@ class Frame(BuildingBlock):
         
         # vertical position
         self.y_anchor = y_anchor
+        y_anchor.y_dep.append(self)
         self.y_hook = y_hook
         self.y_align = y_align
         self.y_offset = y_offset
@@ -104,72 +119,58 @@ class Frame(BuildingBlock):
         self.height_mode = height_mode
         self.lines_below = lines_below
         
-
         
-    def x(self):
-        '''return the absolute horizontal position of the frame's left column'''
-        result = self.x_anchor.x()
-        if self.x_align == 'left':
-            result = result + self.x_offset # x_anchor.right_indent is ignored here. Meaningful? Use max. of both instead?
-        elif self.x_align == 'right':
-            result = result - self.width() - self.right_indent
-        elif self.x_align == 'center':
-            result = result - self.width() // 2 # left- and right_indent are ignored here. Meaningful?
-        if self.x_hook == 'left': pass # this could be omitted, but it's more clear.
-        elif self.x_hook == 'right':
-            result = result + self.x_anchor.width()
-        elif self.x_hook == 'center':
-            result += self.x_anchor.width() // 2
-        return result
-
             
-
-    def y(self):
-        '''return the absolute vertical position of the frame's upper line'''
-        result = self.y_anchor.y()
-        if self.y_align == 'top':
-            result = result + self.y_offset
-        elif self.y_align == 'bottom':
-            result = result - self.height() - self.lines_below
-        elif self.y_align == 'center':
-            result = result - self.height() // 2 # left- and right_indent are ignored here. Meaningful?
-        if self.y_hook == 'top': # this could be omitted, but it's more clear.
-            pass
-        elif self.y_hook == 'bottom':
-            result = result + self.y_anchor.height()
-        elif y_hook == 'center':
-            result = result + self.y_anchor.height() // 2
-        return result
-
-
-    def get_max_width(self):
-        return self.parent.width() - self.x_offset - self.right_indent
         
+    def get_x(self):
+        '''return the absolute horizontal position of the frame's left column'''
+        # need to calculate?
+        if self.calc_x:
+            self.x = self.x_anchor.get_x()
+            if self.x_align == 'left':
+                self.x += self.x_offset
+                # x_anchor.right_indent is ignored here above.
+                # Meaningful? Use max. of both instead?
 
-    def height(self):
-        '''return the actual frame height'''
-        if self.height_mode == 'fixed':
-            return self.max_height
-        if self.lines:
-            return self.lines + self.lines_below
-        else:
-            return max([(c.y() - self.y() + c.height()) for c in self.children]) + self.lines_below
+            elif self.x_align == 'right':
+                self.x -= self.width - self.right_indent
+            elif self.x_align == 'center':
+                self.x -= self.width // 2
+                # left- and right_indent are ignored here above. Meaningful?
+
+            if self.x_hook == 'right':
+                self.x += self.x_anchor.width
+            elif self.x_hook == 'center':
+                self.x += self.x_anchor.width // 2
+                
+                self.notify_dependent('x_dep', 'calc_x')
+            self.calc_x = False
+        return self.x
 
 
-    def width(self):
-        '''return the actual width of the frame'''
-        if self.width_mode == 'fixed':
-            if self.max_width:
-                return self.max_width
-            else: 
-                return self.get_max_width()
-        # so width_mode must be auto, so take the width of the content or the biggest child frame
-        elif self.lines:
-            return max((len(l) for l in self[0].lines))
-        elif isinstance(self[0], Frame):
-            return             max([(child.x() - self.x() + child.width()) for child in self])
-        else:
-            raise RenderingError('Cannot calculate width.')
+    def get_y(self):
+        '''return the absolute vertical position of the frame's upper line'''
+
+        # need to calculate?
+        if self.calc_y:
+            self.y = self.y_anchor.get_y()
+            if self.y_align == 'top':
+                self.y += self.y_offset
+            elif self.y_align == 'bottom':
+                self.y -= self.height - self.lines_below
+            elif self.y_align == 'center':
+                self.y -= self.height // 2 # handled y_offset etc.
+                    # correctly?
+                    
+            if self.y_hook == 'bottom':
+                self.y += self.y_anchor.height
+            elif self.y_hook == 'center':
+                self.y += self.y_anchor.height // 2
+                
+            self.notify_dependent('y_dep', 'calc_y')
+            self.calc_y = False
+        return self.y
+
 
 
     def render(self):
@@ -180,19 +181,43 @@ class Frame(BuildingBlock):
 
  
         if not self.max_width:
-            self.max_width = self.get_max_width()
+            self.max_width = self.parent.max_width - self.x_offset - self.right_indent
             
      # render any content
         if not isinstance(self[0], Frame):
             # render the content frame and store the number of lines.
-            # the lines themselves will be sent to the cache automatically.
-            self.lines = self[0].render(width = self.max_width)
+            # the ContentManager will store the lines in the cache
+            # The paginator will then operate on the cache.
+            (self.width, self.height) = self[0].render(self.max_width,
+                self.width_mode)
             
             
-        # render any subframes
+        # render subframes
         else:
             for child in self:
                 child.render()
+                
+            # calculate width
+            if self.width_mode == 'fixed': self.width = self.max_width
+            else:
+                self.x = 0
+                self.calc_x = False
+                self.notify_dependent('x_dep', 'calc_x')
+                self.width = max((f.x() + f.width for f in self))
+                self.calc_x = True
+                self.notify_dependent('x_dep', 'calc_x')
+
+            # calculate height
+            if self.height_mode == 'fixed': self.height = self.max_height # what, if lines are too many?
+            else: # must be auto. So count the lines.
+                self.y = 0
+                self.calc_y = False
+                self.notify_dependent('y_dep', 'calc_y')
+                self.height = max((f.get_y() + f.height for f in self))
+                self.calc_y = True
+                self.notify_dependent('y_dep', 'calc_y')
+
+                
 
 
 
@@ -204,21 +229,17 @@ class RootFrame(BuildingBlock):
     def __init__(self, max_width = 60):
 
         BuildingBlock.__init__(self, None)
-        self.max_width = max_width
+        self.width = self.max_width = max_width
         self.cache = []
 
 
-    def x(self):
+    def get_x(self):
         return 0
 
-    def y(self):
+    def get_y(self):
         return 0
 
-    def height(self):
-        return 0 # any height allowed
 
-    def width(self):
-        return self.max_width
 
 
     def render(self):
