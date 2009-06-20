@@ -35,7 +35,22 @@ class YABTrans:
     def run(self, s):
         return self.bufferedTranslator.translate(s, self.state, ' ', ' ')
 
-        
+
+class Louis:
+    '''wrapper for liblouis - a multilingual Braille translation library based
+    on brltty. See http://liblouis.googlecode.com). Requires the liblouis shared library or dll (on Windows) as well as the
+    Python bindings.'''
+    
+    def __init__(self, tables = None, mode = 0):
+        import louis
+        self.louis = louis
+        tables[0] = louis.__path__[0] + '/tables/' + tables[0]
+        self.tables = tables
+        self.mode = mode
+
+
+    def run(self, s):
+        return self.louis.translateString(self.tables, s, self.mode)
         
     
     

@@ -5,8 +5,17 @@
 
 translators = dict(
     default = None,
-    en_UK = dict(
-        class_path = 'translators.YABTrans2'),
+    # Braille translation with YABT for British grade2 Braille.
+    YABT_en = dict(
+        class_path = 'translators.YABTrans'
+    ),
+    # liblouis Braille translation with en_US Braille grade2 table
+    louis_en = dict(
+        class_path = 'translators.Louis',
+        tables = ['en-US-g2.ctb'],
+        mode = 0
+    ),
+
     upper = dict(
         class_path = 'translators.UpperTrans'
     )

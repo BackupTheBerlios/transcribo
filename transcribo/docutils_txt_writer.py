@@ -10,7 +10,7 @@ import docutils.writers
 from docutils import frontend, nodes
 from docutils.nodes import Node, NodeVisitor
 from transcribo.renderer.frames import RootFrame, Frame
-from transcribo.renderer import pages, utils, styles, environment as env
+from transcribo.renderer import pages, utils, styles
 from transcribo.renderer.content import ContentManager, GenericText
 from transcribo import logger
 
@@ -73,7 +73,7 @@ class TxtVisitor(NodeVisitor):
         try:
             content_cfg = styles.content[content_style]
         except KeyError:
-            content_cfg = styles.content['default']
+            content_cfg = styles.content['simple']
         try:
             if self.settings.braille == 2:
                 translator_cfg = styles.translators['yabt2']
@@ -84,8 +84,8 @@ class TxtVisitor(NodeVisitor):
         try:
             wrapper_cfg = styles.wrappers[wrapper_style]
         except KeyError:
-            wrapper_cfg = styles.wrappers['default']
-        return ContentManager(wrapper = wrapper_cfg,
+            wrapper_cfg = styles.wrappers['simple']
+        return ContentManager(parent = self.currentFrame, wrapper = wrapper_cfg,
             translator = translator_cfg,
             **content_cfg)
 
@@ -160,10 +160,8 @@ class TxtVisitor(NodeVisitor):
                 number += node.parent['start'] - 1
             itemtext += func(number)
             itemtext += node.parent['suffix']
-        newText = GenericText(text = itemtext, translator = styles.translators['default']) # write a getGenericText factory function?
-        content = ContentManager()
-        content += newText
-        newFrame += content
+        content = ContentManager(newFrame)
+        GenericText(content, text = itemtext, translator = styles.translators['default']) # write a getGenericText factory function?
         self.currentFrame = newFrame
 
 
@@ -203,7 +201,7 @@ class TxtVisitor(NodeVisitor):
         
         
     def visit_Text(self, node):
-         self.currentContent += GenericText(text = node.astext())
+        GenericText(self.currentContent, text = node.astext())
 
         
     def depart_Text(self, node): pass

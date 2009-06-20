@@ -2,7 +2,7 @@
 # This script contains one unittest rendering a nested enumeration. This
 # serves to demonstrate the configuration of the Frame and content objects including the
 # use of translators.
-# The configuration of the YABT translator is though commented out as few
+# The configuration of the YABT and Louis Braille translators is though commented out as few
 # users will have the package installed. Those interested will find the URL of the YABT website in
 # transcribo/render/translator.py.
 
@@ -95,6 +95,7 @@ still further in his waistcoat, as I announced my name. """ * 5
         translator_cfg = [None, # no translator
             dict(class_path = 'translators.UpperTrans'), # uppercase translator
             # dict(class_path = 'translators.YABTrans', state = 2), # Braille grade 2
+            dict(class_path = 'translators.Louis', tables = ['en-US-g2.ctb']),
             None, None, None, None, None]
             
             # create the frames
