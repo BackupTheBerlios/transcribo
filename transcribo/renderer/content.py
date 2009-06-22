@@ -123,7 +123,7 @@ class GenericText:
         parent += self
         self.text = text
         self.translator_cfg = translator
-        for k,v in args:
+        for k,v in args.items():
             setattr(self, k, v)
         if self.translator_cfg:
             self.translator = get_singleton(**self.translator_cfg)

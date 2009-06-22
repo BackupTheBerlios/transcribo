@@ -121,15 +121,14 @@ class TxtVisitor(NodeVisitor):
         header_spec = None, footer_spec = styles.footers['default'],
         translator_cfg = styles.translators['default'])
         self.root = RootFrame(max_width = self.paginator.width)
-        self.parent = self.root
-        self.currentFrame = self.root
+        self.parent = self.currentFrame = self.root
         self.section_level = 0
 
     
     
     def depart_document(self, node):
-        cache = self.root.render()
-        self.output = self.paginator(cache)
+        self.root.render()
+        self.output = self.paginator.render(self.root.cache)
             
 
     def visit_enumerated_list(self, node):
@@ -160,7 +159,7 @@ class TxtVisitor(NodeVisitor):
                 number += node.parent['start'] - 1
             itemtext += func(number)
             itemtext += node.parent['suffix']
-        content = ContentManager(newFrame)
+        content = ContentManager(newFrame, wrapper = styles.wrappers['simple'])
         GenericText(content, text = itemtext, translator = styles.translators['default']) # write a getGenericText factory function?
         self.currentFrame = newFrame
 
@@ -181,9 +180,8 @@ class TxtVisitor(NodeVisitor):
             newFrame.update(x_anchor = self.parent[0])
             if len(self.parent) == 2:
                 newFrame.update(y_hook = 'top')
-        self.currentContent = self.getContentManager()
-        newFrame += self.currentContent
         self.currentFrame = newFrame
+        self.currentContent = self.getContentManager()
 
             
             
@@ -215,9 +213,8 @@ class TxtVisitor(NodeVisitor):
                 newFrame.update(y_hook = 'top')
             else:
                 newFrame.update(y_hook = 'bottom')
-            self.currentContent = self.getContentManager()
-            newFrame += self.currentContent
             self.currentFrame = newFrame
+            self.currentContent = self.getContentManager()
         else:
             raise TypeError('Cannot handle title node in this context (parent = %s' % node.parent)
 
