@@ -22,3 +22,18 @@ Enumerations
    #) Oranges: are amongst the most delicious fruits on earth. Consumers benefit from a high level of healthy ingredients.
 
 #. Pies: are amongst the most delicious fruits on earth. Consumers benefit from a high level of healthy ingredients.
+
+
+
+Essay
+==========
+
+Über den Neid
+==================
+
+Neid ist ein Gefühl. Es entsteht, wenn ein anderer etwas hat, das der Neidende
+gern hätte, sich also wünscht, aber glaubt, es nicht erlangen tzu können. Die tatsächliche
+Unerlangbarkeit ist ohne Bedeutung. Denn jeder lebt in seiner Welt, die nicht notwendig
+mit der realen übereinstimmt.
+
+Was unterscheidet nun den Neid von dem Gefühl des reinen Wunsches?

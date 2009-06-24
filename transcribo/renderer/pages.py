@@ -73,12 +73,12 @@ class Page(BuildingBlock):
         phys_lines = []
 
         # top margin
-        phys_lines.extend([''] * self.page_spec['top_margin'])
+        phys_lines.extend([u''] * self.page_spec['top_margin'])
 
         # physical left margin of this page
         n = self.page_spec['left_margin']
         if not (self.index % 2): n += self.page_spec['inner_margin']
-        phys_margin = ' ' * n
+        phys_margin = u' ' * n
 
         if self.header:
             pass # not yet supported
@@ -92,7 +92,7 @@ class Page(BuildingBlock):
         for l in cache[self.first : self.last + 1]:
             # insert blank lines, if necessary
             ly = l.get_y()
-            phys_lines.extend([''] * (ly - len(phys_lines) - self.y))
+            phys_lines.extend([u''] * (ly - len(phys_lines) - self.y))
 
             # generate new non-empty physical line, if necessary
             if prev_y < ly:
@@ -102,22 +102,22 @@ class Page(BuildingBlock):
             phys_lines[-1] = phys_lines[-1].ljust(l.get_x() + len(phys_margin))
             
             # add the actual line content
-            phys_lines[-1] += str(l)
+            phys_lines[-1] += l.render()
             prev_y = ly
             
         # add blank lines at the bottom, if necessary
         while len(phys_lines) < self.net_length():
-            phys_lines.append('')
+            phys_lines.append(u'')
 
         # add footer
         if self.footer:
             phys_lines.append(phys_margin)
             for l in self.footer.cache:
                 phys_lines[-1] = phys_lines[-1].ljust(len(phys_margin) + l.get_x())
-                phys_lines[-1] += str(l)
+                phys_lines[-1] += l.render()
 
         # bottom margin
-        phys_lines.extend([''] * self.page_spec['bottom_margin'])
+        phys_lines.extend([u''] * self.page_spec['bottom_margin'])
         
         return '\n'.join(phys_lines)
         

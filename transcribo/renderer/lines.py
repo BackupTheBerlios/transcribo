@@ -20,7 +20,7 @@ class Line(BuildingBlock):
             self.result = self.__str__()
         return len(self.result)
         
-    def __str__(self):
+    def render(self):
         if self.result: return self.result
         if self.refs:
             self.text = self.raw_text.format((r.render() for r in self.refs))
