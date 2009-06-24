@@ -12,7 +12,7 @@ class Line(BuildingBlock):
         self.align = align
         self.refs = refs
         self.targets = targets
-        self.result = ''
+        self.text = ''
         
         
     def __len__(self):
@@ -21,7 +21,7 @@ class Line(BuildingBlock):
         return len(self.result)
         
     def render(self):
-        if self.result: return self.result
+        if self.text: return self.text
         if self.refs:
             self.text = self.raw_text.format((r.render() for r in self.refs))
         else:

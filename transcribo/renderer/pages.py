@@ -73,12 +73,12 @@ class Page(BuildingBlock):
         phys_lines = []
 
         # top margin
-        phys_lines.extend([u''] * self.page_spec['top_margin'])
+        phys_lines.extend([''] * self.page_spec['top_margin'])
 
         # physical left margin of this page
         n = self.page_spec['left_margin']
         if not (self.index % 2): n += self.page_spec['inner_margin']
-        phys_margin = u' ' * n
+        phys_margin = ' ' * n
 
         if self.header:
             pass # not yet supported
@@ -92,7 +92,7 @@ class Page(BuildingBlock):
         for l in cache[self.first : self.last + 1]:
             # insert blank lines, if necessary
             ly = l.get_y()
-            phys_lines.extend([u''] * (ly - len(phys_lines) - self.y))
+            phys_lines.extend([''] * (ly - len(phys_lines) - self.y))
 
             # generate new non-empty physical line, if necessary
             if prev_y < ly:
@@ -107,7 +107,7 @@ class Page(BuildingBlock):
             
         # add blank lines at the bottom, if necessary
         while len(phys_lines) < self.net_length():
-            phys_lines.append(u'')
+            phys_lines.append('')
 
         # add footer
         if self.footer:
@@ -117,7 +117,7 @@ class Page(BuildingBlock):
                 phys_lines[-1] += l.render()
 
         # bottom margin
-        phys_lines.extend([u''] * self.page_spec['bottom_margin'])
+        phys_lines.extend([''] * self.page_spec['bottom_margin'])
         
         return '\n'.join(phys_lines)
         
@@ -142,15 +142,16 @@ class Paginator:
     def create_pages(self, cache):
         pages = self.pages
         cur_page = pages[-1]
-        for l in cache:
+        net_len = cur_page.net_length()
+        for l in range(len(cache)):
             # does this line fit on current page?
-            if cur_page.y <= l.get_y() <= cur_page.y + cur_page.net_length():
-                cur_page.last = cache.index(l)
-                if l.targets:
-                    l.page = pages.index(cur_page)
-                    self.targets.append(l)
-                if l.refs:
-                    self.refs.append(l)
+            if cur_page.y <= cache[l].get_y() <= cur_page.y + net_len:
+                cur_page.last = l
+                if cache[l].targets:
+                    cache[l].page = pages.index(cur_page)
+                    self.targets.append(cache[l])
+                if cache[l].refs:
+                    self.refs.append(cache[l])
             else:
                 # create new page
                 cur_page.close()
@@ -159,6 +160,7 @@ class Paginator:
                     footer_spec = self.footer_spec, translator_cfg = self.translator_cfg))
                 cur_page = pages[-1]
                 cur_page.setup()
+                net_len = cur_page.net_length()
 
         # close last page
         cur_page.close()
