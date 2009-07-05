@@ -1,39 +1,30 @@
-Demonstration of Transcribo
-=================================
+==========================
+This is the document title
+==========================
 
-Lists
--------------
-
-
-* trees
-
-  - oaktrees
-  - cherry-trees
-    
-* lawn
-
-Enumerations
+-----------------
+Document subtitle
 -----------------
 
-1. Apples: are amongst the most delicious fruits on earth. Consumers benefit from a high level of healthy ingredients.
-#. Oranges: are amongst the most delicious fruits on earth. Consumers benefit from a high level of healthy ingredients.
 
-   a) Apples: are amongst the most delicious fruits on earth. Consumers benefit from a high level of healthy ingredients.
-   #) Oranges: are amongst the most delicious fruits on earth. Consumers benefit from a high level of healthy ingredients.
+Section 1: Introduction
+================================
 
-#. Pies: are amongst the most delicious fruits on earth. Consumers benefit from a high level of healthy ingredients.
-
+Transcribo is a *plain text renderer* for various **input formats**. It is
+highly customizable. The following is a block quote:
 
 
-Essay
-==========
+Transcribo has been written in the hop that itproducing plain text documents that are
+well-formatted.
 
-Über den Neid
-==================
 
-Neid ist ein Gefühl. Es entsteht, wenn ein anderer etwas hat, das der Neidende
-gern hätte, sich also wünscht, aber glaubt, es nicht erlangen tzu können. Die tatsächliche
-Unerlangbarkeit ist ohne Bedeutung. Denn jeder lebt in seiner Welt, die nicht notwendig
-mit der realen übereinstimmt.
+    will be *useful* to many people concerned with
+    text processing. This the end of block quote.
+    will be *useful* to many people concerned with
+    text processing. This the end of block quote.
+    will be *useful* to many people concerned with
+    text processing. This the end of block quote.
+    will be *useful* to many people concerned with
+    text processing. This the end of block quote.
 
-Was unterscheidet nun den Neid von dem Gefühl des reinen Wunsches?
+The preceding is a block quote.

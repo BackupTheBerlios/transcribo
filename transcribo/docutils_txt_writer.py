@@ -101,6 +101,18 @@ class TxtVisitor(NodeVisitor):
             result.update(y_hook = 'bottom')
         return result
         
+        
+    def visit_block_quote(self, node):
+        # create a container frame for the indentations
+        newFrame = self.getFrame('block_quote_container')
+        self.parent = self.currentFrame = newFrame
+
+
+    def depart_block_quote(self, node):
+        self.currentFrame = self.parent
+        self.parent = self.parent.parent
+
+    
 
     def visit_bullet_list(self, node):
         newFrame = self.getFrame('list_container')
@@ -131,6 +143,12 @@ class TxtVisitor(NodeVisitor):
         self.output = self.paginator.render(self.root.cache)
             
 
+    def visit_emphasis(self, node): pass
+    
+    
+    def depart_emphasis(self, node): pass
+    
+    
     def visit_enumerated_list(self, node):
         newFrame = self.getFrame('list_container')
         if self.parent is not self.currentFrame:
@@ -197,12 +215,22 @@ class TxtVisitor(NodeVisitor):
         self.section_level -= 1
         
         
+    def visit_strong(self, node): pass
+    
+    
+    def depart_strong(self, node): pass
+        
         
     def visit_Text(self, node):
-        GenericText(self.currentContent, text = node.astext())
+        if (isinstance(node.parent, nodes.emphasis) or
+            isinstance(node.parent, nodes.strong)):
+            font_style = styles.translators['emphasis']
+        else: font_style = None
+        GenericText(self.currentContent, text = node.astext(), translator = font_style)
 
         
     def depart_Text(self, node): pass
+
 
     def visit_title(self, node):
         if isinstance(node.parent, nodes.section) or isinstance(node.parent, nodes.document):
@@ -214,9 +242,23 @@ class TxtVisitor(NodeVisitor):
             else:
                 newFrame.update(y_hook = 'bottom')
             self.currentFrame = newFrame
-            self.currentContent = self.getContentManager()
+            self.currentContent = self.getContentManager(content_style = 'heading0')
         else:
             raise TypeError('Cannot handle title node in this context (parent = %s' % node.parent)
 
 
     def depart_title(self, node): pass
+
+
+
+    def visit_subtitle(self, node):
+        newFrame = self.getFrame('heading0')
+        if self.currentFrame == self.parent: # probably supervluous as subtitle can only occur after doctitle
+            newFrame.update(y_hook = 'top')
+        else:
+            newFrame.update(y_hook = 'bottom')
+        self.currentFrame = newFrame
+        self.currentContent = self.getContentManager(content_style = 'heading0')
+
+            
+    def depart_subtitle(self, node): pass

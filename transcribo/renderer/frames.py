@@ -253,7 +253,8 @@ class RootFrame(BuildingBlock):
 
     def render(self):
         for c in self.children: c.render()
-        return self.cache.sort()
+        self.cache.sort()
+        return self.cache
 
 
 

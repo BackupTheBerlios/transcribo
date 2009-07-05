@@ -18,6 +18,10 @@ translators = dict(
 
     upper = dict(
         class_path = 'translators.UpperTrans'
+    ),
+    
+    emphasis = dict(
+        class_path = 'translators.UpperTrans'
     )
 )
 
@@ -70,7 +74,7 @@ frames = dict(
         x_offset = 0,
         y_align ='top',
         y_hook = 'bottom',
-        y_offset = 3,
+        y_offset = 1,
         right_indent = 0,
         lines_below = 1,
         max_width = 0,
@@ -154,6 +158,22 @@ frames = dict(
         max_height = 1,
         height_mode = 'fixed'
     ),
+    
+    block_quote_container = dict(
+        x_align = 'left',
+        x_hook = 'left',
+        x_offset = 4,
+        y_align ='top',
+        y_hook = 'top',
+        y_offset = 1,
+        right_indent = 4,
+        lines_below = 1,
+        max_width = 0,
+        width_mode = 'fixed',
+        max_height = 0,
+        height_mode = 'auto'
+    ),
+
     pagenum_right = dict(
         x_align = 'right',
         x_hook = 'right',
@@ -185,7 +205,8 @@ frame = dict(
     list_container = frames['list_container'],
     list_item = frames['list_item'],
     list_body = frames['list_body'],
-    list_item_container = frames['list_item_container']
+    list_item_container = frames['list_item_container'],
+    block_quote_container = frames['block_quote_container']
 )
 
 pages = dict(
