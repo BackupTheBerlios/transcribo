@@ -220,6 +220,9 @@ class TxtVisitor(NodeVisitor):
     
     def depart_strong(self, node): pass
         
+    def visit_reference(self, node): pass
+    
+    def depart_reference(self, node): pass
         
     def visit_Text(self, node):
         if (isinstance(node.parent, nodes.emphasis) or
