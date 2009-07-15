@@ -30,9 +30,9 @@ class Writer(docutils.writers.Writer):
             (
                 (
                     "Braille translation, default is 'no'",
-                    ('--braille', '-brl'),
-                    {'default': 0,
-                        'type': 'int'
+                    ('--translator', '-tl'),
+                    {'default': None,
+                        'type': 'str'
                     }
                 ),
                 (
@@ -62,25 +62,21 @@ class TxtVisitor(NodeVisitor):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = document.settings
         # Convert some settings to int
-        for s in ['braille', 'page_width']:
+        for s in ['page_width']:
             v = getattr(self.settings, s)
             setattr(self.settings, s, int(v))
         
         
         
 
-    def getContentManager(self, content_style = 'default', translator_style = 'default', wrapper_style = 'default'):
+    def getContentManager(self, content_style = 'default', translator_style = None, wrapper_style = 'default'):
+        if not translator_style:
+            translator_style = self.settings.translator
+        translator_cfg = styles.translators[translator_style]
         try:
             content_cfg = styles.content[content_style]
         except KeyError:
             content_cfg = styles.content['simple']
-        try:
-            if self.settings.braille == 2:
-                translator_cfg = styles.translators['yabt2']
-            else:
-                translator_cfg = styles.translators['default']
-        except KeyError:
-            translator_cfg = styles.translators['default']
         try:
             wrapper_cfg = styles.wrappers[wrapper_style]
         except KeyError:
@@ -131,7 +127,7 @@ class TxtVisitor(NodeVisitor):
     def visit_document(self, node):
         self.paginator = pages.Paginator(page_spec = styles.pages['default'],
         header_spec = None, footer_spec = styles.footers['default'],
-        translator_cfg = styles.translators['default'])
+        translator_cfg = styles.translators[self.settings.translator])
         self.root = RootFrame(max_width = self.paginator.width)
         self.parent = self.currentFrame = self.root
         self.section_level = 0
@@ -224,6 +220,13 @@ class TxtVisitor(NodeVisitor):
     
     def depart_reference(self, node): pass
         
+        
+    def visit_target(self, node): pass
+    
+    
+    def depart_target(self, node): pass
+    
+    
     def visit_Text(self, node):
         if (isinstance(node.parent, nodes.emphasis) or
             isinstance(node.parent, nodes.strong)):

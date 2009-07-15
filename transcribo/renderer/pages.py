@@ -119,7 +119,7 @@ class Page(BuildingBlock):
         # bottom margin
         phys_lines.extend([''] * self.page_spec['bottom_margin'])
         
-        return '\n'.join(phys_lines)
+        return self.page_spec['line_break'].join(phys_lines)
         
 
 

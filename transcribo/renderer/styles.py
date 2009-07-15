@@ -218,7 +218,8 @@ pages = dict(
         inner_margin = 2,
         top_margin = 2,
         bottom_margin = 4,
-        page_break = '\n\n====='
+        line_break = '\n',
+        page_break = '\n\n\n'
     )
 )
 
