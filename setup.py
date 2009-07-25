@@ -7,7 +7,7 @@ from distutils.core import setup, Extension
 
 longdescr = """Transcribo is a renderer backend for plain text output.\
   
-It ships with a frontend that is a writer component for docutils.\
+It ships with two frontends: (i) a writer component for docutils, (ii) a plain text renderer.\
 
 Note that Transcribo is in alpha status. It is published under the GPL 3.0.
 
