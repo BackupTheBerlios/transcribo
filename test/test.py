@@ -109,13 +109,6 @@ still further in his waistcoat, as I announced my name. """ * 5
         self.assertEqual(True, True)
 
 
-    def test_plaintext(self):
-        from transcribo.plaintext import Writer
-        w = Writer()
-        self.output = w.render(self.longtext)
-        
-
-
 
     def tearDown(self):
         output_file = open('test1.out', 'w')

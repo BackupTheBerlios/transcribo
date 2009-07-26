@@ -1,5 +1,7 @@
 recursive-include transcribo *.conf
-include test/*.txt test/rst2txt.py *.conf
+include test/*.txt *.conf
+include scripts/*.py *.conf
+
 
 
 
