@@ -16,7 +16,7 @@ from transcribo import logger
 class Writer:
 
     def __init__(self, page_sty = 'default', frame_sty = 'body1',
-        translator_sty = 'YABT_en', wrapper_sty = 'simple', footer_sty = 'default'):
+        translator_sty = 'YABT_en', wrapper_sty = 'indent2', footer_sty = 'default'):
         self.page_sty = page_sty
         self.frame_sty = frame_sty
         self.translator_sty = translator_sty
@@ -31,38 +31,30 @@ class Writer:
         self.root = RootFrame(max_width = self.paginator.width)
         
         # prepare the text
-        lines = text.split()
+        lines = text.splitlines()
         
-        # remove any subsequent blank lines
-        blank_line = False
-        i = 0
-        while i < len(lines):
-            if lines[i].isspace():
-                if blank_line: lines.pop(i)
-                blank_line = True
-            else:
-                blank_line = False
-                i += 1
 
         # assemble paragraphs
         paragraphs = []
-        i=0
+        l = len(lines)
+        last = l-1
         in_paragraph = False
-        while i < len(lines):
-            if lines[i].isspace():
-                in_paragraph = False
-            else:
-                if in_paragraph: paragraphs[-1] = ' '.join((paragraphs[-1], lines[i]))
-                else:
+        for i in range(l):
+            # beginning of paragraph
+            if not in_paragraph:
                     in_paragraph = True
-                    paragraphs.append(lines[i])
-            i += 1
-                    
+                    start = i
+                # end of paragraph
+            elif (lines[i].isspace() or i == last) and in_paragraph:
+                    paragraphs.append(u' '.join(lines[start:i]))
+                    in_paragraph = False
+
+
         # build the frames. Each paragraph gets one
         cfg = styles.frames[self.frame_sty].copy()
         for p in paragraphs:
             if len(self.root):
-                cfg.update(x_anchor = self.root[-1], y_anchor = self.root[-1], y_hooc = 'bottom')
+                cfg.update(x_anchor = self.root[-1], y_anchor = self.root[-1], y_hook = 'bottom')
             else:
                 cfg.update(x_anchor = self.root, y_anchor = self.root, y_hook = 'top')
             f = Frame(self.root, **cfg)

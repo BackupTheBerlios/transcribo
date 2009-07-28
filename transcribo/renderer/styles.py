@@ -30,7 +30,7 @@ translators = dict(
 wrappers = dict(
     indent2 = dict(
         class_path = 'textwrap.TextWrapper',
-        initial_indent = '  '
+        initial_indent = u'  '
     ),
     simple = dict(
         class_path = 'textwrap.TextWrapper'
