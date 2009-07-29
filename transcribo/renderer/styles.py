@@ -213,11 +213,11 @@ pages = dict(
     default = dict(
         width = 30,
         length = 29,
-        left_margin = 1,
-        right_margin = 1,
+        left_margin = 0,
+        right_margin = 0,
         inner_margin = 1,
-        top_margin = 1,
-        bottom_margin = 2,
+        top_margin = 0,
+        bottom_margin = 0,
         line_break = '\n',
         page_break = '\x0c'
     )

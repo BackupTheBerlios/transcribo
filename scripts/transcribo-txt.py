@@ -52,5 +52,5 @@ if args:
     with codecs.open(args[0], 'w', options.enc) as o:
         o.write(result)
 else:
-    sys.stdout.write(result)
+    sys.stdout.write(result.encode(options.enc))
 

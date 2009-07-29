@@ -31,23 +31,24 @@ class Writer:
         self.root = RootFrame(max_width = self.paginator.width)
         
         # prepare the text
+        # appending an empty line simplifies handling of paragraphs at the very end of the text. 
         lines = text.splitlines()
+        lines.append(u'')
         
 
         # assemble paragraphs
         paragraphs = []
         l = len(lines)
-        last = l-1
         in_paragraph = False
         for i in range(l):
             # beginning of paragraph
-            if not in_paragraph:
-                    in_paragraph = True
-                    start = i
-                # end of paragraph
-            elif (lines[i].isspace() or i == last) and in_paragraph:
-                    paragraphs.append(u' '.join(lines[start:i]))
-                    in_paragraph = False
+            if not (in_paragraph or lines[i].isspace() or lines[i] == u''):
+                in_paragraph = True
+                start = i
+            # end of paragraph
+            elif in_paragraph and (lines[i].isspace() or lines[i] == u''):
+                paragraphs.append(u' '.join(lines[start:i]))
+                in_paragraph = False
 
 
         # build the frames. Each paragraph gets one
