@@ -16,8 +16,9 @@ Transcribo is a *plain text renderer* for various **input formats**. It is
 highly customizable. The following is a block quote:
 
 
-Transcribo has been written in the hop that itproducing plain text documents that are
-well-formatted.
+  Transcribo has been written in the hop that itproducing plain text documents
+  that are
+  well-formatted.
 
 
     will be *useful* to many people concerned with
@@ -32,6 +33,12 @@ well-formatted.
     text processing. This the end of block quote.
 
 The preceding is a block quote.
+
+
+| Shall I compare the to a summer's day?
+| thou art more lovely and more temperate.
+| And while I search for God almighty,
+| thou genius enchants my foolish heart.
 
 References
 ----------

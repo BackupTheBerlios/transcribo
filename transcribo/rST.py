@@ -76,11 +76,11 @@ class TxtVisitor(NodeVisitor):
         try:
             content_cfg = styles.content[content_style]
         except KeyError:
-            content_cfg = styles.content['simple']
+            content_cfg = styles.content['standard']
         try:
             wrapper_cfg = styles.wrappers[wrapper_style]
         except KeyError:
-            wrapper_cfg = styles.wrappers['simple']
+            wrapper_cfg = styles.wrappers['standard']
         return ContentManager(parent = self.currentFrame, wrapper = wrapper_cfg,
             translator = translator_cfg,
             **content_cfg)
@@ -173,7 +173,7 @@ class TxtVisitor(NodeVisitor):
                 number += node.parent['start'] - 1
             itemtext += func(number)
             itemtext += node.parent['suffix']
-        content = ContentManager(newFrame, wrapper = styles.wrappers['simple'])
+        content = ContentManager(newFrame, wrapper = styles.wrappers['standard'])
         GenericText(content, text = itemtext, translator = styles.translators['default']) # write a getGenericText factory function?
         self.currentFrame = newFrame
 
@@ -268,3 +268,26 @@ class TxtVisitor(NodeVisitor):
 
             
     def depart_subtitle(self, node): pass
+
+
+    def visit_decoration(self, node): pass
+    def depart_decoration(self, node): pass
+    
+    
+    def visit_line_block(self, node):
+        newFrame = self.getFrame('list_container') # the double use of list_container may be confusing. Create line_block_container?
+        if self.parent is not self.currentFrame:
+            newFrame.update(x_anchor = self.currentFrame)
+        self.currentFrame = self.parent = newFrame
+
+
+    def depart_line_block(self, node):
+        self.currentFrame = self.parent
+        self.parent = self.parent.parent
+
+    def visit_line(self, node):
+        newFrame = self.getFrame('body1')
+        self.currentFrame = newFrame
+        self.currentContent = self.getContentManager(wrapper_style = 'pending2')
+
+    def depart_line(self, node): pass

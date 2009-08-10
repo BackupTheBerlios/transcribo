@@ -58,7 +58,7 @@ class Page(BuildingBlock):
             # Generate page number string
             pagenum_str = str(self.index + 1)
             ContentManager(self.footer[0],
-                wrapper = styles.wrappers['simple'],
+                wrapper = styles.wrappers['standard'],
                 **self.footer_spec['pagenumcontent_cfg'])
             GenericText(self.footer[0][0] , text = pagenum_str, translator = self.translator_cfg)
             self.footer.render()

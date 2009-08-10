@@ -3,27 +3,27 @@
 
 """Styles for frames, ContentManagers and such like."""
 
-translators = dict(
-    default = None,
+translators = {
+    'default' : None,
     # Braille translation with YABT for British grade2 Braille.
-    YABT_en = dict(
+    'yabt-en' : dict(
         class_path = 'translators.YABTrans'
     ),
     # liblouis Braille translation with en_US Braille grade2 table
-    louis_en = dict(
+    'louis-en' : dict(
         class_path = 'translators.Louis',
         tables = ['en-US-g2.ctb'],
         mode = 0
     ),
 
-    upper = dict(
+    'upper' : dict(
         class_path = 'translators.UpperTrans'
     ),
     
-    emphasis = dict(
+    'emphasis' : dict(
         class_path = 'translators.UpperTrans'
     )
-)
+}
 
 
 
@@ -32,7 +32,11 @@ wrappers = dict(
         class_path = 'textwrap.TextWrapper',
         initial_indent = u'  '
     ),
-    simple = dict(
+    pending2 = dict(
+        class_path = 'textwrap.TextWrapper',
+        subsequent_indent = u'  '
+    ),
+    standard = dict(
         class_path = 'textwrap.TextWrapper'
     )
 )
@@ -40,7 +44,7 @@ wrappers = dict(
 
 
 content = dict(
-    simple = dict(),
+    standard = dict(),
     heading0 = dict(
         x_align = 'center'
     ),
@@ -226,7 +230,7 @@ pages = dict(
 footers = dict(
     default = dict(
         pagenum_cfg = frames['pagenum_right'],
-        pagenumcontent_cfg = content['simple']
+        pagenumcontent_cfg = content['standard']
     )
 )
         

@@ -16,7 +16,7 @@ from transcribo import logger
 class Writer:
 
     def __init__(self, page_sty = 'default', frame_sty = 'body1',
-        translator_sty = 'YABT_en', wrapper_sty = 'indent2', footer_sty = 'default'):
+        translator_sty = 'yabt-en', wrapper_sty = 'indent2', footer_sty = 'default'):
         self.page_sty = page_sty
         self.frame_sty = frame_sty
         self.translator_sty = translator_sty
