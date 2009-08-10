@@ -50,3 +50,6 @@ My favorite language is
 If this has been to difficult,
 it is recommended to read this text from the _`beginning`.
 
+.. topic:: Important Topic
+    There is much to say on this.
+

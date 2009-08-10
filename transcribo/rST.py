@@ -125,6 +125,7 @@ class TxtVisitor(NodeVisitor):
         
 
     def visit_document(self, node):
+        logger.info('transcribo.rST.py: Building frame tree...')
         self.paginator = pages.Paginator(page_spec = styles.pages['default'],
         header_spec = None, footer_spec = styles.footers['default'],
         translator_cfg = styles.translators[self.settings.translator])
@@ -135,6 +136,7 @@ class TxtVisitor(NodeVisitor):
     
     
     def depart_document(self, node):
+        logger.info('transcribo.rST.py: Rendering frame tree...')
         self.root.render()
         self.output = self.paginator.render(self.root.cache)
             
@@ -216,6 +218,11 @@ class TxtVisitor(NodeVisitor):
     
     def depart_strong(self, node): pass
         
+    def visit_literal(self, node): pass # support in visit_text to be implemented
+    def depart_literal(self, node): pass
+
+
+        
     def visit_reference(self, node): pass
     
     def depart_reference(self, node): pass
@@ -239,7 +246,8 @@ class TxtVisitor(NodeVisitor):
 
 
     def visit_title(self, node):
-        if isinstance(node.parent, nodes.section) or isinstance(node.parent, nodes.document):
+        if (isinstance(node.parent, nodes.section) or
+            isinstance(node.parent, nodes.document) or isinstance(node.parent, nodes.topic)):
             frame_style = 'heading' + str(self.section_level)
             newFrame = self.getFrame(frame_style)
             # first frame within this parent frame?
@@ -291,3 +299,18 @@ class TxtVisitor(NodeVisitor):
         self.currentContent = self.getContentManager(wrapper_style = 'pending2')
 
     def depart_line(self, node): pass
+    
+    
+    
+    def visit_topic(self, node): pass
+    def depart_topic(self, node): pass
+    
+    def visit_system_message(self, node):
+        logger.log((node['level'] + 1) * 10, 'transcribo.rST.py: DOCUTILS HAS REPORTED AN %s in %s, line %i. Msg Text: %s',
+            node['type'], node['source'], node['line'], node[0][0].astext())
+
+    def depart_system_message(self, node): pass
+    
+    def visit_literal_block(self, node): pass
+    def depart_literal_block(self, node): pass
+    
