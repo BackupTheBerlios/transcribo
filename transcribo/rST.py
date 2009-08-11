@@ -138,6 +138,7 @@ class TxtVisitor(NodeVisitor):
     def depart_document(self, node):
         logger.info('transcribo.rST.py: Rendering frame tree...')
         self.root.render()
+        logger.info('transcribo.rST.py: Paginating and generating plain text file...')
         self.output = self.paginator.render(self.root.cache)
             
 
@@ -250,11 +251,6 @@ class TxtVisitor(NodeVisitor):
             isinstance(node.parent, nodes.document) or isinstance(node.parent, nodes.topic)):
             frame_style = 'heading' + str(self.section_level)
             newFrame = self.getFrame(frame_style)
-            # first frame within this parent frame?
-            if self.currentFrame == self.parent:
-                newFrame.update(y_hook = 'top')
-            else:
-                newFrame.update(y_hook = 'bottom')
             self.currentFrame = newFrame
             self.currentContent = self.getContentManager(content_style = 'heading0')
         else:
@@ -263,6 +259,8 @@ class TxtVisitor(NodeVisitor):
 
     def depart_title(self, node): pass
 
+    def visit_generated(self, node): pass
+    def depart_generated(self, node): pass
 
 
     def visit_subtitle(self, node):
@@ -311,6 +309,17 @@ class TxtVisitor(NodeVisitor):
 
     def depart_system_message(self, node): pass
     
-    def visit_literal_block(self, node): pass
+    
+    def visit_literal_block(self, node): pass # to be revisited
     def depart_literal_block(self, node): pass
+    
+    
+    
+    def visit_problematic(self, node): # to be revisited
+        logger.error('transcribo.rST.py: Docutils has encountered an unspecified problem.')
+            
+    def depart_problematic(self, node): pass
+    
+
+    
     
