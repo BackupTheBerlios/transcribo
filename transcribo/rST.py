@@ -19,7 +19,7 @@ from transcribo import logger
 
 class Writer(docutils.writers.Writer):
 
-    supported = ('brl',)
+    supported = ('txt',)
     
     config_section = 'docutils_txt_writer'
 
@@ -29,7 +29,7 @@ class Writer(docutils.writers.Writer):
         ('Options specific to  Transcribo`s docutils_txt_writer', 'no description on this item',
             (
                 (
-                    "Braille translation, default is 'no'",
+                    "translation, eg. for Braille. The name mus  be defined in transcribo.renderer.styles.py. default is 'no translator'",
                     ('--translator', '-tl'),
                     {'default': None,
                         'type': 'str'
@@ -126,9 +126,12 @@ class TxtVisitor(NodeVisitor):
 
     def visit_document(self, node):
         logger.info('transcribo.rST.py: Building frame tree...')
-        self.paginator = pages.Paginator(page_spec = styles.pages['default'],
+        current_page_spec = styles.pages['default']
+        current_page_spec['width'] = self.settings.page_width
+        self.paginator = pages.Paginator(page_spec = current_page_spec,
         header_spec = None, footer_spec = styles.footers['default'],
         translator_cfg = styles.translators[self.settings.translator])
+        self.paginator.width = int(self.settings.page_width)
         self.root = RootFrame(max_width = self.paginator.width)
         self.parent = self.currentFrame = self.root
         self.section_level = 0

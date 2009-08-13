@@ -19,6 +19,10 @@ translators = {
     'upper' : dict(
         class_path = 'translators.UpperTrans'
     ),
+    'null' : dict(
+        class_path = 'translators.NullTrans'
+    ),
+
     
     'emphasis' : dict(
         class_path = 'translators.UpperTrans'

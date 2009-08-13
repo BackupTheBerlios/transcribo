@@ -5,23 +5,15 @@ from distutils.core import setup, Extension
 
 
 
-longdescr = """Transcribo is a renderer backend for plain text output.\
-  
-It ships with two frontends: (i) a writer component for docutils, (ii) a plain text renderer.\
+longdescr = open('README.txt').read()
 
-Note that Transcribo is in alpha status. It is published under the GPL 3.0.
-
-Contact the author at fhaxbox66@googlemail.com.d
-
-
-"""
 
 arg_dict = dict(
-    name = "Transcribo", version = "0.1",
+    name = "Transcribo", version = "0.5",
     author = "Dr. Leo",
-    author_email = "fhaxbox66@googlemail.com",
-    url = "http://developer.berlios.de/projects/transcribo/",
-    description = "An extensible plain text renderer for arbitrary input sources and content formats including a frontend for reStructuredText",
+    author_email = "dr-leo@berlios.de",
+    url = "http://transcribo.berlios.de",
+    description = "A general purpose plain text renderer for arbitrary input formats including frontends for reStructuredText and plain text",
     long_description = longdescr,
     classifiers = [
         'Intended Audience :: Developers',

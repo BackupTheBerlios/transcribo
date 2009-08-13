@@ -1,7 +1,9 @@
-recursive-include transcribo *.conf
-include test/*.txt *.conf
-include scripts/*.py *.conf
+recursive-include transcribo *.py
+include test/test.py
+include scripts/*.conf *.py
 include MANIFEST
-
+prune docs
+prune website
+prune temp
 
 

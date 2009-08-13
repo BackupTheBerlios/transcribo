@@ -52,5 +52,11 @@ class Louis:
     def run(self, s):
         return self.louis.translateString(self.tables, s, self.mode)
         
+class NullTrans:
+    '''A translator that leaves the text unchanged.'''
+
+    def __init__(self): pass
     
+    def run(self, s):
+        return s
     
