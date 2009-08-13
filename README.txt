@@ -87,7 +87,7 @@ translator to be used (default is None). All other configurations are contained 
 Downloading and contributing
 ===============================
 
-* You can download a snapshot_ from the Mercurial repository
+* You can download the latest release_ or a snapshot_ from the Mercurial repository
 * if Mercurial_ is installed on your machine, you can pull the latest sources_
 * Feel free to join the `mailing list`_
 * send an e-mail to the author_ 
@@ -118,3 +118,5 @@ of styles can be found in rST.py. Please feel free to submit any questions to th
 .. _mailing list: http://developer.berlios.de/mail/?group_id=10799
 
 .. _author: dr-leo@users.berlios.de
+
+.. _release: http://pypi.python.org/pypi/Transcribo/
