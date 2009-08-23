@@ -17,6 +17,8 @@ arg_dict = dict(
     long_description = longdescr,
     classifiers = [
         'Intended Audience :: Developers',
+        'Intended Audience :: Education',
+        'Intended Audience :: End Users/Desktop',
          'Development Status :: 3 - Alpha',
         'License :: OSI Approved',
         'Operating System :: OS Independent',

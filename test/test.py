@@ -66,7 +66,7 @@ still further in his waistcoat, as I announced my name. """ * 5
                     else:
                         enum_cfg.update(y_hook = 'top', y_offset = 0)
                     enum = Frame(container, **enum_cfg)
-                    content = ContentManager(parent = enum, x_align = 'right', wrapper = styles.wrappers['simple'])
+                    content = ContentManager(parent = enum, x_align = 'right', wrapper = styles.wrappers['standard'])
                     GenericText(content, text = s)
                     
                     
@@ -80,7 +80,7 @@ still further in his waistcoat, as I announced my name. """ * 5
                         max_width = 0, width_mode = 'fixed',
                         max_height = 0, height_mode = 'auto', lines_below = 2)
                     previous = Frame(container, **para_cfg)
-                    content = ContentManager(parent = previous, wrapper = styles.wrappers['simple'], translator = cur_translator)
+                    content = ContentManager(parent = previous, wrapper = styles.wrappers['standard'], translator = cur_translator)
                     GenericText(content, text = self.longtext)
             return container
                     
