@@ -9,7 +9,7 @@ longdescr = open('README.txt').read()
 
 
 arg_dict = dict(
-    name = "Transcribo", version = "0.5.1",
+    name = "Transcribo", version = "0.5.2",
     author = "Dr. Leo",
     author_email = "dr-leo@berlios.de",
     url = "http://transcribo.berlios.de",
@@ -25,7 +25,9 @@ arg_dict = dict(
         'Programming Language :: Python',
                 'Topic :: Text Processing',
     ],
-    packages = ['transcribo', 'transcribo.renderer']
+    packages = ['transcribo', 'transcribo.renderer'],
+    scripts = ['scripts/transcribo-txt.py', 'scripts/transcribo-rst.py',
+        'scripts/transcribo-rst.conf']
 )
 
 
