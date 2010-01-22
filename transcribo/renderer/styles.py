@@ -3,31 +3,40 @@
 
 """Styles for frames, ContentManagers and such like."""
 
-translators = {
-    'default' : None,
+translators = dict(
+    default = None,
     # Braille translation with YABT for British grade2 Braille.
-    'yabt-en' : dict(
+    YABT_en = dict(
         class_path = 'translators.YABTrans'
     ),
     # liblouis Braille translation with en_US Braille grade2 table
-    'louis-en' : dict(
+    louis_en = dict(
         class_path = 'translators.Louis',
         tables = ['en-US-g2.ctb'],
         mode = 0
     ),
 
-    'upper' : dict(
-        class_path = 'translators.UpperTrans'
+    # liblouis Braille translation with German Braille grade1 table
+    louis_de = dict(
+        class_path = 'translators.Louis',
+        tables = ['de-de-g1.ctb'],
+        mode = 0
     ),
-    'null' : dict(
-        class_path = 'translators.NullTrans'
+# liblouis Braille translation with German Braille grade2 table
+    louis_de2 = dict(
+        class_path = 'translators.Louis',
+        tables = ['de-de-g2.ctb'],
+        mode = 0
     ),
 
+    upper = dict(
+        class_path = 'translators.UpperTrans'
+    ),
     
-    'emphasis' : dict(
+    emphasis = dict(
         class_path = 'translators.UpperTrans'
     )
-}
+)
 
 
 
@@ -36,11 +45,7 @@ wrappers = dict(
         class_path = 'textwrap.TextWrapper',
         initial_indent = u'  '
     ),
-    pending2 = dict(
-        class_path = 'textwrap.TextWrapper',
-        subsequent_indent = u'  '
-    ),
-    standard = dict(
+    simple = dict(
         class_path = 'textwrap.TextWrapper'
     )
 )
@@ -48,7 +53,7 @@ wrappers = dict(
 
 
 content = dict(
-    standard = dict(),
+    simple = dict(),
     heading0 = dict(
         x_align = 'center'
     ),
@@ -224,8 +229,8 @@ pages = dict(
         left_margin = 0,
         right_margin = 0,
         inner_margin = 1,
-        top_margin = 0,
-        bottom_margin = 0,
+        top_margin = 1,
+        bottom_margin = 1,
         line_break = '\n',
         page_break = '\x0c'
     )
@@ -234,7 +239,7 @@ pages = dict(
 footers = dict(
     default = dict(
         pagenum_cfg = frames['pagenum_right'],
-        pagenumcontent_cfg = content['standard']
+        pagenumcontent_cfg = content['simple']
     )
 )
         

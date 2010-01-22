@@ -1,4 +1,4 @@
-#! python
+
 
 
 from optparse import OptionParser
@@ -52,5 +52,5 @@ if args:
     with codecs.open(args[0], 'w', options.enc) as o:
         o.write(result)
 else:
-    sys.stdout.write(result.encode(options.enc))
+    sys.stdout.write(result)
 
