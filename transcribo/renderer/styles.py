@@ -45,7 +45,7 @@ wrappers = dict(
         class_path = 'textwrap.TextWrapper',
         initial_indent = u'  '
     ),
-    simple = dict(
+    standard = dict(
         class_path = 'textwrap.TextWrapper'
     )
 )

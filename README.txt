@@ -6,10 +6,15 @@ Transcribo - a plain text rendering library written in pure Python
 | *Project home:* http://transcribo.berlios.de/
 | *Mercurial repository:* http://hg.berlios.de/repos/transcribo/
 | *Mailing List:* transcribo-dev@berlios.de
-| *Version:* 0.5alpha
+| *Version:* 0.5.3 alpha (bug fix release)
 | *Author:* Dr. Leo <dr-leo@users.berlios.de>
 | *License:* GPL (http://www.opensource.org/licenses/gpl-license.html)
 | (c) 2009 Dr. leo
+
+
+
+
+
 
 .. sectnum::
 
