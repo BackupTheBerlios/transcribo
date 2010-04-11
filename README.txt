@@ -6,10 +6,10 @@ Transcribo - a plain text rendering library written in pure Python
 | *Project home:* http://transcribo.berlios.de/
 | *Mercurial repository:* http://hg.berlios.de/repos/transcribo/
 | *Mailing List:* transcribo-dev@berlios.de
-| *Version:* 0.5.3 alpha (bug fix release)
+| *Version:* 0.6 alpha
 | *Author:* Dr. Leo <dr-leo@users.berlios.de>
 | *License:* GPL (http://www.opensource.org/licenses/gpl-license.html)
-| (c) 2009 Dr. leo
+| (c) 2009-2010 Dr. leo
 
 
 
@@ -31,15 +31,18 @@ documents in high-quality Braille. However, Transcribo should be useful in all
 contexts where plain text in complex layouts is needed.
 
 Transcribo has been designed so as to separate the processing of the input file from the actual rendering
-algorithm. Hence, one can speak of two layers: In the input layer various format-specific frontends parse the input streams and feed
-them into the renderer (second level). More specifically, frontends specific to the supported input formats.
+algorithm. Hence, there are two layers: In the input layer various format-specific frontends parse the input streams and feed
+them into the renderer (second layer).
+
+More specifically, the input layer there must be a front end specific to
+each supported  input format. Front ends do the following:
 
 * parse the input file,
-* derive the layout structure and
-* call the renderer to generate
+* derive from it the layout structure and
+* use the renderer to generate
 
-  + a proprietary, tree representation of the document, and
-  + traverse the tree creating a line-by-line representation.
+  + a proprietary tree representation of the document, and
+  + traverse the tree creating a line-by-line representation of the document.
 
 * Thereafter, the renderer's paginator
   is called to insert white space as margins, page breaks, create headers and footers etc.
@@ -52,7 +55,7 @@ frontends for mark-up languages, this
 feature allows the user to control the output at a very high level of granularity.
 
 Currently there are frontends for .. `reStructuredText <http://docutils.sourceforge.net/rst.html>`_ and plain text. Additional frontends
-for formats such as LaTeX, OpenOffice, RTF and HTML would appear useful.
+for formats such as LaTeX, ODF, RTF, XML formats such as DocBook and HTML appear useful.
 
 Installation and usage
 =====================================

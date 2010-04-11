@@ -53,7 +53,7 @@ wrappers = dict(
 
 
 content = dict(
-    simple = dict(),
+    standard = dict(),
     heading0 = dict(
         x_align = 'center'
     ),
@@ -239,7 +239,7 @@ pages = dict(
 footers = dict(
     default = dict(
         pagenum_cfg = frames['pagenum_right'],
-        pagenumcontent_cfg = content['simple']
+        pagenumcontent_cfg = content['standard']
     )
 )
         

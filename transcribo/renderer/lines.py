@@ -3,7 +3,7 @@ from transcribo.renderer.frames import BuildingBlock
 
 
 class Line(BuildingBlock):
-    def __init__(self, text, width, number, parent,  align = 'left', refs = None, targets = None):
+    def __init__(self, text, width, number, parent,  align = 'left', refs = None, targets = None, page_break = 0):
     
         BuildingBlock.__init__(self, parent)
         self.raw_text = text
@@ -13,6 +13,13 @@ class Line(BuildingBlock):
         self.refs = refs
         self.targets = targets
         self.text = ''
+        # page_break: semantics of values:
+        # 0: let Paginator do whatever it sees fit
+        # 1: make hard page_break before this line
+        # 2: make hard page break before this line
+        # if it would otherwise be the last on current page.
+        # This is to avoid widows and orphans.
+        self.page_break = page_break
         
         
     def __len__(self):

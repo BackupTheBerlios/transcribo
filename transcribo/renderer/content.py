@@ -109,8 +109,13 @@ class ContentManager(BuildingBlock):
             # Handle references
             c = raw_content[j].count('\{')
             r = refs[:c]
+            
+            # generate page break info to be used by the paginator:
+            if (j == 0) or (j == len(raw_content) - 2): brk = 2 # avoid widows and orphans
+            else: brk = 0 # simple soft page break
+            
             cache.append(Line(raw_content[j], width, j,
-                self.parent, self.x_align, refs = r))
+                self.parent, self.x_align, refs = r, page_break = brk))
             refs[:c] = []
         self.lines = raw_content # is this really needed?
         return (width, len(raw_content))

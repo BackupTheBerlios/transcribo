@@ -17,14 +17,15 @@ class Page(BuildingBlock):
         self.header_spec = header_spec
         self.footer_spec = footer_spec
         self.translator_cfg = translator_cfg
+        self.closed = False
         
-    def setup(self):
+    def setup(self): # merge with __init__?
         # index of this page in the page list
         self.index = index = self.parent.pages.index(self)
         # Index and y-coord of first line on this page in the line cache
         if index == 0:
             self.first = 0
-            self.y = 0
+            self.y = -1
         else:
             previous_page = self.parent.pages[index - 1]
             self.first = previous_page.last + 1 # caller must make sure that this line exists in cache.
@@ -66,6 +67,7 @@ class Page(BuildingBlock):
             self.footer = None
         # Header: currently no headers supported
         self.header = None
+        self.closed = True
 
             
     def render(self, cache):
@@ -130,30 +132,41 @@ class Paginator:
         self.header_spec = header_spec
         self.footer_spec = footer_spec
         self.translator_cfg = translator_cfg
-        self.refs = []
+        self.refs = [] # yet to be implemented
         self.targets = []
-        self.pages = []
-        self.pages.append(Page(self, page_spec = self.page_spec,
-            header_spec = self.header_spec, footer_spec = self.footer_spec, translator_cfg = self.translator_cfg))
+        # create initial empty page
+        self.pages = [Page(self, page_spec = self.page_spec,
+            header_spec = self.header_spec, footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)]
         self.pages[0].setup()
-        self.width = self.pages[0].get_width()
+        self.width = self.pages[0].get_width() # width for all pages
 
 
     def create_pages(self, cache):
+        '''construct pages from the lines'''
         pages = self.pages
         cur_page = pages[-1]
         net_len = cur_page.net_length()
         for l in range(len(cache)):
-            # does this line fit on current page?
-            if cur_page.y <= cache[l].get_y() <= cur_page.y + net_len:
-                cur_page.last = l
-                if cache[l].targets:
-                    cache[l].page = pages.index(cur_page)
-                    self.targets.append(cache[l])
-                if cache[l].refs:
-                    self.refs.append(cache[l])
-            else:
-                # create new page
+            # put the line on current page unless the page is full or a hard
+            # page break needed
+            # For the semantics of page_break see in the lines module.
+            # The following conditions might become flawed once we insert blank
+            # blank lines merely due to hard or conditional page breaks.
+            # can we still compare Line.y and Page.get_y()?
+            # A possible response might be: lines have y positions reflecting
+            # blank lines inserted at line level. Pages have y positions reflecting
+            # exactly the lines positions, but page.y does not correspond to
+            # the number and length of previous pages.
+            page_break = cache[l].page_break
+            if ((page_break == 1) or # this is for hard page break
+                (page_break == 0 and cache[l].get_y() > cur_page.y + net_len) or # this is for soft page break, i.e. page is full
+                (page_break == 2 and cache[l].get_y() + 1 == cur_page.y + net_len)):
+                            # this last condition may be used to avoid widows and orphans, i.e.
+                            # break at second last line of the page
+                # finish current page and create new one
+                
+                # set end marker of this page to the index of the previous Line object
+                cur_page.last = l - 1
                 cur_page.close()
                 pages.append(Page(self, page_spec = self.page_spec,
                     header_spec = self.header_spec,
@@ -161,9 +174,17 @@ class Paginator:
                 cur_page = pages[-1]
                 cur_page.setup()
                 net_len = cur_page.net_length()
+            else:
+                # handle any references and targets. Not yet fully implemented. Please ignore.
+                if cache[l].targets:
+                    cache[l].page = pages.index(cur_page)
+                    self.targets.append(cache[l])
+                if cache[l].refs:
+                    self.refs.append(cache[l])
 
-        # close last page
-        cur_page.close()
+
+        # close last page, if necessary
+        if not cur_page.closed: cur_page.close()
         
         # resolve page references (to be implemented)
 
@@ -171,6 +192,9 @@ class Paginator:
 
     def render(self, cache):
         self.create_pages(cache)
+        # get string for page breaks and assemble the string of the entire
+        #  document from the pages; each page-render method accesses
+        # the line cache
         page_break = self.page_spec['page_break']
         result = page_break.join((p.render(cache) for p in self.pages))
         result += page_break
