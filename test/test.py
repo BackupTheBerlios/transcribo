@@ -1,17 +1,25 @@
-# Transcribo Test
-# This script contains one unittest rendering a nested enumeration. This
-# serves to demonstrate the configuration of the Frame and content objects including the
-# use of translators.
-# The configuration of the YABT and Louis Braille translators is though commented out as few
-# users will have the package installed. Those interested will find the URL of the YABT website in
-# transcribo/render/translator.py.
+"""
+Transcribo Test
+This script contains the following unittests:
+
+1. rendering a nested enumeration. This
+serves to demonstrate the configuration of the Frame and content objects including the
+use of translators.
+The configuration of the YABT and Louis Braille translators is though commented out as few
+users will have the package installed. Those interested will find the URL of the YABT website in
+transcribo/render/translator.py.
+
+2. a test of the rST backend. It processes all .rst files in the ./rst subdir.
+
+"""
 
 
 from transcribo.renderer.frames import RootFrame, Frame
 from transcribo import logger
 from transcribo.renderer.content import ContentManager, GenericText
 from transcribo.renderer import styles, pages
-import unittest
+import unittest, os
+
 
 
 class TestRenderer(unittest.TestCase):
@@ -99,22 +107,38 @@ still further in his waistcoat, as I announced my name. """ * 5
             None, None, None, None, None]
             
             # create the frames
-        logger.info('Creating frames')
+        logger.info('testEnum: Creating frames')
         create(self.root, self.root, structure)
-        logger.info('Rendering frames.')
+        logger.info('testEnum: Rendering frames.')
         self.root.render()
         # create the pages
-        logger.info('Creating pages')
+        logger.info('testEnum: Creating pages')
         self.output = self.paginator.render(self.root.cache)
-        self.assertEqual(True, True)
-
-
-
-    def tearDown(self):
-        output_file = open('test1.out', 'w')
+        # write output file
+        output_file = open('testEnum.out', 'w')
         output_file.write(self.output)
         output_file.close()
+        self.assertEqual(True, True)
 
+    def test_rst(self):
+        '''tests for the rST backend. Processes all *.rst files in the ./rst subdir.'''
+
+        from docutils.core import publish_file, default_description
+        from transcribo import rST
+
+        input_files = ['./rst/' + name[:-4] for name in os.listdir('./rst') if name.endswith('.rst')]
+        for name in input_files:
+            logger.info('testrST: Processing %s...' % name)
+            publish_file(source_path = name + '.rst',
+                destination_path = name + '.out',
+            writer = rST.Writer(),
+            settings_overrides = {'page_width' : 60, 'translator' : 'louis_de'})
+
+
+
+
+    def tearDown(self): pass
+        
 def run():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestRenderer)
     unittest.TextTestRunner(verbosity=2).run(suite)
