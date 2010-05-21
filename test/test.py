@@ -132,7 +132,7 @@ still further in his waistcoat, as I announced my name. """ * 5
             publish_file(source_path = name + '.rst',
                 destination_path = name + '.out',
             writer = rST.Writer(),
-            settings_overrides = {'page_width' : 60, 'translator' : 'louis_de'})
+            settings_overrides = {'page_width' : 60, 'translator' : 'default'})
 
 
 

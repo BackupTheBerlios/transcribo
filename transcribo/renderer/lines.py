@@ -40,6 +40,15 @@ class Line(BuildingBlock):
              self.text = self.text.center(self.width)
         return self.text
 
+    def __str__(self):
+        result = 'x:'
+        if hasattr(self, 'x'): result += str(self.x)
+        else: result += '?'
+        result += ', y:'
+        if hasattr(self, 'y'): result += str(self.y)
+        else: result += '?'
+        return ' '.join(result, self.raw_text)
+
 
     def get_x(self):
         if  self.calc_x:

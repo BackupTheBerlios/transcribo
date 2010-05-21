@@ -232,7 +232,7 @@ pages = dict(
         top_margin = 1,
         bottom_margin = 1,
         line_break = '\n',
-        page_break = '\x0c'
+        page_break = '\n'
     )
 )
 
