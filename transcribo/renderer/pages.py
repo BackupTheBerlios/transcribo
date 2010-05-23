@@ -7,32 +7,30 @@ import styles
 
 
 
-class Page(BuildingBlock):
+class Page:
 
-    def __init__(self, parent, page_spec = None,
+    def __init__(self, previous = None, page_spec = None,
         header_spec = None, footer_spec = None, translator_cfg = None):
         
-        BuildingBlock.__init__(self, parent) # parent is here a Paginator instance.
+        self.previous = previous
         self.page_spec = page_spec
         self.header_spec = header_spec
         self.footer_spec = footer_spec
         self.translator_cfg = translator_cfg
         self.closed = False
-        
-    def setup(self): # merge with __init__?
-        # index of this page in the page list
-        self.index = index = self.parent.pages.index(self)
-        # Index and y-coord of first line on this page in the line cache
-        if index == 0:
+        # initialise position and first line within cache
+        if previous: # insert this page after previous one
+            self.first = previous.last + 1 
+            self.y = previous.y + previous.net_length()
+            self.index = previous.index + 1
+        else: # this is the first page
             self.first = 0
             self.y = -1
-        else:
-            previous_page = self.parent.pages[index - 1]
-            self.first = previous_page.last + 1 # caller must make sure that this line exists in cache.
-            self.y = previous_page.y + previous_page.net_length()
-        self.last = self.first # index of last line on this page in line cache
-
-
+            self.index = 0
+        self.last = self.first # page has no lines yet
+        
+        
+    
     def get_width(self):
         return (self.page_spec['width'] - self.page_spec['left_margin']
             - self.page_spec['inner_margin'] - self.page_spec['right_margin'])
@@ -94,7 +92,7 @@ class Page(BuildingBlock):
         # iterate over the lines on this page
         for l in cache[self.first : self.last + 1]:
             # insert blank lines, if necessary
-             ly = l.get_y()
+            ly = l.get_y()
             phys_lines.extend([''] * (ly - len(phys_lines) - self.y))
 
             # generate new non-empty physical line, if necessary
@@ -136,9 +134,8 @@ class Paginator:
         self.refs = [] # yet to be implemented
         self.targets = []
         # create initial empty page
-        self.pages = [Page(self, page_spec = self.page_spec,
+        self.pages = [Page(previous = None, page_spec = self.page_spec,
             header_spec = self.header_spec, footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)]
-        self.pages[0].setup()
         self.width = self.pages[0].get_width() # width for all pages. Need this?
 
 
@@ -169,11 +166,10 @@ class Paginator:
                 # set end marker of this page to the index of the previous Line object
                 cur_page.last = l - 1
                 cur_page.close()
-                pages.append(Page(self, page_spec = self.page_spec,
+                pages.append(Page(previous = cur_page, page_spec = self.page_spec,
                     header_spec = self.header_spec,
                     footer_spec = self.footer_spec, translator_cfg = self.translator_cfg))
                 cur_page = pages[-1]
-                cur_page.setup()
                 net_len = cur_page.net_length()
             else:
                 # handle any references and targets. Not yet fully implemented. Please ignore.
