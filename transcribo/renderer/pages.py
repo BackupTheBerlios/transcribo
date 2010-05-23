@@ -1,7 +1,7 @@
 
 
 from transcribo import logger
-from frames import BuildingBlock, RootFrame, Frame
+from frames import RootFrame, Frame
 from content import ContentManager, GenericText
 import styles
 
@@ -166,10 +166,10 @@ class Paginator:
                 # set end marker of this page to the index of the previous Line object
                 cur_page.last = l - 1
                 cur_page.close()
-                pages.append(Page(previous = cur_page, page_spec = self.page_spec,
+                cur_page = Page(previous = cur_page, page_spec = self.page_spec,
                     header_spec = self.header_spec,
-                    footer_spec = self.footer_spec, translator_cfg = self.translator_cfg))
-                cur_page = pages[-1]
+                    footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)
+                pages.append(cur_page)
                 net_len = cur_page.net_length()
             else:
                 # handle any references and targets. Not yet fully implemented. Please ignore.
@@ -179,11 +179,11 @@ class Paginator:
                 if cache[l].refs:
                     self.refs.append(cache[l])
 
-
         # close last page, if necessary
-        if not cur_page.closed: cur_page.close()
+        if not cur_page.closed:
+            cur_page.last = l
+            cur_page.close()
         
-        # resolve page references (to be implemented)
 
 
 
