@@ -12,7 +12,7 @@ class Page(BuildingBlock):
     def __init__(self, parent, page_spec = None,
         header_spec = None, footer_spec = None, translator_cfg = None):
         
-        BuildingBlock.__init__(self, parent)
+        BuildingBlock.__init__(self, parent) # parent is here a Paginator instance.
         self.page_spec = page_spec
         self.header_spec = header_spec
         self.footer_spec = footer_spec
@@ -65,6 +65,7 @@ class Page(BuildingBlock):
             self.footer.render()
         else:
             self.footer = None
+            
         # Header: currently no headers supported
         self.header = None
         self.closed = True
@@ -93,7 +94,7 @@ class Page(BuildingBlock):
         # iterate over the lines on this page
         for l in cache[self.first : self.last + 1]:
             # insert blank lines, if necessary
-            ly = l.get_y()
+             ly = l.get_y()
             phys_lines.extend([''] * (ly - len(phys_lines) - self.y))
 
             # generate new non-empty physical line, if necessary
@@ -138,7 +139,7 @@ class Paginator:
         self.pages = [Page(self, page_spec = self.page_spec,
             header_spec = self.header_spec, footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)]
         self.pages[0].setup()
-        self.width = self.pages[0].get_width() # width for all pages
+        self.width = self.pages[0].get_width() # width for all pages. Need this?
 
 
     def create_pages(self, cache):
@@ -159,7 +160,7 @@ class Paginator:
             # the number and length of previous pages.
             page_break = cache[l].page_break
             if ((page_break == 1) or # this is for hard page break
-                (page_break == 0 and cache[l].get_y() > cur_page.y + net_len) or # this is for soft page break, i.e. page is full
+                (page_break == 0 and cache[l].get_y() > cur_page.y + net_len) or # this is for soft page break, i.e. page is already full
                 (page_break == 2 and cache[l].get_y() + 1 == cur_page.y + net_len)):
                             # this last condition may be used to avoid widows and orphans, i.e.
                             # break at second last line of the page
@@ -196,6 +197,6 @@ class Paginator:
         #  document from the pages; each page-render method accesses
         # the line cache
         page_break = self.page_spec['page_break']
-        result = page_break.join((p.render(cache) for p in self.pages))
+        result = page_break.join(p.render(cache) for p in self.pages)
         result += page_break
         return result

@@ -9,7 +9,7 @@ The configuration of the YABT and Louis Braille translators is though commented 
 users will have the package installed. Those interested will find the URL of the YABT website in
 transcribo/render/translator.py.
 
-2. a test of the rST backend. It processes all .rst files in the ./rst subdir.
+2. a test of the rST front end. It processes all .rst files in the ./rst subdir.
 
 """
 
@@ -44,7 +44,7 @@ still further in his waistcoat, as I announced my name. """ * 5
             
 
 
-    def testEnum(self):
+    def te_stEnum(self): # this test case is disabled. To enable it, delete the _ in the method name.
     
         def create(outer, previous, symbols):
             # create frame containing the whole list
@@ -121,7 +121,7 @@ still further in his waistcoat, as I announced my name. """ * 5
         self.assertEqual(True, True)
 
     def test_rst(self):
-        '''tests for the rST backend. Processes all *.rst files in the ./rst subdir.'''
+        '''tests for the rST front end. Processes all *.rst files in the ./rst subdir.'''
 
         from docutils.core import publish_file, default_description
         from transcribo import rST

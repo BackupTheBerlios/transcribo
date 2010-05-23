@@ -5,14 +5,14 @@ from transcribo.renderer.frames import BuildingBlock
 class Line(BuildingBlock):
     def __init__(self, text, width, number, parent,  align = 'left', refs = None, targets = None, page_break = 0):
     
-        BuildingBlock.__init__(self, parent)
-        self.raw_text = text
+        BuildingBlock.__init__(self, parent) # parent is the frame the line belongs to.
+        self.raw_text = text # text may contain unresolved ref markers. Hence we call it raw text for now.
         self.width = width
-        self.number = number
+        self.number = number # counter for lines within a frame. Used to get the y pos.
         self.align = align
-        self.refs = refs
-        self.targets = targets
-        self.text = ''
+        self.refs = refs # list of references.
+        self.targets = targets # list of targets
+        self.text = '' # to store the text after resolving the refs
         # page_break: semantics of values:
         # 0: let Paginator do whatever it sees fit
         # 1: make hard page_break before this line
@@ -23,9 +23,9 @@ class Line(BuildingBlock):
         
         
     def __len__(self):
-        if not self.result:
-            self.result = self.__str__()
-        return len(self.result)
+        if not self.text:
+            text = self.render()
+        return len(text)
         
     def render(self):
         if self.text: return self.text
@@ -40,14 +40,14 @@ class Line(BuildingBlock):
              self.text = self.text.center(self.width)
         return self.text
 
-    def __str__(self):
+    def __repr__(self):
         result = 'x:'
         if hasattr(self, 'x'): result += str(self.x)
         else: result += '?'
         result += ', y:'
         if hasattr(self, 'y'): result += str(self.y)
         else: result += '?'
-        return ' '.join(result, self.raw_text)
+        return ' '.join((result, self.raw_text))
 
 
     def get_x(self):
