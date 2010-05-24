@@ -25,15 +25,15 @@ What's new?
 
 
 *Version 0.6*
-*
-** hard page breaks
+
+* hard page breaks
 * avoid widows and orphans when soft-breaking pages
 * support for Hyphenation (requires PyHyphen, see the installation instructions below)
 * numerous bug fixes and improvements
 
 *Version 0.5.3:*
 
-*This is a bug fix release.
+This is a bug fix release.
 
 
 Introduction

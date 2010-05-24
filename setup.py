@@ -24,10 +24,14 @@ arg_dict = dict(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
                 'Topic :: Text Processing',
+                'Topic :: Adaptive Technologies',
+                'Topic :: Printing',
     ],
     packages = ['transcribo', 'transcribo.renderer'],
     scripts = ['scripts/transcribo-txt.py', 'scripts/transcribo-rst.py',
-        'scripts/transcribo-rst.conf']
+        'scripts/transcribo-rst.conf'],
+        requires = ['hyphen'],
+        provides = ['transcribo']
 )
 
 
