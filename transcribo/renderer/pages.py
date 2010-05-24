@@ -25,15 +25,15 @@ class Page:
             self.index = previous.index + 1
         else: # this is the first page
             self.first = 0
-            self.y = -1
+            self.y = 0
             self.index = 0
-        self.last = self.first # page has no lines yet
         
         
-    
     def get_width(self):
         return (self.page_spec['width'] - self.page_spec['left_margin']
             - self.page_spec['inner_margin'] - self.page_spec['right_margin'])
+
+        
 
     def gross_length(self):
         return self.page_spec['length'] - self.page_spec['top_margin'] - self.page_spec['bottom_margin']
@@ -71,54 +71,54 @@ class Page:
             
     def render(self, cache):
     
-        phys_lines = []
+        phys_lines = [] # list of strings each of which represents a physical line
 
         # top margin
         phys_lines.extend([''] * self.page_spec['top_margin'])
 
-        # physical left margin of this page
-        n = self.page_spec['left_margin']
-        if not (self.index % 2): n += self.page_spec['inner_margin']
-        phys_margin = ' ' * n
+        # physical left margin of this page. Reconsider inner and outer margin!
+        phys_margin = self.page_spec['left_margin']
+        if not (self.index % 2): phys_margin += self.page_spec['inner_margin']
 
         if self.header:
             pass # not yet supported
             
-        # the following serves to distinguish logical lines that will occur
-        # on the same physical line as the previous one from new physical lines
-        # Example: bullet lists.
-        prev_y = -1
+        
+        # Reference point for y position of new lines
+        
+        if self.previous: cur_y = self.previous.y + self.previous.net_length() - 1
+        else: cur_y = -1
         
         # iterate over the lines on this page
         for l in cache[self.first : self.last + 1]:
-            # insert blank lines, if necessary
+            # insert blank lines, if necessary 
             ly = l.get_y()
-            phys_lines.extend([''] * (ly - len(phys_lines) - self.y))
 
-            # generate new non-empty physical line, if necessary
-            if prev_y < ly:
-                phys_lines.append(phys_margin)
+            # generate new physical line or lines if necessary to reach the y position of the new line
+            phys_lines.extend([''] * (ly - cur_y - 1))
             
-            # line-specific  indentation
-            phys_lines[-1] = phys_lines[-1].ljust(l.get_x() + len(phys_margin))
+            # add line with left margin, if new Line object has a different y pos
+            # than the previous one
+            indent = l.get_x()
+            if ly > cur_y: indent += phys_margin
+            phys_lines.append(''.join((' ' * indent, l.render())))
             
-            # add the actual line content
-            phys_lines[-1] += l.render()
-            prev_y = ly
-            
-        # add blank lines at the bottom, if necessary
-        while len(phys_lines) < self.net_length():
-            phys_lines.append('')
+            cur_y = ly
+
+
+        # add blank lines at the bottom, if necessary to fill the page
+        n = len(phys_lines) - self.page_spec['top_margin']
+        if self.header: n -= 1
+        phys_lines.extend([''] * (self.net_length() - n))
 
         # add footer
         if self.footer:
-            phys_lines.append(phys_margin)
-            for l in self.footer.cache:
-                phys_lines[-1] = phys_lines[-1].ljust(len(phys_margin) + l.get_x())
-                phys_lines[-1] += l.render()
+            phys_lines.append(' ' * (phys_margin + self.footer.cache[0].get_x()))
+            phys_lines[-1] += self.footer.cache[0].render()
 
-        # bottom margin
-        phys_lines.extend([''] * self.page_spec['bottom_margin'])
+        # Add empty lines for bottom margin.
+        # The extra line is necessary as otherwise the final line break would not be added by the following join.
+        phys_lines.extend([''] * (self.page_spec['bottom_margin'] + 1))
         
         return self.page_spec['line_break'].join(phys_lines)
         
@@ -133,44 +133,54 @@ class Paginator:
         self.translator_cfg = translator_cfg
         self.refs = [] # yet to be implemented
         self.targets = []
-        # create initial empty page
-        self.pages = [Page(previous = None, page_spec = self.page_spec,
-            header_spec = self.header_spec, footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)]
-        self.width = self.pages[0].get_width() # width for all pages. Need this?
+        self.width = self.get_width()
+
+
+    def get_width(self):
+        return (self.page_spec['width'] - self.page_spec['left_margin']
+            - self.page_spec['inner_margin'] - self.page_spec['right_margin'])
+
 
 
     def create_pages(self, cache):
-        '''construct pages from the lines'''
+        '''
+        Construct pages from the lines cache.
+        Essentially, each Page instance contains pointers to the first and last
+        Line object which will appear on that Page.'''
+        
+        # create initial empty page
+        self.pages = [Page(previous = None, page_spec = self.page_spec,
+            header_spec = self.header_spec, footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)]
+        
         pages = self.pages
-        cur_page = pages[-1]
+        cur_page = pages[0]
         net_len = cur_page.net_length()
+        
         for l in range(len(cache)):
             # put the line on current page unless the page is full or a hard
             # page break needed
             # For the semantics of page_break see in the lines module.
-            # The following conditions might become flawed once we insert blank
-            # blank lines merely due to hard or conditional page breaks.
-            # can we still compare Line.y and Page.get_y()?
-            # A possible response might be: lines have y positions reflecting
-            # blank lines inserted at line level. Pages have y positions reflecting
-            # exactly the lines positions, but page.y does not correspond to
-            # the number and length of previous pages.
+            
             page_break = cache[l].page_break
-            if ((page_break == 1) or # this is for hard page break
-                (page_break == 0 and cache[l].get_y() > cur_page.y + net_len) or # this is for soft page break, i.e. page is already full
-                (page_break == 2 and cache[l].get_y() + 1 == cur_page.y + net_len)):
-                            # this last condition may be used to avoid widows and orphans, i.e.
+            
+            if ((page_break == 0 and cache[l].get_y() >= cur_page.y + net_len) or # soft page break, i.e. page is full
+                (page_break == 2 and cache[l].get_y() + 1 >= cur_page.y + net_len) or
+                            # avoid widows and orphans, i.e.
                             # break at second last line of the page
-                # finish current page and create new one
-                
+                    (page_break == 1)): # hard page break
+
+                # finish current page
                 # set end marker of this page to the index of the previous Line object
                 cur_page.last = l - 1
                 cur_page.close()
+                
+                # create new page
                 cur_page = Page(previous = cur_page, page_spec = self.page_spec,
                     header_spec = self.header_spec,
                     footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)
                 pages.append(cur_page)
                 net_len = cur_page.net_length()
+                
             else:
                 # handle any references and targets. Not yet fully implemented. Please ignore.
                 if cache[l].targets:
@@ -188,9 +198,13 @@ class Paginator:
 
 
     def render(self, cache):
+        # Generate the list of pages. This will only deliver a skeleton of pages as each Page instance
+        # merely contains references to its first and last Line instance in the cache.
+        # The actual text of the lines will be assembled in the next step.
         self.create_pages(cache)
+        
         # get string for page breaks and assemble the string of the entire
-        #  document from the pages; each page-render method accesses
+        #  document from the pages; the page.render method accesses
         # the line cache
         page_break = self.page_spec['page_break']
         result = page_break.join(p.render(cache) for p in self.pages)
