@@ -86,7 +86,7 @@ still further in his waistcoat, as I announced my name. """ * 5
                         x_anchor = enum, x_hook = 'right', x_align = 'left', x_offset = 1,
                         y_anchor = enum, y_hook = 'top', y_align = 'top', y_offset = 0,
                         max_width = 0, width_mode = 'fixed',
-                        max_height = 0, height_mode = 'auto', lines_below = 2)
+                        max_height = 0, height_mode = 'auto', lines_below = 1)
                     previous = Frame(container, **para_cfg)
                     content = ContentManager(parent = previous, wrapper = styles.wrappers['standard'], translator = cur_translator)
                     GenericText(content, text = self.longtext)
