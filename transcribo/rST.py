@@ -69,7 +69,7 @@ class TxtVisitor(NodeVisitor):
         
         
 
-    def getContentManager(self, content_style = 'default', translator_style = None, wrapper_style = 'default'):
+    def getContentManager(self, content_style = 'default', translator_style = None, wrapper_style = 'indent2'):
         if not translator_style:
             translator_style = self.settings.translator
         translator_cfg = styles.translators[translator_style]
