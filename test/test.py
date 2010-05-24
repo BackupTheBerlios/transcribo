@@ -44,7 +44,7 @@ still further in his waistcoat, as I announced my name. """ * 5
             
 
 
-    def te_stEnum(self): # this test case is disabled. To enable it, delete the _ in the method name.
+    def testEnum(self): #
     
         def create(outer, previous, symbols):
             # create frame containing the whole list

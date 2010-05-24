@@ -99,9 +99,10 @@ class Page:
             
             # add line with left margin, if new Line object has a different y pos
             # than the previous one
-            indent = l.get_x()
-            if ly > cur_y: indent += phys_margin
-            phys_lines.append(''.join((' ' * indent, l.render())))
+            if ly > cur_y:
+                phys_lines.append(' ' * phys_margin)
+                
+            phys_lines[-1] = ''.join((phys_lines[-1].ljust(l.get_x() + phys_margin), l.render()))
             
             cur_y = ly
 

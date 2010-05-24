@@ -224,8 +224,8 @@ frame = dict(
 
 pages = dict(
     default = dict(
-        width = 30,
-        length = 29,
+        width = 60,
+        length = 40,
         left_margin = 1,
         right_margin = 0,
         inner_margin = 1,
