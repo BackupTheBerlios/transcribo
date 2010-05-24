@@ -69,7 +69,8 @@ class TxtVisitor(NodeVisitor):
         
         
 
-    def getContentManager(self, content_style = 'default', translator_style = None, wrapper_style = 'indent2'):
+    def getContentManager(self, content_style = 'default', translator_style = None, wrapper_style = 'indent2',
+        hyphenator_style = 'hyphen_en_US'):
         if not translator_style:
             translator_style = self.settings.translator
         translator_cfg = styles.translators[translator_style]
@@ -81,7 +82,11 @@ class TxtVisitor(NodeVisitor):
             wrapper_cfg = styles.wrappers[wrapper_style]
         except KeyError:
             wrapper_cfg = styles.wrappers['standard']
+        if hyphenator_style:
+            hyphenator_cfg = styles.hyphenators[hyphenator_style]
+        else: hyphenator_cfg = None
         return ContentManager(parent = self.currentFrame, wrapper = wrapper_cfg,
+        hyphenator = hyphenator_cfg,
             translator = translator_cfg,
             **content_cfg)
 
