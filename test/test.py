@@ -29,7 +29,7 @@ class TestRenderer(unittest.TestCase):
         header_spec = None, footer_spec = styles.footers['default'],
         translator_cfg = styles.translators['default'])
         self.root = RootFrame(max_width = self.paginator.width)
-        self.longtext = """I have just returned from a visit to my landlord - the solitary
+        self.longtext = u"""I have just returned from a visit to my landlord - the solitary
 neighbour that I shall be troubled with. This is certainly a beautiful country!
 In all England, I do not believe that I could have fixed on a situation so
 completely removed from the stir of society. A perfect misanthropist's heaven:
@@ -74,7 +74,8 @@ still further in his waistcoat, as I announced my name. """ * 5
                     else:
                         enum_cfg.update(y_hook = 'top', y_offset = 0)
                     enum = Frame(container, **enum_cfg)
-                    content = ContentManager(parent = enum, x_align = 'right', wrapper = styles.wrappers['standard'])
+                    content = ContentManager(parent = enum, x_align = 'right', wrapper = styles.wrappers['standard'],
+                    hyphenator = styles.hyphenators['hyphen_en_US'])
                     GenericText(content, text = s)
                     
                     

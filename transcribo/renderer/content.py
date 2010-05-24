@@ -24,11 +24,12 @@ class ContentManager(BuildingBlock):
     the content of a leaf frame.'''
 
     def __init__(self, parent,
-        wrapper = None,
+        wrapper = None, hyphenator = None,
         translator = None, x_align = 'left'):
 
         BuildingBlock.__init__(self, parent)
         self.wrapper_cfg = wrapper
+        self.hyphenator_cfg = hyphenator
         self.translator_cfg = translator
         self.x_align = x_align
         self.render_count = 0
@@ -41,6 +42,10 @@ class ContentManager(BuildingBlock):
         
         # Instantiate the wrapper. This is obligatory.
         self.wrapper_cfg['width'] = max_width
+        # add optional hyphenator to the wrapper. this is
+        # supported by textwrap2 which is part of the PyHyphen hyphenation library.
+        if self.hyphenator_cfg:
+            self.wrapper_cfg['use_hyphenator'] = self.hyphenator_cfg 
         self.wrapper = get_singleton(**self.wrapper_cfg)
         
         # instantiate the optional translator. Note that each element may have

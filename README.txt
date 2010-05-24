@@ -19,6 +19,23 @@ Transcribo - a plain text rendering library written in pure Python
 .. sectnum::
 
 
+
+What's new?
+==================
+
+
+*Version 0.6*
+*
+** hard page breaks
+* avoid widows and orphans when soft-breaking pages
+* support for Hyphenation (requires PyHyphen, see the installation instructions below)
+* numerous bug fixes and improvements
+
+*Version 0.5.3:*
+
+*This is a bug fix release.
+
+
 Introduction
 =================
 
@@ -34,7 +51,7 @@ Transcribo has been designed so as to separate the processing of the input file 
 algorithm. Hence, there are two layers: In the input layer various format-specific frontends parse the input streams and feed
 them into the renderer (second layer).
 
-More specifically, the input layer there must be a front end specific to
+More specifically, the input layer may contain front ends specific to
 each supported  input format. Front ends do the following:
 
 * parse the input file,
@@ -50,7 +67,7 @@ each supported  input format. Front ends do the following:
   representation is assembled to a plain text file.
 
 The renderer allows to attach to each content block (paragraph, heading, reference etc.) a
-specific *translator* and *wrapper* to perform translations and achieve the required text outline. In combination with
+specific *translator* and *wrapper including optional hyphenation* to perform translations and achieve the required text outline. In combination with
 frontends for mark-up languages, this
 feature allows the user to control the output at a very high level of granularity.
 
@@ -64,13 +81,19 @@ General
 ----------------
 
 Transcribo is developed with Python 2.6. It should run on older versions, possibly with
-small changes. There are no dependencies. However, if you want to
-use the translation features for Braille, you may wish to install a Braille translator such as
-`liblouis <http://liblouis.googlecode.com>`_ or `YABT <http://pypi.python.org/pypi/YABT>`_. In addition, if you want to use the frontend for reStructuredText,
-you will need `Docutils <http://docutils.sourceforge.net>`_, because the frontend for reStructuredText is essentially a docutils
-writer component. Use the *transcribo-rst.py* script, a Docutils frontend tool, to generate plain text from rST documents.
-Without Docutils, you can only generate plain text from plain text using the *transcribo-txt.py* script.
-Type python transcribo-txt.py --help to see the command line options.
+small changes. There are a few dependencies. Well, you can live without, but some functions may not work or require minor
+modifications, eg. in the styles module.
+
+* As per version 0.6, Transcribo requires the hyphenation package
+  `PyHyphen <http://pypi.python.org/pypi/PyHyphen/>`_
+* If you want to
+  use the translation features for Braille, you may wish to install a Braille translator such as
+  `liblouis <http://liblouis.googlecode.com>`_ or `YABT <http://pypi.python.org/pypi/YABT>`_. In addition,
+  if you want to use the frontend for reStructuredText,
+  you will need `Docutils <http://docutils.sourceforge.net>`_, because the frontend for reStructuredText is essentially a docutils
+  writer component. Use the *transcribo-rst.py* script, a Docutils frontend tool, to generate plain text from rST documents.
+  Without Docutils, you can only generate plain text from plain text using the *transcribo-txt.py* script.
+  Type python transcribo-txt.py --help to see the command line options.
 
 Transcribo is a pure Python package. It is installed by unpacking the archive and typing
 from the shell prompt something like: ::

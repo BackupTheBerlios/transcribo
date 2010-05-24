@@ -42,15 +42,25 @@ translators = dict(
 
 wrappers = dict(
     indent2 = dict(
-        class_path = 'textwrap.TextWrapper',
+        class_path = 'textwrap2.TextWrapper',
         initial_indent = u'  '
     ),
     standard = dict(
-        class_path = 'textwrap.TextWrapper'
+        class_path = 'textwrap2.TextWrapper'
     )
 )
 
-
+hyphenators = dict(
+    hyphen_en_US = dict(
+        class_path = 'hyphen.hyphenator',
+        language = 'en_US'
+    ),
+    hyphen_de_DE = dict(
+        class_path = 'hyphen.hyphenator',
+        language = 'de_DE'
+    )
+)
+        
 
 content = dict(
     standard = dict(),
