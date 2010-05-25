@@ -1,9 +1,9 @@
 recursive-include transcribo *.py
 include test/test.py
+include test/rst/README.rst
 include scripts/*.conf *.py
 include MANIFEST
 prune docs
 prune website
-prune temp
 
 

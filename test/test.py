@@ -122,12 +122,13 @@ still further in his waistcoat, as I announced my name. """ * 5
         self.assertEqual(True, True)
 
     def test_rst(self):
-        '''tests for the rST front end. Processes all *.rst files in the ./rst subdir.'''
+        '''tests for the rST front end. Processes ../README.rst and all *.rst files in the ./rst subdir.'''
 
         from docutils.core import publish_file, default_description
         from transcribo import rST
 
-        input_files = ['./rst/' + name[:-4] for name in os.listdir('./rst') if name.endswith('.rst')]
+        input_files = ['../README']
+        input_files.extend(['./rst/' + name[:-4] for name in os.listdir('./rst') if name.endswith('.rst')])
         for name in input_files:
             logger.info('testrST: Processing %s...' % name)
             publish_file(source_path = name + '.rst',

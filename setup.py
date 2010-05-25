@@ -30,7 +30,7 @@ arg_dict = dict(
     packages = ['transcribo', 'transcribo.renderer'],
     scripts = ['scripts/transcribo-txt.py', 'scripts/transcribo-rst.py',
         'scripts/transcribo-rst.conf'],
-        requires = ['hyphen'],
+        requires = ['docutils', 'hyphen', 'textwrap2'],
         provides = ['transcribo']
 )
 
