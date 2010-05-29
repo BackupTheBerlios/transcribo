@@ -5,7 +5,7 @@ from distutils.core import setup, Extension
 
 
 
-longdescr = open('README.txt').read()
+longdescr = open('README.rst').read()
 
 
 arg_dict = dict(
