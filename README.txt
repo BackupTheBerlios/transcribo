@@ -23,7 +23,11 @@ Transcribo - a plain text rendering library written in pure Python
 What's new?
 ==================
 
+*Version 0.7*
 
+* styles are now in YAML format
+
+*
 *Version 0.6*
 
 * hard page breaks

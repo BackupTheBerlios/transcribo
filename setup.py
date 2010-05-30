@@ -5,7 +5,7 @@ from distutils.core import setup, Extension
 
 
 
-longdescr = open('README.rst').read()
+longdescr = open('README.txt').read()
 
 
 arg_dict = dict(
@@ -28,9 +28,10 @@ arg_dict = dict(
                 'Topic :: Printing',
     ],
     packages = ['transcribo', 'transcribo.renderer'],
+    package_data = {'transcribo.renderer' : ['styles/default.style']},
     scripts = ['scripts/transcribo-txt.py', 'scripts/transcribo-rst.py',
         'scripts/transcribo-rst.conf'],
-        requires = ['docutils', 'hyphen', 'textwrap2'],
+        requires = ['docutils', 'hyphen', 'textwrap2', 'PyYAML'],
         provides = ['transcribo']
 )
 
