@@ -9,7 +9,7 @@ longdescr = open('README.txt').read()
 
 
 arg_dict = dict(
-    name = "Transcribo", version = "0.6",
+    name = "Transcribo", version = "0.7",
     author = "Dr. Leo",
     author_email = "dr-leo@berlios.de",
     url = "http://transcribo.berlios.de",

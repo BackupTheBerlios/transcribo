@@ -92,7 +92,7 @@ class TxtVisitor(NodeVisitor):
 
 
     def getFrame(self, style):
-        frame_cfg = styles.frame[style]
+        frame_cfg = styles.frames[style]
         result = Frame(parent = self.parent,
         x_anchor = self.parent, y_anchor = self.currentFrame,
         **frame_cfg)
@@ -200,7 +200,7 @@ class TxtVisitor(NodeVisitor):
         
         # handle the first paragraph within a list item frame
         if isinstance(node.parent, nodes.list_item):
-            newFrame.update(**styles.frame['list_body'])
+            newFrame.update(**styles.frames['list_body'])
             newFrame.update(x_anchor = self.parent[0])
             if len(self.parent) == 2:
                 newFrame.update(y_hook = 'top')
