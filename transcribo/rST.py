@@ -259,7 +259,7 @@ class TxtVisitor(NodeVisitor):
             frame_style = 'heading' + str(self.section_level)
             newFrame = self.getFrame(frame_style)
             self.currentFrame = newFrame
-            self.currentContent = self.getContentManager(content_style = 'heading0')
+            self.currentContent = self.getContentManager(content_style = 'heading1')
         else:
             raise TypeError('Cannot handle title node in this context (parent = %s' % node.parent)
 

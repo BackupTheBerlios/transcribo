@@ -6,8 +6,8 @@ def resolve(category, style):
     '''expand inherited styles'''
     if style and style.has_key('parent'): # To do: raise error in case of circularities
        result = resolve(category, category[style['parent']]).copy()
-       style.pop('parent')
        result.update(style)
+       result.pop('parent')
        return result
     else: return style
 
