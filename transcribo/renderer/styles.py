@@ -3,13 +3,13 @@ from transcribo import renderer
 
 
 def resolve(category, style):
-    '''expand inherited styles'''
+    '''resolve inheritances'''
     if style and style.has_key('parent'): # To do: raise error in case of circularities
-       result = resolve(category, category[style['parent']]).copy()
-       result.update(style)
-       result.pop('parent')
-       return result
-    else: return style
+       result = resolve(category, category[style['parent']])
+       for i, j in result.items():
+        style.setdefault(i, j)
+       style.pop('parent')
+    return style
 
 
 # load style files and generate dictionary of styles
@@ -23,7 +23,7 @@ del stream
 # resolve inherited styles
 for category in styles_dict.values():
     for k, v in category.items():
-        category[k] = resolve(category, v)
+        resolve(category, v)
 
     
 
