@@ -1,0 +1,174 @@
+content:
+    body1: {}
+    heading1:
+        x_align: center
+    heading1:
+        x_align: center
+    heading2:
+        x_align: left
+    standard: &id001 {}
+    
+footers:
+    default:
+        pagenum_cfg: &id011
+            height_mode: fixed
+            lines_below: 0
+            max_height: 1
+            max_width: 0
+            right_indent: 0
+            width_mode: auto
+            x_align: right
+            x_hook: right
+            x_offset: 0
+            y_align: top
+            y_hook: top
+            y_offset: 0
+        pagenumcontent_cfg: *id001
+        
+        
+frames:
+    
+    body0:
+        height_mode: auto
+        lines_below: 0
+        max_height: 0
+        max_width: 0
+        right_indent: 0
+        width_mode: fixed
+        x_align: left
+        x_hook: left
+        x_offset: 0
+        y_align: top
+        y_hook: bottom
+        y_offset: 0
+
+    default:
+        inherits_from: frames.body0
+        
+    body1:
+        inherits_from: frames.body0
+    
+    
+    # frames for headings
+    heading0:
+        inherits_from: frames.body0
+        lines_below: 1
+        y_offset: 4
+        
+    heading1:
+        inherits_from: frames.heading0
+        
+    heading2:
+        inherits_from: frames.heading0
+        y_offset: 3
+
+    heading3:
+        inherits_from: frames.heading0
+        x_offset: 2
+        y_offset: 2
+        
+    heading4:
+        inherits_from: frames.heading2
+        x_offset: 4
+        y_offset: 1
+
+    # frames for lists
+    list_body:
+        inherits_from: frames.body0
+        x_hook: right
+        x_offset: 1
+        
+    list_container:
+        inherits_from: frames.body0
+        y_hook: top
+        
+    list_item:
+        inherits_from: frames.body0
+        height_mode: fixed
+        max_height: 1
+        width_mode: auto
+        y_hook: top
+        
+    list_item_container:
+        inherits_from: frames.body0
+        y_hook: top
+
+    # frames for block_quotes
+    block_quote_container:
+        inherits_from: frames.body0
+        lines_below: 1
+        right_indent: 4
+        x_offset: 4
+        y_align: top
+        y_hook: top
+        y_offset: 1
+
+    
+    # frames for page numbers
+    pagenum_right: *id011
+    
+    
+hyphenators:
+    hyphen_de_DE:
+        class_path: hyphen.hyphenator
+        language: de_DE
+    hyphen_en_US:
+        inherits_from: hyphenators.hyphen_de_DE
+        language: en_US
+        
+        
+pages:
+    default:
+        top_margin: 1
+        bottom_margin: 1
+        left_margin: 1
+        right_margin: 0
+        inner_margin: 1
+        length: 60
+        width: 80
+        line_break: '
+
+            '
+        page_break: '
+
+            '
+    braille_A4:
+        inherits_from: pages.default
+        width: 30
+        length: 29
+        
+        
+translators:
+    YABT_en:
+        class_path: translators.YABTrans
+    default: null
+    emphasis:
+        class_path: translators.UpperTrans
+    upper:
+        inherits_from: translators.emphasis
+        
+    louis_de:
+        class_path: translators.Louis
+        mode: 0
+        tables:
+        - de-de-g1.ctb
+    louis_de2:
+        inherits_from: translators.louis_de
+        tables:
+        - de-de-g2.ctb
+    louis_en:
+        inherits_from: translators.louis_de
+        tables:
+        - en-US-g2.ctb
+        
+        
+wrappers:
+    standard:
+        class_path: textwrap2.TextWrapper
+
+    indent2:
+        inherits_from: wrappers.standard
+        initial_indent: !!python/unicode '  '
+
+
+...
