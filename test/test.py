@@ -18,16 +18,16 @@ from transcribo.renderer.frames import RootFrame, Frame
 from transcribo import logger
 from transcribo.renderer.content import ContentManager, GenericText
 from transcribo.renderer import styles, pages
-import unittest, os
+import unittest, os, transcribo
 
 
 
 class TestRenderer(unittest.TestCase):
 
     def setUp(self):
-        self.paginator = pages.Paginator(page_spec = styles.pages['default'],
-        header_spec = None, footer_spec = styles.footers['default'],
-        translator_cfg = styles.translators['default'])
+        self.paginator = pages.Paginator(page_spec = styles['pages']['default'],
+        header_spec = None, footer_spec = styles['footers']['default'],
+        translator_cfg = styles['translators']['default'])
         self.root = RootFrame(max_width = self.paginator.width)
         self.longtext = u"""I have just returned from a visit to my landlord - the solitary
 neighbour that I shall be troubled with. This is certainly a beautiful country!
@@ -74,8 +74,8 @@ still further in his waistcoat, as I announced my name. """ * 5
                     else:
                         enum_cfg.update(y_hook = 'top', y_offset = 0)
                     enum = Frame(container, **enum_cfg)
-                    content = ContentManager(parent = enum, x_align = 'right', wrapper = styles.wrappers['standard'],
-                    hyphenator = styles.hyphenators['hyphen_en_US'])
+                    content = ContentManager(parent = enum, x_align = 'right', wrapper = styles['wrappers']['standard'],
+                    hyphenator = styles['hyphenators']['hyphen_en_US'])
                     GenericText(content, text = s)
                     
                     
@@ -89,7 +89,7 @@ still further in his waistcoat, as I announced my name. """ * 5
                         max_width = 0, width_mode = 'fixed',
                         max_height = 0, height_mode = 'auto', lines_below = 1)
                     previous = Frame(container, **para_cfg)
-                    content = ContentManager(parent = previous, wrapper = styles.wrappers['standard'], translator = cur_translator)
+                    content = ContentManager(parent = previous, wrapper = styles['wrappers']['standard'], translator = cur_translator)
                     GenericText(content, text = self.longtext)
             return container
                     
@@ -144,6 +144,9 @@ still further in his waistcoat, as I announced my name. """ * 5
 def run():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestRenderer)
     unittest.TextTestRunner(verbosity=2).run(suite)
+
+transcribo.main()
+transcribo.renderer.main()
 
 run()
         

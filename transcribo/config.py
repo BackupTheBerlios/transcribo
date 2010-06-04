@@ -24,7 +24,7 @@ class Config(dict):
 
     def add(self, files):
         '''Load one or more YAML files and merge the resulting data into any existing dictionaries.'''
-        if isinstance(files, basestring): input = [input]
+        if isinstance(files, basestring): files = [files]
         self.input_files.extend(files)
         for f in files:
             data= yaml.load(open(f).read())

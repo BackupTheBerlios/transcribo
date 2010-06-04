@@ -3,7 +3,7 @@
 from transcribo import logger
 from frames import RootFrame, Frame
 from content import ContentManager, GenericText
-import styles
+from ..renderer import styles
 
 
 
@@ -57,7 +57,7 @@ class Page:
             # Generate page number string
             pagenum_str = str(self.index + 1)
             ContentManager(self.footer[0],
-                wrapper = styles.wrappers['standard'],
+                wrapper = styles['wrappers']['standard'],
                 **self.footer_spec['pagenumcontent_cfg'])
             GenericText(self.footer[0][0] , text = pagenum_str, translator = self.translator_cfg)
             self.footer.render()

@@ -1,4 +1,4 @@
-recursive-include transcribo *.py *.style
+recursive-include transcribo *.py *.yaml
 include test/test.py
 include test/rst/README.rst
 include scripts *.conf *.py

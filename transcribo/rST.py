@@ -9,10 +9,10 @@ rst2txt - Docutils writer component for text rendering using Transcribo
 import docutils.writers
 from docutils import frontend, nodes
 from docutils.nodes import Node, NodeVisitor
+from transcribo import logger
 from transcribo.renderer.frames import RootFrame, Frame
 from transcribo.renderer import pages, utils, styles
 from transcribo.renderer.content import ContentManager, GenericText
-from transcribo import logger
 
 
 
@@ -29,7 +29,7 @@ class Writer(docutils.writers.Writer):
         ('Options specific to  Transcribo`s docutils_txt_writer', 'no description on this item',
             (
                 (
-                    "translation, eg. for Braille. The name mus  be defined in transcribo.renderer.styles.py. default is 'no translator'",
+                    "translation, eg. for Braille. The name mus  be defined in one of the styles. default is 'no translator'",
                     ('--translator', '-tl'),
                     {'default': None,
                         'type': 'str'
@@ -73,17 +73,17 @@ class TxtVisitor(NodeVisitor):
         hyphenator_style = 'hyphen_en_US'):
         if not translator_style:
             translator_style = self.settings.translator
-        translator_cfg = styles.translators[translator_style]
+        translator_cfg = styles['translators'][translator_style]
         try:
-            content_cfg = styles.content[content_style]
+            content_cfg = styles['content'][content_style]
         except KeyError:
-            content_cfg = styles.content['standard']
+            content_cfg = styles['content']['standard']
         try:
-            wrapper_cfg = styles.wrappers[wrapper_style]
+            wrapper_cfg = styles['wrappers'][wrapper_style]
         except KeyError:
-            wrapper_cfg = styles.wrappers['standard']
+            wrapper_cfg = styles['wrappers']['standard']
         if hyphenator_style:
-            hyphenator_cfg = styles.hyphenators[hyphenator_style]
+            hyphenator_cfg = styles['hyphenators'][hyphenator_style]
         else: hyphenator_cfg = None
         return ContentManager(parent = self.currentFrame, wrapper = wrapper_cfg,
         hyphenator = hyphenator_cfg,
@@ -92,7 +92,7 @@ class TxtVisitor(NodeVisitor):
 
 
     def getFrame(self, style):
-        frame_cfg = styles.frames[style]
+        frame_cfg = styles['frames'][style]
         result = Frame(parent = self.parent,
         x_anchor = self.parent, y_anchor = self.currentFrame,
         **frame_cfg)
@@ -131,11 +131,11 @@ class TxtVisitor(NodeVisitor):
 
     def visit_document(self, node):
         logger.info('transcribo.rST.py: Building frame tree...')
-        current_page_spec = styles.pages['default']
+        current_page_spec = styles['pages']['default']
         current_page_spec['width'] = self.settings.page_width
         self.paginator = pages.Paginator(page_spec = current_page_spec,
-        header_spec = None, footer_spec = styles.footers['default'],
-        translator_cfg = styles.translators[self.settings.translator])
+        header_spec = None, footer_spec = styles['footers']['default'],
+        translator_cfg = styles['translators'][self.settings.translator])
         self.root = RootFrame(max_width = self.paginator.width)
         self.parent = self.currentFrame = self.root
         self.section_level = 0
@@ -183,8 +183,8 @@ class TxtVisitor(NodeVisitor):
                 number += node.parent['start'] - 1
             itemtext += func(number)
             itemtext += node.parent['suffix']
-        content = ContentManager(newFrame, wrapper = styles.wrappers['standard'])
-        GenericText(content, text = itemtext, translator = styles.translators['default']) # write a getGenericText factory function?
+        content = ContentManager(newFrame, wrapper = styles['wrappers']['standard'])
+        GenericText(content, text = itemtext, translator = styles['translators']['default']) # write a getGenericText factory function?
         self.currentFrame = newFrame
 
 
@@ -200,7 +200,7 @@ class TxtVisitor(NodeVisitor):
         
         # handle the first paragraph within a list item frame
         if isinstance(node.parent, nodes.list_item):
-            newFrame.update(**styles.frames['list_body'])
+            newFrame.update(**styles['frames']['list_body'])
             newFrame.update(x_anchor = self.parent[0])
             if len(self.parent) == 2:
                 newFrame.update(y_hook = 'top')
@@ -245,7 +245,7 @@ class TxtVisitor(NodeVisitor):
     def visit_Text(self, node):
         if (isinstance(node.parent, nodes.emphasis) or
             isinstance(node.parent, nodes.strong)):
-            font_style = styles.translators['emphasis']
+            font_style = styles['translators']['emphasis']
         else: font_style = None
         GenericText(self.currentContent, text = node.astext(), translator = font_style)
 
