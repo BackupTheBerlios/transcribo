@@ -27,9 +27,14 @@ class Config(dict):
         if isinstance(files, basestring): files = [files]
         self.input_files.extend(files)
         for f in files:
-            data= yaml.load(open(f).read())
+            if isinstance(f, basestring): # it must be a file name
+                stream = open(f)
+            else: # must be a file-like object
+                stream = f 
+            data= yaml.load(stream.read())
+            stream.close()
             self.merge(data)
-        self.resolve_inheritances(self      )
+        self.resolve_inheritances()
         
         
         
@@ -50,32 +55,39 @@ class Config(dict):
         
 
     
-    
-    def resolve_inheritances(self, node):
+        def resolve_inheritances(self):
         '''resolve inheritances. '''
-        # first, process all children of the current node:
-        for k in node:
-                if isinstance(node[k], dict): self.resolve_inheritances(node[k])
-                
-                # Inheritance of current node
-        if node.has_key('inherits_from'): 
-            # In case of single inheritance: convert attribute into a list for looping
-            if isinstance(node['inherits_from'], basestring):
-                node['inherits_from'] = [node['inherits_from']]
-                
-            # process each ancester (in case of single or multiple inheritance)
-            for p in node['inherits_from']:
-                path = p.split('.')
-                # Traverse the path to get the node instance to inherit from.
-                parent_node = self
-                while path: parent_node = parent_node[path.pop(0)]
-                # recursively resolve any inheritance relations of the parent node
-                self.resolve_inheritances(parent_node)
-            
-                # Actually perform the inheritance
-                for i, j in parent_node.items():
-                    node.setdefault(i, j)
-            # Remove the inheritance indicator from the node. Future
-            # traversals will treat the node as not inheriting anything.
-            node.pop('inherits_from')
+        
+        def walk(self, node):
 
+                # first, process all children of the current node:
+                for k in node:
+                        if isinstance(node[k], dict) and node not in visited: self.resolve_inheritances(node[k])
+
+                    # Inheritance of current node
+            if node.has_key('inherits_from'):
+                # In case of single inheritance: convert attribute into a list for looping
+                if isinstance(node['inherits_from'], basestring):
+                    node['inherits_from'] = [node['inherits_from']]
+
+                # process each ancester (in case of single or multiple inheritance)
+                for p in node['inherits_from']:
+                    path = p.split('.')
+                    # Traverse the path to get the node instance to inherit from.
+                    parent_node = self
+                    while path: parent_node = parent_node[path.pop(0)]
+                    # recursively resolve any inheritance relations of the parent node
+                    self.resolve_inheritances(parent_node)
+
+                    # Actually perform the inheritance
+                    for i, j in parent_node.items():
+                        node.setdefault(i, j)
+                # Remove the inheritance indicator from the node. Future
+                # traversals will treat the node as not inheriting anything.
+                node.pop('inherits_from')
+            visited.append(node)
+
+
+        visited = [] # avoid multiple visits
+    walk(self)
+    

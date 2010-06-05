@@ -1,5 +1,5 @@
 
-import sys, shutil
+import sys, shutil, os
 from distutils.core import setup, Extension
 
 
@@ -28,8 +28,8 @@ arg_dict = dict(
                 'Topic :: Printing',
     ],
     packages = ['transcribo', 'transcribo.renderer'],
-    package_data = {'transcribo' : ['preferences.yaml'],
-        'transcribo.renderer' : ['styles/base.yaml', 'styles/braille.yaml']},
+    package_data = {'transcribo' : ['transcribo.conf'],
+        'transcribo.renderer' : ['styles/' + fn for fn in os.listdir('transcribo/renderer/styles/']},
     scripts = ['scripts/transcribo-txt.py', 'scripts/transcribo-rst.py',
         'scripts/transcribo-rst.conf'],
         requires = ['docutils', 'hyphen', 'textwrap2', 'PyYAML'],
