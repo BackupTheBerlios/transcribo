@@ -18,7 +18,7 @@ preferences = {}
 
 def main():
     import config
-    fn = 'preferences.yaml'
+    fn = 'transcribo.conf'
     if os.path.exists(fn): path = ''
     else: path = __path__[0]
-    preferences.update(config.Config('/'.join((path, 'preferences.yaml'))))
+    preferences.update(config.Config('/'.join((path, 'transcribo.conf'))))

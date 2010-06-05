@@ -1,5 +1,10 @@
-import yaml
+import yaml, re
 from transcribo import renderer
+
+
+
+# regex for string interpolation. '$' must enclose the path to the source string.
+interpolate_re = re.compile(r'\$[^\$]+\$')
 
 class Config(dict):
     def __init__(self, files):
@@ -23,7 +28,11 @@ class Config(dict):
         self.add(files)
 
     def add(self, files):
-        '''Load one or more YAML files and merge the resulting data into any existing dictionaries.'''
+        '''Load one or more YAML files and merge the resulting data recursively into the tree of dictionaries.
+
+'files': a file name (string or unicode) or file-like object, or a list of those
+        '''
+        
         if isinstance(files, basestring): files = [files]
         self.input_files.extend(files)
         for f in files:
@@ -35,6 +44,7 @@ class Config(dict):
             stream.close()
             self.merge(data)
         self.resolve_inheritances()
+        self.interpolate()
         
         
         
@@ -53,18 +63,23 @@ class Config(dict):
         if kwargs: d.update(kwargs)
         mix_in(self, d)
         
+    def find_node(self, path):
+        path_list = path.split('.')
+        # Traverse the path to get the node instance to inherit from.
+        node = self
+        while path_list: node = node[path_list.pop(0)]
+        return node
 
     
-        def resolve_inheritances(self):
+    def resolve_inheritances(self):
         '''resolve inheritances. '''
         
-        def walk(self, node):
+        def walk(node):
 
-                # first, process all children of the current node:
-                for k in node:
-                        if isinstance(node[k], dict) and node not in visited: self.resolve_inheritances(node[k])
-
-                    # Inheritance of current node
+            # first, process all children of the current node:
+            for k in node:
+                if isinstance(node[k], dict) and node not in visited: walk(node[k])
+            # Inheritance of current node
             if node.has_key('inherits_from'):
                 # In case of single inheritance: convert attribute into a list for looping
                 if isinstance(node['inherits_from'], basestring):
@@ -72,22 +87,46 @@ class Config(dict):
 
                 # process each ancester (in case of single or multiple inheritance)
                 for p in node['inherits_from']:
-                    path = p.split('.')
-                    # Traverse the path to get the node instance to inherit from.
-                    parent_node = self
-                    while path: parent_node = parent_node[path.pop(0)]
-                    # recursively resolve any inheritance relations of the parent node
-                    self.resolve_inheritances(parent_node)
+                    parent_node = self.find_node(p)
 
-                    # Actually perform the inheritance
+                    # recursively resolve any inheritance relations of the parent node
+                    walk(parent_node)
+
+                    # Actually perform the inheritance of this node
                     for i, j in parent_node.items():
                         node.setdefault(i, j)
                 # Remove the inheritance indicator from the node. Future
                 # traversals will treat the node as not inheriting anything.
                 node.pop('inherits_from')
+            # mark this node as visited to avoid future visits
             visited.append(node)
 
 
         visited = [] # avoid multiple visits
-    walk(self)
+        walk(self)
+    
+    
+    def interpolate(self):
+        '''String interpolation similar to ConfigParser from the standard library.'''
+        
+        def walk(node):
+            if node not in visited:
+                # Check for string values to interpolate
+                for k in node:
+                    if isinstance(node[k], basestring):
+                        for var in interpolate_re.findall(node[k]):
+                            # get the result string to insert in place of var. Delimitors must be trimmed before.
+                            result = self.find_node(var[1:-1])
+                            node[k] = node[k].replace(var, result, 1)
+                    elif isinstance(node[k], dict):
+                        walk(node[k])
+                visited.append(node)
+
+
+        visited = [] # avoid multiple visits
+        walk(self)
+                    
+
+        
+        
     
