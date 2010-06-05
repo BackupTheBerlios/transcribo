@@ -10,9 +10,9 @@ import docutils.writers
 from docutils import frontend, nodes
 from docutils.nodes import Node, NodeVisitor
 from transcribo import logger
-from transcribo.renderer.frames import RootFrame, Frame
+from transcribo.renderer.frames import RootFrame
 from transcribo.renderer import pages, utils, styles
-from transcribo.renderer.content import ContentManager, GenericText
+from transcribo.renderer.content import GenericText
 from transcribo.renderer.factory import getFrame, getContentManager
 
 
@@ -25,26 +25,7 @@ class Writer(docutils.writers.Writer):
 
     config_section_dependencies = ('writers',)
     
-    settings_specs = (
-        ('Options specific to  Transcribo`s docutils_txt_writer', 'no description on this item',
-            (
-                (
-                    "translation, eg. for Braille. The name mus  be defined in one of the styles. default is 'no translator'",
-                    ('--translator', '-tl'),
-                    {'default': None,
-                        'type': 'str'
-                    }
-                ),
-                (
-                    "Page width, default is 60'",
-                    ('--page_width'),
-                    {'default': 60,
-                        'type': 'int'
-                    }
-                )
-            )
-        )
-    )
+    settings_specs = ()
 
 
 
@@ -61,13 +42,6 @@ class TxtVisitor(NodeVisitor):
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = document.settings
-        # Convert some settings to int
-        for s in ['page_width']:
-            v = getattr(self.settings, s)
-            setattr(self.settings, s, int(v))
-        
-        
-        
 
 
         
@@ -100,7 +74,6 @@ class TxtVisitor(NodeVisitor):
     def visit_document(self, node):
         logger.info('transcribo.rST.py: Building frame tree...')
         current_page_spec = styles['pages']['default']
-        current_page_spec['width'] = self.settings.page_width
         self.paginator = pages.Paginator(page_spec = current_page_spec,
         header_spec = None, footer_spec = styles['footers']['default'],
         translator_cfg = styles['translators'][self.settings.translator])
@@ -151,7 +124,7 @@ class TxtVisitor(NodeVisitor):
                 number += node.parent['start'] - 1
             itemtext += func(number)
             itemtext += node.parent['suffix']
-        content = ContentManager(newFrame, wrapper = styles['wrappers']['standard'])
+        content = getContentManager(newFrame)
         GenericText(content, text = itemtext, translator = styles['translators']['default']) # write a getGenericText factory function?
         self.currentFrame = newFrame
 

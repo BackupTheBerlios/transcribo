@@ -13,8 +13,12 @@ def main():
     from transcribo import config, preferences 
     # generate list of style files to be merged, starting with files in the package dir.
     style_files = ['/'.join((__path__[0], 'styles', fn)) for fn in preferences['styles']]
+    
+    # append '.yaml', if necessary
+    for fn in style_files:
+        if not fn.endswith('.yaml'): fn.append('.yaml')
 
-    # add styles from the current dir, if any. This is presently only 1 file.
+    # add styles from the current dir, if any.
     if os.path.exists('styles.yaml'): style_files.append('styles.yaml')
 
     # load and merge the styles

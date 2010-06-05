@@ -1,0 +1,10 @@
+# enable text wrapping with English hyphenation
+
+
+wrappers:
+    default:
+        inherits_from: wrappers.standard2
+        
+hyphenators:
+    default:
+        inherits_from: hyphenators.hyphen_en_US
