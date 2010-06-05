@@ -15,8 +15,8 @@ def main():
     style_files = ['/'.join((__path__[0], 'styles', fn)) for fn in preferences['styles']]
     
     # append '.yaml', if necessary
-    for fn in style_files:
-        if not fn.endswith('.yaml'): fn.append('.yaml')
+    for i in range(len(style_files)):
+        if not style_files[i].endswith('.yaml'): style_files[i] += '.yaml'
 
     # add styles from the current dir, if any.
     if os.path.exists('styles.yaml'): style_files.append('styles.yaml')

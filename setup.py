@@ -28,10 +28,9 @@ arg_dict = dict(
                 'Topic :: Printing',
     ],
     packages = ['transcribo', 'transcribo.renderer'],
-    package_data = {'transcribo' : ['transcribo.conf'],
+    package_data = {'transcribo' : ['config.yaml'],
         'transcribo.renderer' : ['styles/' + fn for fn in os.listdir('transcribo/renderer/styles/')]},
-    scripts = ['scripts/transcribo-txt.py', 'scripts/transcribo-rst.py',
-        'scripts/transcribo-rst.conf'],
+    scripts = ['scripts/transcribo-txt.py', 'scripts/transcribo-rst.py'],
         requires = ['docutils', 'hyphen', 'textwrap2', 'PyYAML'],
         provides = ['transcribo']
 )

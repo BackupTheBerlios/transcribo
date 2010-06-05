@@ -1,6 +1,4 @@
 
-
-
 from optparse import OptionParser
 import sys, codecs
 from transcribo.plaintext import Writer
@@ -9,18 +7,18 @@ from transcribo.plaintext import Writer
 parser = OptionParser()
 
 parser.add_option("-t", "--translator", default = 'default',
-                  help = """name of the translator (defaults to none;
-                  'translator' must be defined in transcribo.renderer.styles.translators).""",
+                  help = """name of the translator (default depends on the loaded styles;
+                  'translator' must be defined in transcribo/renderer/styles/*.yaml).""",
                     metavar="NAME")
 
 parser.add_option("-w", "--wrapper", default = 'indent2',
                   help = """name of the text wrapper (defaults to 'indent2';
-                  'wrapper' must be defined in transcribo.renderer.styles.translators).""",
+                  'wrapper' must be defined in transcribo/renderer/styles/).""",
 metavar="NAME")
 
-parser.add_option("-f", "--frame", default = 'body1',
-                  help = """name of the frame style (defaults to 'body1';
-                  'frame' must be defined in transcribo.renderer.styles.translators).""",
+parser.add_option("-f", "--frame", default = 'body0',
+                  help = """name of the frame style (defaults to 'body0';
+                  'frame' must be defined in transcribo/renderer/styles/).""",
 metavar="NAME")
 
 parser.add_option("-e", "--encoding", dest = 'enc', default = 'latin1',

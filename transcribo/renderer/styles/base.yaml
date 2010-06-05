@@ -113,7 +113,7 @@ hyphenators:
         
         
 pages:
-    default:
+    A4:
         top_margin: 1
         bottom_margin: 1
         left_margin: 1
@@ -128,9 +128,13 @@ pages:
 
             '
     braille_A4:
-        inherits_from: pages.default
+        inherits_from: pages.A4
         width: 30
         length: 29
+        
+    default:
+        inherits_from: A4
+        
         
         
 translators:

@@ -1,0 +1,9 @@
+# default settings for Braille printing
+
+pages:
+    default:
+        inherits_from: pages.braille_A4
+        
+translators:
+    default:
+        inherits_from: translators.louis_en

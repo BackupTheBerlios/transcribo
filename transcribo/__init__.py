@@ -19,6 +19,6 @@ preferences = {}
 def main():
     import config
     fn = 'config.yaml'
-    if os.path.exists(fn): path = ''
+    if os.path.exists(fn): path = '.'
     else: path = __path__[0]
     preferences.update(config.Config('/'.join((path, 'config.yaml'))))
