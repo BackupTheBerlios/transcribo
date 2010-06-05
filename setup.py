@@ -30,6 +30,7 @@ arg_dict = dict(
     packages = ['transcribo', 'transcribo.renderer'],
     package_data = {'transcribo' : ['config.yaml'],
         'transcribo.renderer' : ['styles/' + fn for fn in os.listdir('transcribo/renderer/styles/')]},
+        py_modules = ['yaconfig'],
     scripts = ['scripts/transcribo-txt.py', 'scripts/transcribo-rst.py'],
         requires = ['docutils', 'hyphen', 'textwrap2', 'PyYAML'],
         provides = ['transcribo']

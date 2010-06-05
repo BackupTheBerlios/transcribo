@@ -133,7 +133,7 @@ pages:
         length: 29
         
     default:
-        inherits_from: A4
+        inherits_from: pages.A4
         
         
         

@@ -26,8 +26,6 @@ class TestRenderer(unittest.TestCase):
 
     def setUp(self):
         # load styles etc.
-        transcribo.main()
-        transcribo.renderer.main()
 
         self.paginator = pages.Paginator(page_spec = styles['pages']['default'],
         header_spec = None, footer_spec = styles['footers']['default'],

@@ -24,8 +24,6 @@ class Writer:
         self.translator_sty = translator_sty
         self.wrapper_sty = wrapper_sty
         self.footer_sty = footer_sty
-        transcribo.main()
-        transcribo.renderer.main()
         
 
     def render(self, text):

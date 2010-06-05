@@ -1,5 +1,4 @@
 import yaml, re
-from transcribo import renderer
 
 
 
@@ -63,18 +62,25 @@ class Config(dict):
         if kwargs: d.update(kwargs)
         mix_in(self, d)
         
-    def find_node(self, path):
+    def find_node(self, path, scope):
         path_list = path.split('.')
+        
+        # If the path has no dot, it can be a local one pointing to a sibling of node:
+        if len(path_list) == 1 and path[0] in scope:
+            return (scope[path[0]], scope)
+            
         # Traverse the path to get the node instance to inherit from.
         node = self
-        while path_list: node = node[path_list.pop(0)]
-        return node
+        while path_list:
+            scope = node
+            node = node[path_list.pop(0)]
+        return (node, scope)
 
     
     def resolve_inheritances(self):
         '''resolve inheritances. '''
         
-        def walk(node):
+        def walk(node, scope):
 
                 
             # Inheritance of current node
@@ -85,10 +91,10 @@ class Config(dict):
 
                 # process each ancester (in case of single or multiple inheritance)
                 for p in node['inherits_from']:
-                    parent_node = self.find_node(p)
+                    (parent_node, scope) = self.find_node(p, scope)
 
                     # recursively resolve any inheritance relations of the parent node
-                    walk(parent_node)
+                    walk(parent_node, scope)
 
                     # Actually perform the inheritance of this node
                     for i, j in parent_node.items():
@@ -99,35 +105,36 @@ class Config(dict):
                 
             # process all children of the current node:
             for k in node:
-                if isinstance(node[k], dict) and node not in visited: walk(node[k])
+                if isinstance(node[k], dict) and node not in visited: walk(node[k], node)
 
             # mark this node as visited to avoid future visits
             visited.append(node)
 
 
         visited = [] # avoid multiple visits
-        walk(self)
+        walk(self, {})
     
     
     def interpolate(self):
         '''String interpolation similar to ConfigParser from the standard library.'''
         
-        def walk(node):
+        def walk(node, scope):
+        
             if node not in visited:
                 # Check for string values to interpolate
                 for k in node:
                     if isinstance(node[k], basestring):
                         for var in interpolate_re.findall(node[k]):
                             # get the result string to insert in place of var. Delimitors must be trimmed before.
-                            result = self.find_node(var[1:-1])
+                            (result, scope) = self.find_node(var[1:-1], scope)
                             node[k] = node[k].replace(var, result, 1)
                     elif isinstance(node[k], dict):
-                        walk(node[k])
+                        walk(node[k], node)
                 visited.append(node)
 
 
         visited = [] # avoid multiple visits
-        walk(self)
+        walk(self, {})
                     
 
         
