@@ -1,12 +1,3 @@
-content:
-    body1: {}
-    heading1:
-        x_align: center
-    heading1:
-        x_align: center
-    heading2:
-        x_align: left
-    standard: &id001 {}
     
 footers:
     default:
@@ -23,7 +14,7 @@ footers:
             y_align: top
             y_hook: top
             y_offset: 0
-        pagenumcontent_cfg: *id001
+        pagenumcontent_cfg: {}
         
         
 frames:
@@ -109,9 +100,13 @@ frames:
     
     
 hyphenators:
+
+    default: null
+    
     hyphen_de_DE:
         class_path: hyphen.hyphenator
         language: de_DE
+        
     hyphen_en_US:
         inherits_from: hyphenators.hyphen_de_DE
         language: en_US
@@ -163,12 +158,21 @@ translators:
         
         
 wrappers:
-    standard:
+    standard: # no support for hyphenation, simple rectangular outline
+        class_path: textwrap.TextWrapper
+        
+    standard2: # supports hyphenation, requires PyHyphen package
         class_path: textwrap2.TextWrapper
+        
+    default:
+        inherits_from: wrappers.standard
 
     indent2:
-        inherits_from: wrappers.standard
+        inherits_from: wrappers.default
         initial_indent: !!python/unicode '  '
 
-
+    pending2:
+        inherits_from: wrappers.default
+        subsequent_indent: !!python/unicode '  '
+        
 ...

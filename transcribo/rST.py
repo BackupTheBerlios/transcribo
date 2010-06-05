@@ -73,7 +73,7 @@ class TxtVisitor(NodeVisitor):
         
     def visit_block_quote(self, node):
         # create a container frame for the indentations
-        newFrame = getFrame('block_quote_container')
+        newFrame = getFrame(self.currentFrame, self.parent, style = 'block_quote_container')
         self.parent = self.currentFrame = newFrame
 
 
@@ -84,7 +84,7 @@ class TxtVisitor(NodeVisitor):
     
 
     def visit_bullet_list(self, node):
-        newFrame = getFrame('list_container')
+        newFrame = getFrame(self.currentFrame, self.parent, style = 'list_container')
         if self.parent is not self.currentFrame:
             newFrame.update(x_anchor = self.currentFrame)
         self.currentFrame = self.parent = newFrame
@@ -124,7 +124,7 @@ class TxtVisitor(NodeVisitor):
     
     
     def visit_enumerated_list(self, node):
-        newFrame = getFrame('list_container')
+        newFrame = getFrame(self.currentFrame, self.parent, style = 'list_container')
         if self.parent is not self.currentFrame:
             newFrame.update(x_anchor = self.currentFrame)
         self.currentFrame = self.parent = newFrame
@@ -138,9 +138,9 @@ class TxtVisitor(NodeVisitor):
     def visit_list_item(self, node):
         # First create a container frame for the whole item. Its first child}
         # carries the bullet point or enumerator, the following child frames carry the actual content.
-        newFrame = getFrame('list_item_container')
+        newFrame = getFrame(self.currentFrame, self.parent, style = 'list_item_container')
         self.parent = self.currentFrame = newFrame
-        newFrame = getFrame('list_item')
+        newFrame = getFrame(self.currentFrame, self.parent, style = 'list_item')
         if isinstance(node.parent, nodes.bullet_list):
             itemtext = node.parent['bullet']
         else: # enumerated_list
@@ -164,7 +164,7 @@ class TxtVisitor(NodeVisitor):
 
 
     def visit_paragraph(self, node):
-        newFrame = getFrame('body1')
+        newFrame = getFrame(self.currentFrame, self.parent)
         
         # handle the first paragraph within a list item frame
         if isinstance(node.parent, nodes.list_item):
@@ -173,7 +173,7 @@ class TxtVisitor(NodeVisitor):
             if len(self.parent) == 2:
                 newFrame.update(y_hook = 'top')
         self.currentFrame = newFrame
-        self.currentContent = self.getContentManager()
+        self.currentContent = getContentManager(self.currentFrame)
 
             
             
@@ -225,9 +225,9 @@ class TxtVisitor(NodeVisitor):
         if (isinstance(node.parent, nodes.section) or
             isinstance(node.parent, nodes.document) or isinstance(node.parent, nodes.topic)):
             frame_style = 'heading' + str(self.section_level)
-            newFrame = getFrame(frame_style)
+            newFrame = getFrame(self.currentFrame, self.parent, style = frame_style)
             self.currentFrame = newFrame
-            self.currentContent = self.getContentManager(content_style = 'heading1')
+            self.currentContent = getContentManager(self.currentFrame)
         else:
             raise TypeError('Cannot handle title node in this context (parent = %s' % node.parent)
 
@@ -239,13 +239,13 @@ class TxtVisitor(NodeVisitor):
 
 
     def visit_subtitle(self, node):
-        newFrame = getFrame('heading0')
+        newFrame = getFrame(self.currentFrame, self.parent, style = 'heading0')
         if self.currentFrame == self.parent: # probably supervluous as subtitle can only occur after doctitle
             newFrame.update(y_hook = 'top')
         else:
             newFrame.update(y_hook = 'bottom')
         self.currentFrame = newFrame
-        self.currentContent = self.getContentManager(content_style = 'heading0')
+        self.currentContent = getContentManager(self.currentFrame)
 
             
     def depart_subtitle(self, node): pass
@@ -256,7 +256,7 @@ class TxtVisitor(NodeVisitor):
     
     
     def visit_line_block(self, node):
-        newFrame = getFrame('list_container') # the double use of list_container may be confusing. Create line_block_container?
+        newFrame = getFrame(self.currentFrame, self.parent, style = 'list_container') # need custom style for this?
         if self.parent is not self.currentFrame:
             newFrame.update(x_anchor = self.currentFrame)
         self.currentFrame = self.parent = newFrame
@@ -267,9 +267,9 @@ class TxtVisitor(NodeVisitor):
         self.parent = self.parent.parent
 
     def visit_line(self, node):
-        newFrame = getFrame('body1')
+        newFrame = getFrame(self.currentFrame, self.parent)
         self.currentFrame = newFrame
-        self.currentContent = self.getContentManager(wrapper_style = 'pending2')
+        self.currentContent = getContentManager(self.currentFrame, style = 'wrapper pending2')
 
     def depart_line(self, node): pass
     

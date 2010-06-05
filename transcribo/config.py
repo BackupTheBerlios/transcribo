@@ -76,9 +76,7 @@ class Config(dict):
         
         def walk(node):
 
-            # first, process all children of the current node:
-            for k in node:
-                if isinstance(node[k], dict) and node not in visited: walk(node[k])
+                
             # Inheritance of current node
             if node.has_key('inherits_from'):
                 # In case of single inheritance: convert attribute into a list for looping
@@ -98,6 +96,11 @@ class Config(dict):
                 # Remove the inheritance indicator from the node. Future
                 # traversals will treat the node as not inheriting anything.
                 node.pop('inherits_from')
+                
+            # process all children of the current node:
+            for k in node:
+                if isinstance(node[k], dict) and node not in visited: walk(node[k])
+
             # mark this node as visited to avoid future visits
             visited.append(node)
 

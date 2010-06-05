@@ -78,8 +78,8 @@ still further in his waistcoat, as I announced my name. """ * 5
                     else:
                         enum_cfg.update(y_hook = 'top', y_offset = 0)
                     enum = Frame(container, **enum_cfg)
-                    content = ContentManager(parent = enum, x_align = 'right', wrapper = styles['wrappers']['standard'],
-                    hyphenator = styles['hyphenators']['hyphen_en_US'])
+                    content = ContentManager(parent = enum, x_align = 'right', wrapper = styles['wrappers']['default'],
+                    hyphenator = styles['hyphenators']['default']) # no hyphenator by default
                     GenericText(content, text = s)
                     
                     
