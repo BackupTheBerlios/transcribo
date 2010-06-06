@@ -1,7 +1,7 @@
 recursive-include transcribo *.py *.yaml
 include test/test.py
 include test/rst/README.rst
-include scripts *.conf *.py
+include scripts *.py
 include MANIFEST
 prune docs
 prune website

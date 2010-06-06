@@ -176,7 +176,7 @@ wrappers:
         initial_indent: !!python/unicode '  '
 
     pending2:
-        inherits_from: wrappers.default
+        inherits_from: default
         subsequent_indent: !!python/unicode '  '
         
 ...

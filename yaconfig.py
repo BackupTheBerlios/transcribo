@@ -66,8 +66,8 @@ class Config(dict):
         path_list = path.split('.')
         
         # If the path has no dot, it can be a local one pointing to a sibling of node:
-        if len(path_list) == 1 and path[0] in scope:
-            return (scope[path[0]], scope)
+        if len(path_list) == 1 and path in scope:
+            return (scope[path], scope)
             
         # Traverse the path to get the node instance to inherit from.
         node = self
@@ -82,7 +82,6 @@ class Config(dict):
         
         def walk(node, scope):
 
-                
             # Inheritance of current node
             if node.has_key('inherits_from'):
                 # In case of single inheritance: convert attribute into a list for looping
@@ -91,14 +90,14 @@ class Config(dict):
 
                 # process each ancester (in case of single or multiple inheritance)
                 for p in node['inherits_from']:
-                    (parent_node, scope) = self.find_node(p, scope)
+                    (parent_node, scope2) = self.find_node(p, scope)
+                    # recursively resolve any inheritance relations of that parent node
+                    walk(parent_node, scope2)
 
-                    # recursively resolve any inheritance relations of the parent node
-                    walk(parent_node, scope)
-
-                    # Actually perform the inheritance of this node
-                    for i, j in parent_node.items():
-                        node.setdefault(i, j)
+                # Actually perform the inheritance of this node
+                for i, j in parent_node.items():
+                    node.setdefault(i, j)
+                    
                 # Remove the inheritance indicator from the node. Future
                 # traversals will treat the node as not inheriting anything.
                 node.pop('inherits_from')
