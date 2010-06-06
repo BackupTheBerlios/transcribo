@@ -3,7 +3,7 @@
 
 wrappers:
     default:
-        inherits_from: wrappers.standard2
+        inherits_from: standard2
         
         
 hyphenators:

@@ -2,7 +2,7 @@
 
 pages:
     default:
-        inherits_from: pages.braille_A4
+        inherits_from: braille_A4
         
 translators:
     default:

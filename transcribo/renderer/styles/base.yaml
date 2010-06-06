@@ -34,59 +34,57 @@ frames:
         y_offset: 0
 
     default:
-        inherits_from: frames.body0
+        inherits_from: body0
         
     body1:
-        inherits_from: frames.body0
+        inherits_from: body0
     
     
     # frames for headings
     heading0:
-        inherits_from: frames.body0
+        inherits_from: body0
         lines_below: 1
-        y_offset: 4
+        y_offset: 1
         
     heading1:
-        inherits_from: frames.heading0
+        inherits_from: heading0
         
     heading2:
-        inherits_from: frames.heading0
-        y_offset: 3
+        inherits_from: heading0
 
     heading3:
-        inherits_from: frames.heading0
+        inherits_from: heading0
         x_offset: 2
-        y_offset: 2
         
     heading4:
-        inherits_from: frames.heading2
+        inherits_from: heading2
         x_offset: 4
-        y_offset: 1
+
 
     # frames for lists
     list_body:
-        inherits_from: frames.body0
+        inherits_from: body0
         x_hook: right
         x_offset: 1
         
     list_container:
-        inherits_from: frames.body0
+        inherits_from: body0
         y_hook: top
         
     list_item:
-        inherits_from: frames.body0
+        inherits_from: body0
         height_mode: fixed
         max_height: 1
         width_mode: auto
         y_hook: top
         
     list_item_container:
-        inherits_from: frames.body0
+        inherits_from: body0
         y_hook: top
 
     # frames for block_quotes
     block_quote_container:
-        inherits_from: frames.body0
+        inherits_from: body0
         lines_below: 1
         right_indent: 4
         x_offset: 4
@@ -108,7 +106,7 @@ hyphenators:
         language: de_DE
         
     hyphen_en_US:
-        inherits_from: hyphenators.hyphen_de_DE
+        inherits_from: hyphen_de_DE
         language: en_US
         
         
@@ -127,36 +125,42 @@ pages:
         page_break: '
 
             '
+            
     braille_A4:
-        inherits_from: pages.A4
+        inherits_from: A4
         width: 30
         length: 29
         
     default:
-        inherits_from: pages.A4
+        inherits_from: A4
         
         
         
 translators:
     YABT_en:
         class_path: translators.YABTrans
+        
     default: null
+    
     emphasis:
         class_path: translators.UpperTrans
+        
     upper:
-        inherits_from: translators.emphasis
+        inherits_from: emphasis
         
     louis_de:
         class_path: translators.Louis
         mode: 0
         tables:
         - de-de-g1.ctb
+        
     louis_de2:
-        inherits_from: translators.louis_de
+        inherits_from: louis_de
         tables:
         - de-de-g2.ctb
+        
     louis_en:
-        inherits_from: translators.louis_de
+        inherits_from: louis_de
         tables:
         - en-US-g2.ctb
         
@@ -169,10 +173,10 @@ wrappers:
         class_path: textwrap2.TextWrapper
         
     default:
-        inherits_from: wrappers.standard
+        inherits_from: standard
 
     indent2:
-        inherits_from: wrappers.default
+        inherits_from: default
         initial_indent: !!python/unicode '  '
 
     pending2:
