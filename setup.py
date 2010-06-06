@@ -32,7 +32,7 @@ arg_dict = dict(
         'transcribo.renderer' : ['styles/' + fn for fn in os.listdir('transcribo/renderer/styles/')]},
         py_modules = ['yaconfig'],
     scripts = ['scripts/transcribo-txt.py', 'scripts/transcribo-rst.py'],
-        requires = ['docutils', 'hyphen', 'textwrap2', 'PyYAML'],
+        requires = ['docutils', 'PyYAML'],
         provides = ['transcribo']
 )
 

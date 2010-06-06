@@ -76,7 +76,7 @@ class TxtVisitor(NodeVisitor):
         current_page_spec = styles['pages']['default']
         self.paginator = pages.Paginator(page_spec = current_page_spec,
         header_spec = None, footer_spec = styles['footers']['default'],
-        translator_cfg = styles['translators'][self.settings.translator])
+        translator_cfg = styles['translators']['default'])
         self.root = RootFrame(max_width = self.paginator.width)
         self.parent = self.currentFrame = self.root
         self.section_level = 0
@@ -115,7 +115,7 @@ class TxtVisitor(NodeVisitor):
         self.parent = self.currentFrame = newFrame
         newFrame = getFrame(self.currentFrame, self.parent, style = 'list_item')
         if isinstance(node.parent, nodes.bullet_list):
-            itemtext = node.parent['bullet']
+            itemtext = '-' # suits me better than node.parent['bullet']. Could be made stylable later
         else: # enumerated_list
             itemtext = node.parent['prefix']
             func = utils.__dict__['to_' + node.parent['enumtype']]

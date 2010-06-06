@@ -137,7 +137,7 @@ pages:
         
         
 translators:
-    YABT_en:
+    YABT_en: # British contracted Braille. requires YABT 
         class_path: translators.YABTrans
         
     default: null
@@ -148,7 +148,7 @@ translators:
     upper:
         inherits_from: emphasis
         
-    louis_de:
+    louis_de: # German Braille. requires liblouis and the Pythin bindings
         class_path: translators.Louis
         mode: 0
         tables:

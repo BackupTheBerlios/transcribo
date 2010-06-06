@@ -63,9 +63,9 @@ class Config(dict):
         mix_in(self, d)
         
     def find_node(self, path, scope):
-        path_list = path.split('.')
+        path_list = path.split('/')
         
-        # If the path has no dot, it can be a local one pointing to a sibling of node:
+        # If the path has no /, it can be a local one pointing to a sibling of node:
         if len(path_list) == 1 and path in scope:
             return (scope[path], scope)
             
