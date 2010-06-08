@@ -73,10 +73,10 @@ class TxtVisitor(NodeVisitor):
 
     def visit_document(self, node):
         logger.info('transcribo.rST.py: Building frame tree...')
-        current_page_spec = styles['pages']['default']
+        current_page_spec = styles['page']['default']
         self.paginator = pages.Paginator(page_spec = current_page_spec,
-        header_spec = None, footer_spec = styles['footers']['default'],
-        translator_cfg = styles['translators']['default'])
+        header_spec = None, footer_spec = styles['footer']['default'],
+        translator_cfg = styles['translator']['default'])
         self.root = RootFrame(max_width = self.paginator.width)
         self.parent = self.currentFrame = self.root
         self.section_level = 0
@@ -125,7 +125,7 @@ class TxtVisitor(NodeVisitor):
             itemtext += func(number)
             itemtext += node.parent['suffix']
         content = getContentManager(newFrame)
-        GenericText(content, text = itemtext, translator = styles['translators']['default']) # write a getGenericText factory function?
+        GenericText(content, text = itemtext, translator = styles['translator']['default']) # write a getGenericText factory function?
         self.currentFrame = newFrame
 
 
@@ -141,7 +141,7 @@ class TxtVisitor(NodeVisitor):
         
         # handle the first paragraph within a list item frame
         if isinstance(node.parent, nodes.list_item):
-            newFrame.update(**styles['frames']['list_body'])
+            newFrame.update(**styles['frame']['list_body'])
             newFrame.update(x_anchor = self.parent[0])
             if len(self.parent) == 2:
                 newFrame.update(y_hook = 'top')
@@ -186,7 +186,7 @@ class TxtVisitor(NodeVisitor):
     def visit_Text(self, node):
         if (isinstance(node.parent, nodes.emphasis) or
             isinstance(node.parent, nodes.strong)):
-            font_style = styles['translators']['emphasis']
+            font_style = styles['translator']['emphasi']
         else: font_style = None
         GenericText(self.currentContent, text = node.astext(), translator = font_style)
 

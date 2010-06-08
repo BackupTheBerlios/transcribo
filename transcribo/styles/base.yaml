@@ -1,5 +1,5 @@
     
-footers:
+footer:
     default:
         pagenum_cfg: &id011
             height_mode: fixed
@@ -17,7 +17,7 @@ footers:
         pagenumcontent_cfg: {}
         
         
-frames:
+frame:
     
     body0:
         height_mode: auto
@@ -97,7 +97,7 @@ frames:
     pagenum_right: *id011
     
     
-hyphenators:
+hyphenator:
 
     default: null
     
@@ -110,7 +110,7 @@ hyphenators:
         language: en_US
         
         
-pages:
+page:
     A4:
         top_margin: 1
         bottom_margin: 1
@@ -136,7 +136,7 @@ pages:
         
         
         
-translators:
+translator:
     YABT_en: # British contracted Braille. requires YABT 
         class_path: translators.YABTrans
         
@@ -165,7 +165,7 @@ translators:
         - en-US-g2.ctb
         
         
-wrappers:
+wrapper:
     standard: # no support for hyphenation, simple rectangular outline
         class_path: textwrap.TextWrapper
         

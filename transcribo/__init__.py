@@ -1,5 +1,4 @@
 import logging, os.path
-import yaconfig
 
 # Set up logging to the console and the log file
 logging.basicConfig(
@@ -13,11 +12,4 @@ standard_handler.setFormatter(formatter)
 logging.getLogger('').addHandler(standard_handler)
 logger =logging.getLogger('transcribo')
 
-__all__ = ['renderer', 'rST', 'plaintext']
-
-preferences = {}
-
-fn = 'config.yaml'
-if os.path.exists(fn): path = '.'
-else: path = __path__[0]
-preferences.update(yaconfig.Config('/'.join((path, 'config.yaml'))))
+__all__ = ['renderer', 'yaconfig', 'rST', 'plaintext']

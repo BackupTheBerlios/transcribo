@@ -15,7 +15,7 @@ def getContentManager(cur, style = ''):
     'cur'': the current frame in which the ContentManager will be placed
     
     'style': a string of words defining the styles of wrapper, translator and hyphenator.
-    Example: style = 'wrapper indent2 translator upper hyphenator en_US'
+    Example: style = 'wrapper indent2 translator upper hyphenator en_U'
     The order of the commands in the string does not matter. Separators except for white space are
     not allowed.
     '''
@@ -47,9 +47,9 @@ def getContentManager(cur, style = ''):
         hyphenator_name = 'default'
 
     # Get the corresponding styles
-    wrapper_style = styles['wrappers'][wrapper_name]
-    translator_style = styles['translators'][translator_name]
-    hyphenator_style = styles['hyphenators'][hyphenator_name]
+    wrapper_style = styles['wrapper'][wrapper_name]
+    translator_style = styles['translator'][translator_name]
+    hyphenator_style = styles['hyphenator'][hyphenator_name]
         
     return ContentManager(parent = cur, wrapper = wrapper_style,
     hyphenator = hyphenator_style,
@@ -65,7 +65,7 @@ def getFrame(cur, par, style = 'default'):
     'style': the name of a frame style (see the examples in the ./styles/ subdir)
     '''
     
-    frame_style = styles['frames'][style]
+    frame_style = styles['frame'][style]
     
     if par == cur:
         frame_style.update(y_hook = 'top')

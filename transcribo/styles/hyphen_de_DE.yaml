@@ -1,11 +1,11 @@
 # set default to text wrapping with German hyphenation
 
 
-wrappers:
+wrapper:
     default:
         inherits_from: standard2
         
         
-hyphenators:
+hyphenator:
     default:
         inherits_from: hyphen_de_DE

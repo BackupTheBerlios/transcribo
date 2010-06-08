@@ -6,7 +6,7 @@ import yaml, re
 interpolate_re = re.compile(r'\$[^\$]+\$')
 
 class Config(dict):
-    def __init__(self, files):
+    def __init__(self, *files):
         '''
         Load one or more YAML files and store them successively
         in the instance (it is in essence a dictionary).
@@ -18,7 +18,7 @@ class Config(dict):
 
         Arguments:
         
-        'files': a file name or list of file names
+        'files': one or more file names or file-like objects 
         '''
         
         
@@ -26,13 +26,12 @@ class Config(dict):
         self.input_files = []
         self.add(files)
 
-    def add(self, files):
+    def add(self, *files):
         '''Load one or more YAML files and merge the resulting data recursively into the tree of dictionaries.
 
 'files': a file name (string or unicode) or file-like object, or a list of those
         '''
         
-        if isinstance(files, basestring): files = [files]
         self.input_files.extend(files)
         for f in files:
             if isinstance(f, basestring): # it must be a file name
