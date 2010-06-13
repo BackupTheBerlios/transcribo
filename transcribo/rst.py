@@ -186,7 +186,7 @@ class TxtVisitor(NodeVisitor):
     def visit_Text(self, node):
         if (isinstance(node.parent, nodes.emphasis) or
             isinstance(node.parent, nodes.strong)):
-            font_style = styles['translator']['emphasi']
+            font_style = styles['translator']['emphasis']
         else: font_style = None
         GenericText(self.currentContent, text = node.astext(), translator = font_style)
 

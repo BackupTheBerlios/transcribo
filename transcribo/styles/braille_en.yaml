@@ -6,4 +6,4 @@ page:
         
 translator:
     default:
-        inherits_from: translators.louis_en
+        inherits_from: louis_en
