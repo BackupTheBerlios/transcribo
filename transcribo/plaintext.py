@@ -8,9 +8,9 @@ plaintext - frontend for the Transcribo text renderer
 
 import transcribo
 from transcribo.renderer.frames import RootFrame, Frame
-from transcribo.renderer import pages, utils, styles
+from transcribo.renderer import pages, utils
 from transcribo.renderer.content import GenericText, ContentManager
-from renderer.factory import getContentManager, getFrame
+from renderer.factory import getContentManager, getFrame, styles
 from transcribo import logger
 
 
@@ -27,9 +27,9 @@ class Writer:
         
 
     def render(self, text):
-        self.paginator = pages.Paginator(page_spec = styles['pages'][self.page_sty],
-        header_spec = None, footer_spec = styles['footers'][self.footer_sty],
-        translator_cfg = styles['translators'][self.translator_sty])
+        self.paginator = pages.Paginator(page_spec = styles['page'][self.page_sty],
+        header_spec = None, footer_spec = styles['footer'][self.footer_sty],
+        translator_cfg = styles['translator'][self.translator_sty])
         self.root = RootFrame(max_width = self.paginator.width)
         
         # prepare the text
@@ -53,8 +53,8 @@ class Writer:
                 in_paragraph = False
 
 
-        # build the frames. Each paragraph gets one
-        cfg = styles['frames'][self.frame_sty].copy()
+        # build the frame. Each paragraph gets one
+        cfg = styles['frame'][self.frame_sty].copy()
         for p in paragraphs:
             if len(self.root):
                 cfg.update(x_anchor = self.root[-1], y_anchor = self.root[-1], y_hook = 'bottom')
@@ -62,11 +62,11 @@ class Writer:
                 cfg.update(x_anchor = self.root, y_anchor = self.root, y_hook = 'top')
             f = Frame(self.root, **cfg)
 
-            cm = ContentManager(f, wrapper = styles['wrappers'][self.wrapper_sty],
+            cm = ContentManager(f, wrapper = styles['wrapper'][self.wrapper_sty],
                 translator = None)
             GenericText(cm, text = p)
         
-        # render the frames
+        # render the frame
         self.root.render()
         return self.paginator.render(self.root.cache)
             

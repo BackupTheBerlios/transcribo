@@ -2,7 +2,7 @@
 import transcribo
 from  transcribo import yaconfig
 from argparse import ArgumentParser
-
+import sys, codecs
 
 parser = ArgumentParser(
     description = 'Transcribo - convert rST or plain text into formatted and optionally translated plain text',
@@ -46,6 +46,14 @@ if args.reader == 'rst':
             writer = rst.Writer())
             
 elif args.reader == 'txt':
-    pass
+    from transcribo.plaintext import Writer
+    with codecs.open(args.infile, 'r', 'utf8') as infile:
+        src = infile.read()
+    w = Writer()
+    result = w.render(src)
+    with codecs.open(args.outfile, 'w', 'utf8') as o:
+        o.write(result)
+        
+
     
 

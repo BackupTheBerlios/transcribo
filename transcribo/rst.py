@@ -72,7 +72,6 @@ class TxtVisitor(NodeVisitor):
         
 
     def visit_document(self, node):
-        logger.info('transcribo.rST.py: Building frame tree...')
         current_page_spec = styles['page']['default']
         self.paginator = pages.Paginator(page_spec = current_page_spec,
         header_spec = None, footer_spec = styles['footer']['default'],
@@ -84,9 +83,7 @@ class TxtVisitor(NodeVisitor):
     
     
     def depart_document(self, node):
-        logger.info('transcribo.rST.py: Rendering frame tree...')
         self.root.render()
-        logger.info('transcribo.rST.py: Paginating and generating plain text file...')
         self.output = self.paginator.render(self.root.cache)
             
 
