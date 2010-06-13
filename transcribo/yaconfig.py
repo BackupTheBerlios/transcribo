@@ -1,4 +1,4 @@
-import yaml, re
+import yaml, re, os.path
 
 
 
@@ -6,7 +6,8 @@ import yaml, re
 interpolate_re = re.compile(r'\$[^\$]+\$')
 
 class Config(dict):
-    def __init__(self, *files):
+    def __init__(self, *files, **kwargs):
+    
         '''
         Load one or more YAML files and store them successively
         in the instance (it is in essence a dictionary).
@@ -18,24 +19,38 @@ class Config(dict):
 
         Arguments:
         
-        'files': one or more file names or file-like objects 
+        'files': one or more file names or file-like objects
+
+        path: a list of path names to search each file in 'files', defaults to [].
         '''
         
         
         
         self.input_files = []
-        self.add(files)
+        self.add(files, path = kwargs['path'])
 
-    def add(self, *files):
+    def add(self, *files, **kwargs):
         '''Load one or more YAML files and merge the resulting data recursively into the tree of dictionaries.
 
 'files': a file name (string or unicode) or file-like object, or a list of those
+path: a list of path names to search each file name; defaults to [].
         '''
         
         self.input_files.extend(files)
+        path = kwargs['path']
+
         for f in files:
             if isinstance(f, basestring): # it must be a file name
-                stream = open(f)
+                stream = None
+                for p in path:
+                    s = '/'.join(p, f)
+                    if os.path.exists(s):
+                        stream = open(s)
+                        break
+                        
+                # If no path was given, stream is still None. So open it
+                if not stream: stream = open(f)
+                    
             else: # must be a file-like object
                 stream = f 
             data= yaml.load(stream.read())

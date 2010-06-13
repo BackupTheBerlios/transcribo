@@ -7,6 +7,9 @@ from distutils.core import setup, Extension
 
 longdescr = open('README.txt').read()
 
+all_cfg_files = ['config.yaml']
+all_cfg_files.extend(['styles/' + fn
+    for fn in os.listdir('transcribo/styles/')])
 
 arg_dict = dict(
     name = "Transcribo", version = "0.7",
@@ -28,10 +31,9 @@ arg_dict = dict(
                 'Topic :: Printing',
     ],
     packages = ['transcribo', 'transcribo.renderer'],
-    package_data = {'transcribo' : ['config.yaml'.extend(['styles/' + fn
-    for fn in os.listdir('transcribo/styles/')])},
-    scripts = ['scripts/transcribo-txt.py', 'scripts/transcribo-rst.py'],
-        requires = ['docutils', 'PyYAML'],
+    package_data = {'transcribo' : all_cfg_files},
+    scripts = ['scripts/transcribe.py'],
+        requires = ['docutils', 'PyYAML', 'argparse'],
         provides = ['transcribo']
 )
 

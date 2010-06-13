@@ -1,10 +1,9 @@
 
 
-from transcribo.renderer import styles
 from content import ContentManager
 from frames import Frame
 
-
+styles = {}
 
 
 def getContentManager(cur, style = ''):

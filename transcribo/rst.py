@@ -11,9 +11,9 @@ from docutils import frontend, nodes
 from docutils.nodes import Node, NodeVisitor
 from transcribo import logger
 from transcribo.renderer.frames import RootFrame
-from transcribo.renderer import pages, utils, styles
+from transcribo.renderer import pages, utils
 from transcribo.renderer.content import GenericText
-from transcribo.renderer.factory import getFrame, getContentManager
+from transcribo.renderer.factory import getFrame, getContentManager, styles
 
 
 
