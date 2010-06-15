@@ -76,7 +76,7 @@ class TxtVisitor(NodeVisitor):
         self.paginator = pages.Paginator(page_spec = current_page_spec,
         header_spec = None, footer_spec = styles['footer']['default'],
         translator_cfg = styles['translator']['default'])
-        self.root = RootFrame(max_width = self.paginator.width)
+        self.root = RootFrame(self.paginator.width)
         self.parent = self.currentFrame = self.root
         self.section_level = 0
 

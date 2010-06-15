@@ -5,7 +5,8 @@ from transcribo import logger
 
 
 
-class RenderingError(Exception):
+
+class RenderingError(StandardError):
     pass
 
 
@@ -235,7 +236,7 @@ class RootFrame(BuildingBlock):
     rendered children. The RootFrame has just children and no content.
     Future versions may add pagination, footnotes etc.'''
     
-    def __init__(self, max_width = 60):
+    def __init__(self, max_width):
 
         BuildingBlock.__init__(self, None)
         self.width = self.max_width = max_width
@@ -245,10 +246,9 @@ class RootFrame(BuildingBlock):
     def get_x(self):
         return 0
 
+
     def get_y(self):
         return 0
-
-
 
 
     def render(self):

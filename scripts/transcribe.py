@@ -20,7 +20,8 @@ parser.add_argument('--reader', choices = ('rst', 'txt'),
     help = 'the desired input format. Choices are rst or txt; defaults to rst')
     
 parser.add_argument('--styles', nargs = '+', default = [],
-    help = 'style files to configure the reader and renderer')
+    help = 'style files to configure the reader and renderer',
+    metavar = 'file_name')
 
 
 args = parser.parse_args()
