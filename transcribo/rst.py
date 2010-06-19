@@ -274,8 +274,19 @@ class TxtVisitor(NodeVisitor):
             
     def depart_problematic(self, node): pass
     
-    def visit_transition(self, node): pass
-
+    def visit_transition(self, node):
+        # prepare string
+        s = self.styles['transition']['default']['text']
+        if len(s) == 1:
+            s *= int(self.parent.width * self.styles['transition']['default']['ratio'])
+            
+            # frame for the hor line
+        newFrame = getFrame(self.currentFrame, self.parent)
+        self.currentFrame = newFrame
+        self.currentContent = getContentManager(self.currentFrame)
+        GenericText(self.currentContent, text = s,
+            translator = self.styles['transition']['default']['translator'])
+        
     
     def depart_transition(self, node): pass
     
