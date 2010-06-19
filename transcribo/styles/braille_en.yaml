@@ -7,3 +7,7 @@ page:
 translator:
     default:
         inherits_from: louis_en
+        
+transition:
+    standard:
+        text: c

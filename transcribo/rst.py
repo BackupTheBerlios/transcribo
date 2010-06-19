@@ -173,7 +173,7 @@ class TxtVisitor(NodeVisitor):
     
     def depart_strong(self, node): pass
         
-    def visit_literal(self, node): pass # support in visit_text to be implemented
+    def visit_literal(self, node): pass # support in  to be implemented
     def depart_literal(self, node): pass
 
 
@@ -190,10 +190,16 @@ class TxtVisitor(NodeVisitor):
     
     
     def visit_Text(self, node):
+        font_style = None
         if (isinstance(node.parent, nodes.emphasis) or
             isinstance(node.parent, nodes.strong)):
             font_style = self.styles['translator']['emphasis']
-        else: font_style = None
+        else:
+            c = self.get_classes(node.parent)
+            for attr in c:
+                if attr in self.styles['translator']:
+                    font_style = self.styles['translator'][attr]
+                    break
         GenericText(self.currentContent, text = node.astext(), translator = font_style)
 
         
@@ -290,3 +296,18 @@ class TxtVisitor(NodeVisitor):
     
     def depart_transition(self, node): pass
     
+    
+    def visit_comment(self, node): pass
+
+    def depart_comment(self, node): pass
+
+
+
+    def get_classes(self, node):
+        if node is None: return []
+        else:
+            c = node['classes'] or []
+            c.extend(self.get_classes(node.parent))
+            return c
+            
+            
