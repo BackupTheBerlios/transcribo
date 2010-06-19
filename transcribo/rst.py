@@ -5,19 +5,27 @@ rst2txt - Docutils writer component for text rendering using Transcribo
 # Contact the author at fhaxbox66@googlemail.com
 
 
-    
-import docutils.writers
-from docutils import frontend, nodes
+import docutils
+from docutils import writers, nodes
+from docutils.core import publish_string
 from docutils.nodes import Node, NodeVisitor
 from transcribo import logger
 from transcribo.renderer.frames import RootFrame
 from transcribo.renderer import pages, utils
 from transcribo.renderer.content import GenericText
-from transcribo.renderer.factory import getFrame, getContentManager, styles
+from transcribo.renderer.factory import getFrame, getContentManager
 
 
 
-class Writer(docutils.writers.Writer):
+def transcribe(src, styles):
+
+    return publish_string(src, settings_overrides={'output_encoding': 'unicode',
+    'input_encoding': 'unicode',
+        'styles' : styles},
+        writer = Writer())
+
+
+class Writer(writers.Writer):
 
     supported = ('txt',)
     
@@ -42,6 +50,7 @@ class TxtVisitor(NodeVisitor):
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = document.settings
+        self.styles = self.settings.styles
 
 
         
@@ -72,10 +81,10 @@ class TxtVisitor(NodeVisitor):
         
 
     def visit_document(self, node):
-        current_page_spec = styles['page']['default']
+        current_page_spec = self.styles['page']['default']
         self.paginator = pages.Paginator(page_spec = current_page_spec,
-        header_spec = None, footer_spec = styles['footer']['default'],
-        translator_cfg = styles['translator']['default'])
+        header_spec = None, footer_spec = self.styles['footer']['default'],
+        translator_cfg = self.styles['translator']['default'])
         self.root = RootFrame(self.paginator.width)
         self.parent = self.currentFrame = self.root
         self.section_level = 0
@@ -122,7 +131,7 @@ class TxtVisitor(NodeVisitor):
             itemtext += func(number)
             itemtext += node.parent['suffix']
         content = getContentManager(newFrame)
-        GenericText(content, text = itemtext, translator = styles['translator']['default']) # write a getGenericText factory function?
+        GenericText(content, text = itemtext, translator = self.styles['translator']['default']) # write a getGenericText factory function?
         self.currentFrame = newFrame
 
 
@@ -138,7 +147,7 @@ class TxtVisitor(NodeVisitor):
         
         # handle the first paragraph within a list item frame
         if isinstance(node.parent, nodes.list_item):
-            newFrame.update(**styles['frame']['list_body'])
+            newFrame.update(**self.styles['frame']['list_body'])
             newFrame.update(x_anchor = self.parent[0])
             if len(self.parent) == 2:
                 newFrame.update(y_hook = 'top')
@@ -183,7 +192,7 @@ class TxtVisitor(NodeVisitor):
     def visit_Text(self, node):
         if (isinstance(node.parent, nodes.emphasis) or
             isinstance(node.parent, nodes.strong)):
-            font_style = styles['translator']['emphasis']
+            font_style = self.styles['translator']['emphasis']
         else: font_style = None
         GenericText(self.currentContent, text = node.astext(), translator = font_style)
 
@@ -265,6 +274,8 @@ class TxtVisitor(NodeVisitor):
             
     def depart_problematic(self, node): pass
     
+    def visit_transition(self, node): pass
 
     
+    def depart_transition(self, node): pass
     

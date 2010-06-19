@@ -10,15 +10,20 @@ import transcribo
 from transcribo.renderer.frames import RootFrame, Frame
 from transcribo.renderer import pages, utils
 from transcribo.renderer.content import GenericText, ContentManager
-from renderer.factory import getContentManager, getFrame, styles
+from renderer.factory import getContentManager, getFrame
 from transcribo import logger
 
 
+def transcribe(src, styles):
+    w = Writer(styles)
+    return w.render(src)
+    
 
 class Writer:
 
-    def __init__(self, page_sty = 'default', frame_sty = 'default',
+    def __init__(self, styles, page_sty = 'default', frame_sty = 'default',
         translator_sty = 'default', wrapper_sty = 'indent2', footer_sty = 'default'):
+        self.styles = styles
         self.page_sty = page_sty
         self.frame_sty = frame_sty
         self.translator_sty = translator_sty
@@ -27,9 +32,9 @@ class Writer:
         
 
     def render(self, text):
-        self.paginator = pages.Paginator(page_spec = styles['page'][self.page_sty],
-        header_spec = None, footer_spec = styles['footer'][self.footer_sty],
-        translator_cfg = styles['translator'][self.translator_sty])
+        self.paginator = pages.Paginator(page_spec = self.styles['page'][self.page_sty],
+        header_spec = None, footer_spec = self.styles['footer'][self.footer_sty],
+        translator_cfg = self.styles['translator'][self.translator_sty])
         self.root = RootFrame(max_width = self.paginator.width)
         
         # prepare the text
@@ -54,7 +59,7 @@ class Writer:
 
 
         # build the frame. Each paragraph gets one
-        cfg = styles['frame'][self.frame_sty].copy()
+        cfg = self.styles['frame'][self.frame_sty].copy()
         for p in paragraphs:
             if len(self.root):
                 cfg.update(x_anchor = self.root[-1], y_anchor = self.root[-1], y_hook = 'bottom')
@@ -62,7 +67,7 @@ class Writer:
                 cfg.update(x_anchor = self.root, y_anchor = self.root, y_hook = 'top')
             f = Frame(self.root, **cfg)
 
-            cm = ContentManager(f, wrapper = styles['wrapper'][self.wrapper_sty],
+            cm = ContentManager(f, wrapper = self.styles['wrapper'][self.wrapper_sty],
                 translator = None)
             GenericText(cm, text = p)
         

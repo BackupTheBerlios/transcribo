@@ -39,21 +39,18 @@ for s in args.styles:
 from transcribo.renderer import factory
 factory.styles.update(cfg)
 
+with codecs.open(args.infile, 'r', 'utf8') as infile:
+    src = infile.read()
+
 if args.reader == 'rst':
-    from docutils.core import publish_file, default_description
-    from transcribo import rst
-    publish_file(source_path = args.infile,
-                destination_path = args.outfile,
-            writer = rst.Writer())
-            
+    from transcribo.rst import transcribe
 elif args.reader == 'txt':
-    from transcribo.plaintext import Writer
-    with codecs.open(args.infile, 'r', 'utf8') as infile:
-        src = infile.read()
-    w = Writer()
-    result = w.render(src)
-    with codecs.open(args.outfile, 'w', 'utf8') as o:
-        o.write(result)
+    from transcribo.plaintext import transcribe
+    
+output = transcribe(src, cfg)
+
+with codecs.open(args.outfile, 'w', 'utf8') as o:
+    o.write(output)
         
 
     

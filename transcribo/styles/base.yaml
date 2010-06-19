@@ -184,3 +184,13 @@ wrapper:
         subsequent_indent: !!python/unicode '  '
         
 ...
+
+transition:
+    standard:
+        text: -
+        translator: null
+        length: 0.5
+    default:
+        inherits-from: standard
+        
+        
