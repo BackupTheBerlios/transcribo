@@ -16,12 +16,8 @@ class Config(dict):
         
         
         
-        self.input_files = []
 
     def __getattr__(self, name):
-        '''allow attribute-like access to the dict keys.
-        Note that the keys are inaccessible if equal to a
-        built-in dict attribute.'''
         
         return self[name]
         
@@ -38,8 +34,6 @@ class Config(dict):
 path: a list of path names to search each file name; defaults to [].
         '''
         
-        self.input_files.append(infile)
-
         if isinstance(infile, basestring): # it must be a file name
             stream = None
             for p in path:
