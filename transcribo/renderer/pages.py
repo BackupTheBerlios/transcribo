@@ -3,15 +3,15 @@
 from transcribo import logger
 from frames import RootFrame, Frame
 from content import ContentManager, GenericText
-from factory import styles
 
 
 
 class Page:
 
-    def __init__(self, previous = None, page_spec = None,
+    def __init__(self, styles, previous = None, page_spec = None,
         header_spec = None, footer_spec = None, translator_cfg = None):
         
+        self.styles = styles
         self.previous = previous
         self.page_spec = page_spec
         self.header_spec = header_spec
@@ -57,7 +57,7 @@ class Page:
             # Generate page number string
             pagenum_str = str(self.index + 1)
             ContentManager(self.footer[0],
-                wrapper = styles['wrapper']['default'],
+                wrapper = self.styles['wrapper']['default'],
                 **self.footer_spec['pagenumcontent_cfg'])
             GenericText(self.footer[0][0] , text = pagenum_str, translator = self.translator_cfg)
             self.footer.render()
@@ -127,7 +127,9 @@ class Page:
 
 class Paginator:
 
-    def __init__(self, page_spec = None, header_spec = None, footer_spec = None, translator_cfg = None):
+    def __init__(self, styles, page_spec = None, header_spec = None, footer_spec = None, translator_cfg = None):
+    
+        self.styles = styles
         self.page_spec = page_spec
         self.header_spec = header_spec
         self.footer_spec = footer_spec
@@ -150,7 +152,7 @@ class Paginator:
         Line object which will appear on that Page.'''
         
         # create initial empty page
-        self.pages = [Page(previous = None, page_spec = self.page_spec,
+        self.pages = [Page(self.styles, previous = None, page_spec = self.page_spec,
             header_spec = self.header_spec, footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)]
         
         pages = self.pages
@@ -176,7 +178,7 @@ class Paginator:
                 cur_page.close()
                 
                 # create new page
-                cur_page = Page(previous = cur_page, page_spec = self.page_spec,
+                cur_page = Page(self.styles, previous = cur_page, page_spec = self.page_spec,
                     header_spec = self.header_spec,
                     footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)
                 pages.append(cur_page)

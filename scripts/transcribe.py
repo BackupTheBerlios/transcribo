@@ -34,10 +34,7 @@ cfg = yaconfig.Config()
 for s in args.styles:
     if not s.endswith('.yaml'): s += '.yaml'
     cfg.add(s, path = ['./', transcribo.__path__[0] + '/styles/'])
-    
 
-from transcribo.renderer import factory
-factory.styles.update(cfg)
 
 with codecs.open(args.infile, 'r', 'utf8') as infile:
     src = infile.read()

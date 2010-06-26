@@ -10,10 +10,9 @@ from docutils import writers, nodes
 from docutils.core import publish_string
 from docutils.nodes import Node, NodeVisitor
 from transcribo import logger
-from transcribo.renderer.frames import RootFrame
+from transcribo.renderer.frames import RootFrame, getFrame
 from transcribo.renderer import pages, utils
-from transcribo.renderer.content import GenericText
-from transcribo.renderer.factory import getFrame, getContentManager
+from transcribo.renderer.content import getContentManager, GenericText
 
 
 
@@ -56,7 +55,7 @@ class TxtVisitor(NodeVisitor):
         
     def visit_block_quote(self, node):
         # create a container frame for the indentations
-        newFrame = getFrame(self.currentFrame, self.parent, style = 'block_quote_container')
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'block_quote_container')
         self.parent = self.currentFrame = newFrame
 
 
@@ -67,7 +66,7 @@ class TxtVisitor(NodeVisitor):
     
 
     def visit_bullet_list(self, node):
-        newFrame = getFrame(self.currentFrame, self.parent, style = 'list_container')
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_container')
         if self.parent is not self.currentFrame:
             newFrame.update(x_anchor = self.currentFrame)
         self.currentFrame = self.parent = newFrame
@@ -82,7 +81,7 @@ class TxtVisitor(NodeVisitor):
 
     def visit_document(self, node):
         current_page_spec = self.styles['page']['default']
-        self.paginator = pages.Paginator(page_spec = current_page_spec,
+        self.paginator = pages.Paginator(self.styles, page_spec = current_page_spec,
         header_spec = None, footer_spec = self.styles['footer']['default'],
         translator_cfg = self.styles['translator']['default'])
         self.root = RootFrame(self.paginator.width)
@@ -103,7 +102,7 @@ class TxtVisitor(NodeVisitor):
     
     
     def visit_enumerated_list(self, node):
-        newFrame = getFrame(self.currentFrame, self.parent, style = 'list_container')
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_container')
         if self.parent is not self.currentFrame:
             newFrame.update(x_anchor = self.currentFrame)
         self.currentFrame = self.parent = newFrame
@@ -117,9 +116,9 @@ class TxtVisitor(NodeVisitor):
     def visit_list_item(self, node):
         # First create a container frame for the whole item. Its first child}
         # carries the bullet point or enumerator, the following child frames carry the actual content.
-        newFrame = getFrame(self.currentFrame, self.parent, style = 'list_item_container')
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item_container')
         self.parent = self.currentFrame = newFrame
-        newFrame = getFrame(self.currentFrame, self.parent, style = 'list_item')
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item')
         if isinstance(node.parent, nodes.bullet_list):
             itemtext = '-' # suits me better than node.parent['bullet']. Could be made stylable later
         else: # enumerated_list
@@ -130,7 +129,7 @@ class TxtVisitor(NodeVisitor):
                 number += node.parent['start'] - 1
             itemtext += func(number)
             itemtext += node.parent['suffix']
-        content = getContentManager(newFrame)
+        content = getContentManager(self.styles, newFrame)
         GenericText(content, text = itemtext, translator = self.styles['translator']['default']) # write a getGenericText factory function?
         self.currentFrame = newFrame
 
@@ -143,7 +142,7 @@ class TxtVisitor(NodeVisitor):
 
 
     def visit_paragraph(self, node):
-        newFrame = getFrame(self.currentFrame, self.parent)
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent)
         
         # handle the first paragraph within a list item frame
         if isinstance(node.parent, nodes.list_item):
@@ -152,7 +151,7 @@ class TxtVisitor(NodeVisitor):
             if len(self.parent) == 2:
                 newFrame.update(y_hook = 'top')
         self.currentFrame = newFrame
-        self.currentContent = getContentManager(self.currentFrame)
+        self.currentContent = getContentManager(self.styles, self.currentFrame)
 
             
             
@@ -210,9 +209,9 @@ class TxtVisitor(NodeVisitor):
         if (isinstance(node.parent, nodes.section) or
             isinstance(node.parent, nodes.document) or isinstance(node.parent, nodes.topic)):
             frame_style = 'heading' + str(self.section_level)
-            newFrame = getFrame(self.currentFrame, self.parent, style = frame_style)
+            newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = frame_style)
             self.currentFrame = newFrame
-            self.currentContent = getContentManager(self.currentFrame)
+            self.currentContent = getContentManager(self.styles, self.currentFrame)
         else:
             raise TypeError('Cannot handle title node in this context (parent = %s' % node.parent)
 
@@ -224,13 +223,13 @@ class TxtVisitor(NodeVisitor):
 
 
     def visit_subtitle(self, node):
-        newFrame = getFrame(self.currentFrame, self.parent, style = 'heading0')
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'heading0')
         if self.currentFrame == self.parent: # probably supervluous as subtitle can only occur after doctitle
             newFrame.update(y_hook = 'top')
         else:
             newFrame.update(y_hook = 'bottom')
         self.currentFrame = newFrame
-        self.currentContent = getContentManager(self.currentFrame)
+        self.currentContent = getContentManager(self.styles, self.currentFrame)
 
             
     def depart_subtitle(self, node): pass
@@ -241,7 +240,7 @@ class TxtVisitor(NodeVisitor):
     
     
     def visit_line_block(self, node):
-        newFrame = getFrame(self.currentFrame, self.parent, style = 'list_container') # need custom style for this?
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_container') # need custom style for this?
         if self.parent is not self.currentFrame:
             newFrame.update(x_anchor = self.currentFrame)
         self.currentFrame = self.parent = newFrame
@@ -252,9 +251,9 @@ class TxtVisitor(NodeVisitor):
         self.parent = self.parent.parent
 
     def visit_line(self, node):
-        newFrame = getFrame(self.currentFrame, self.parent)
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent)
         self.currentFrame = newFrame
-        self.currentContent = getContentManager(self.currentFrame, style = 'wrapper pending2')
+        self.currentContent = getContentManager(self.styles, self.currentFrame, style = 'wrapper pending2')
 
     def depart_line(self, node): pass
     
@@ -287,9 +286,9 @@ class TxtVisitor(NodeVisitor):
             s *= int(self.parent.width * self.styles['transition']['default']['ratio'])
             
             # frame for the hor line
-        newFrame = getFrame(self.currentFrame, self.parent)
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent)
         self.currentFrame = newFrame
-        self.currentContent = getContentManager(self.currentFrame)
+        self.currentContent = getContentManager(self.styles, self.currentFrame)
         GenericText(self.currentContent, text = s,
             translator = self.styles['transition']['default']['translator'])
         

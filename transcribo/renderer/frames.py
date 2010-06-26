@@ -258,3 +258,26 @@ class RootFrame(BuildingBlock):
 
 
 
+
+def getFrame(styles, cur, par, style = 'default'):
+    '''
+    return a frames.Frame instance of the specified style.
+    'styles: a dictionary with style data
+    'cur': the current Frame
+    'par': the parent frame of the one to be created
+    'style': the name of a frame style (see the examples in the ./styles/ subdir)
+    '''
+
+    frame_style = styles['frame'][style]
+
+    if par == cur:
+        frame_style.update(y_hook = 'top')
+    else:
+        frame_style.update(y_hook = 'bottom')
+
+    return Frame(parent = par,
+        x_anchor = par, y_anchor = cur,
+        **frame_style)
+
+
+
