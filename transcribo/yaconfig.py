@@ -6,15 +6,13 @@ import yaml, re, os.path
 interpolate_re = re.compile(r'\$[^\$]+\$')
 
 class Config(dict):
-    def __init__(self):
+    '''
+    Load mappings from multiple YAML files and merge them
+    recursively. This is especially useful to implement cascading style sheets and
+    other complex cpnfig tasks. Supports multiple inheritance between
+    npdes, arbitrary nesting levels for the dictionaries and string interpolation.
+    '''
     
-        '''
-        Load YAML file and store OR MERGE IT WITH EXISTING ITEMS file names or file-like objects or a list thereof
-
-        path: a list of path names to search each file in 'files', defaults to [].
-        '''
-        
-        
         
 
     def __getattr__(self, name):

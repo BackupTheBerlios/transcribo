@@ -160,12 +160,22 @@ class TxtVisitor(NodeVisitor):
         
     def visit_section(self, node):
         self.section_level += 1
+        # create container frame to allow clean insertion
+        # of blank lines before the next section.
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent,
+            style = 'section_container' + str(self.section_level))
+        if self.parent is not self.currentFrame:
+            newFrame.update(x_anchor = self.currentFrame)
+        self.currentFrame = self.parent = newFrame
+
         
         
         
     def depart_section(self, node):
         self.section_level -= 1
-        
+        self.currentFrame = self.parent
+        self.parent = self.parent.parent
+
         
     def visit_strong(self, node): pass
     
@@ -206,15 +216,18 @@ class TxtVisitor(NodeVisitor):
 
 
     def visit_title(self, node):
-        if (isinstance(node.parent, nodes.section) or
-            isinstance(node.parent, nodes.document) or isinstance(node.parent, nodes.topic)):
-            frame_style = 'heading' + str(self.section_level)
-            newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = frame_style)
-            self.currentFrame = newFrame
-            self.currentContent = getContentManager(self.styles, self.currentFrame)
-        else:
-            raise TypeError('Cannot handle title node in this context (parent = %s' % node.parent)
+        if isinstance(node.parent, nodes.section):
+            frame_style = 'section_title' + str(self.section_level)
+        elif             isinstance(node.parent, nodes.document):
+            frame_style = 'document_title'
+        elif isinstance(node.parent, nodes.topic):
+            frame_style = 'topic'
 
+        newFrame = getFrame(self.styles,
+            self.currentFrame, self.parent, style = frame_style)
+        self.currentFrame = newFrame
+        self.currentContent = getContentManager(self.styles, self.currentFrame)
+        
 
     def depart_title(self, node): pass
 
@@ -278,6 +291,7 @@ class TxtVisitor(NodeVisitor):
         logger.error('transcribo.rST.py: Docutils has encountered an unspecified problem.')
             
     def depart_problematic(self, node): pass
+    
     
     def visit_transition(self, node):
         # prepare string

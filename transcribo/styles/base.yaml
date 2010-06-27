@@ -40,25 +40,60 @@ frame:
         inherits_from: body0
     
     
-    # frames for headings
-    heading0:
+    # frames for section containers
+    
+    section_container1:
+        inherits_from: body0
+        y_offset: 1
+        lines_below: 2
+
+        
+    section_container2:
         inherits_from: body0
         lines_below: 1
-        y_offset: 1
         
-    heading1:
-        inherits_from: heading0
-        
-    heading2:
-        inherits_from: heading0
-
-    heading3:
-        inherits_from: heading0
+    section_container3:
+        inherits_from: section_container2
         x_offset: 2
         
-    heading4:
-        inherits_from: heading2
+    section_container4:
+        inherits_from: section_container3
         x_offset: 4
+
+    section_container5:
+        inherits_from: section_container4
+
+
+    document_title:
+        inherits_from: body0
+        y_offset: 1
+        lines_below: 3
+
+
+    
+        
+    # frames  for section titles
+    section_title1:
+        inherits_from: body0
+        lines_below: 1
+        
+    section_title2:
+        inherits_from: section_title1
+        x_offset: 2
+
+    section_title3:
+        inherits_from: section_title2
+
+    section_title4:
+        inherits_from: section_title3
+        
+    section_title5:
+        inherits_from: section_title3
+        
+
+    topic:
+        inherits_from: section_title5
+
 
 
     # frames for lists
