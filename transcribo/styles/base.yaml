@@ -1,3 +1,30 @@
+page:
+    A4:
+        top_margin: 1
+        bottom_margin: 1
+        left_margin: 1
+        right_margin: 0
+        inner_margin: 1
+        length: 60
+        width: 80
+        line_break: '
+
+            '
+        page_break: '
+
+            '
+
+    braille_A4:
+        inherits_from: A4
+        width: 30
+        length: 29
+
+    default:
+        inherits_from: A4
+
+
+
+
     
 footer:
     default:
@@ -143,31 +170,6 @@ hyphenator:
     hyphen_en_US:
         inherits_from: hyphen_de_DE
         language: en_US
-        
-        
-page:
-    A4:
-        top_margin: 1
-        bottom_margin: 1
-        left_margin: 1
-        right_margin: 0
-        inner_margin: 1
-        length: 60
-        width: 80
-        line_break: '
-
-            '
-        page_break: '
-
-            '
-            
-    braille_A4:
-        inherits_from: A4
-        width: 30
-        length: 29
-        
-    default:
-        inherits_from: A4
         
         
         
