@@ -5,6 +5,15 @@ wrapper:
     default:
         inherits_from: standard2
         
+            indent2:
+        inherits_from: standard2
+        initial_indent: !!python/unicode '  '
+
+    pending2:
+        inherits_from: standard2
+        subsequent_indent: !!python/unicode '  '
+        
+        
 hyphenator:
     default:
         inherits_from: hyphen_en_US
