@@ -50,11 +50,11 @@ class Transcriber:
             metavar = 'file_name')
 
         self.args = parser.parse_args()
-        self.readername = self.args.reader
+        self.reader_name = self.args.reader
 
 
-    def make_styles(self, stylenames = None):
-        if not stylenames: stylenames = self.args.styles
+    def make_styles(self, stylenames = ['base.yaml']):
+        if hasattr(self, 'args'): stylenames = self.args.styles
         if not 'base.yaml' in stylenames:
             stylenames.insert(0, 'base.yaml')
 
@@ -69,9 +69,9 @@ class Transcriber:
         with codecs.open(infile, 'r', 'utf8') as i:
             src = i.read()
 
-        if self.readername == 'rst':
+        if self.reader_name == 'rst':
             from transcribo.rst import transcribe
-        elif self.readername == 'txt':
+        elif self.reader_name == 'txt':
             from transcribo.plaintext import transcribe
         output = transcribe(src, self.cfg)
         

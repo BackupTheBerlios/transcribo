@@ -120,7 +120,7 @@ class TxtVisitor(NodeVisitor):
         self.parent = self.currentFrame = newFrame
         newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item')
         if isinstance(node.parent, nodes.bullet_list):
-            itemtext = '-' # suits me better than node.parent['bullet']. Could be made stylable later
+            itemtext = node.parent['bullet'] 
         else: # enumerated_list
             itemtext = node.parent['prefix']
             func = utils.__dict__['to_' + node.parent['enumtype']]
