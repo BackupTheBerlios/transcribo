@@ -172,6 +172,8 @@ def getContentManager(styles, cur, style = ''):
     try:
         i = words.index('wrapper')
         wrapper_name = words[i + 1]
+        words.pop(i)
+        words.pop(i)
     except ValueError:
         wrapper_name = 'default'
 
@@ -179,6 +181,8 @@ def getContentManager(styles, cur, style = ''):
     try:
         i = words.index('translator')
         translator_name = words[i + 1]
+        words.pop(i)
+        words.pop(i)
     except ValueError:
         translator_name = 'default'
 
@@ -187,15 +191,31 @@ def getContentManager(styles, cur, style = ''):
     try:
         i = words.index('hyphenator')
         hyphenator_name = words[i + 1]
+        words.pop(i)
+        words.pop(i)
     except ValueError:
         hyphenator_name = 'default'
+
+    # Choose x_alignment
+    try:
+        i = words.index('x_align')
+        x_align_name = words[i + 1]
+        words.pop(i)
+        words.pop(i)
+    except ValueError:
+        x_align_name = 'default'
+        
+    if words: raise ValueError('Unknown content style: ' + str(words))
+
 
     # Get the corresponding styles
     wrapper_style = styles['wrapper'][wrapper_name]
     translator_style = styles['translator'][translator_name]
     hyphenator_style = styles['hyphenator'][hyphenator_name]
+    x_align_style = styles.content[x_align_name]['x_align']
 
     return ContentManager(parent = cur, wrapper = wrapper_style,
     hyphenator = hyphenator_style,
-        translator = translator_style)
+        translator = translator_style,
+        x_align = x_align_style)
 

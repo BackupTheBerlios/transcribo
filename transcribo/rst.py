@@ -226,7 +226,8 @@ class TxtVisitor(NodeVisitor):
         newFrame = getFrame(self.styles,
             self.currentFrame, self.parent, style = frame_style)
         self.currentFrame = newFrame
-        self.currentContent = getContentManager(self.styles, self.currentFrame)
+        self.currentContent = getContentManager(self.styles, self.currentFrame,
+        style = 'x_align ' + frame_style)
         
 
     def depart_title(self, node): pass

@@ -28,7 +28,7 @@ page:
     
 footer:
     default:
-        pagenum_cfg: &id011
+        pagenum_cfg:
             height_mode: fixed
             lines_below: 0
             max_height: 1
@@ -156,7 +156,27 @@ frame:
 
     
     # frames for page numbers
-    pagenum_right: *id011
+    #pagenum_right: *id011
+    
+content:
+    section_title1:
+        x_align: center
+    section_title2:
+        x_align: center
+    section_title3:
+        x_align: left
+    section_title4:
+        x_align: left
+    section_title5:
+        x_align: left
+    section_title6:
+        x_align: left
+    document_title:
+        x_align: center
+    topic:
+        x_align: left
+    default:
+        x_align: left
     
     
 hyphenator:

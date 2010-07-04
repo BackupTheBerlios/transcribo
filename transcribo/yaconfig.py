@@ -57,7 +57,6 @@ path: a list of path names to search each file name; defaults to [].
         '''recursively update the dictionary of config items'''
         
             
-        # Construct from the arguments the dict to be mixed in
         if not isinstance(d, dict): raise TypeError('dict expected.')
         if not isinstance(d, Config): d = Config(d)
         for k in d:
