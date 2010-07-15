@@ -46,7 +46,7 @@ footer:
         
 frame:
     
-    body0:
+    standard:
         height_mode: auto
         lines_below: 0
         max_height: 0
@@ -60,6 +60,9 @@ frame:
         y_hook: bottom
         y_offset: 0
 
+    body0:
+        inherits_from: standard
+        
     default:
         inherits_from: body0
         
@@ -70,13 +73,13 @@ frame:
     # frames for section containers
     
     section_container1:
-        inherits_from: body0
+        inherits_from: standard
         y_offset: 1
         lines_below: 2
 
         
     section_container2:
-        inherits_from: body0
+        inherits_from: standard
         lines_below: 1
         
     section_container3:
@@ -92,7 +95,7 @@ frame:
 
 
     document_title:
-        inherits_from: body0
+        inherits_from: standard
         y_offset: 1
         lines_below: 3
 
@@ -101,7 +104,7 @@ frame:
         
     # frames  for section titles
     section_title1:
-        inherits_from: body0
+        inherits_from: standard
         lines_below: 1
         
     section_title2:
@@ -130,23 +133,23 @@ frame:
         x_offset: 1
         
     list_container:
-        inherits_from: body0
+        inherits_from: standard
         y_hook: top
         
     list_item:
-        inherits_from: body0
+        inherits_from: standard
         height_mode: fixed
         max_height: 1
         width_mode: auto
         y_hook: top
         
     list_item_container:
-        inherits_from: body0
+        inherits_from: standard
         y_hook: top
 
     # frames for block_quotes
     block_quote_container:
-        inherits_from: body0
+        inherits_from: standard
         lines_below: 1
         right_indent: 4
         x_offset: 4

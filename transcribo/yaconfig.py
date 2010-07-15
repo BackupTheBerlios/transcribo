@@ -45,23 +45,26 @@ path: a list of path names to search each file name; defaults to [].
                     
         else: # must be a file-like object
             stream = infile
-        data= yaml.load(stream.read())
+        data= self.dict2Config(yaml.load(stream.read()))
         stream.close()
         self.merge(data)
-        self.resolve_inheritances()
-        self.interpolate()
+
         
+    def dict2Config(self, d):
+        if not isinstance(d, dict): raise Typeerror('dict expected.')
+        if not isinstance(d, Config): d = Config(d)
+        for k in d:
+            if isinstance(d[k], dict):
+                d[k] = Config(d[k])
+                self.dict2Config(d[k])
+        return d
         
         
     def merge(self, d):
         '''recursively update the dictionary of config items'''
         
-            
         if not isinstance(d, dict): raise TypeError('dict expected.')
-        if not isinstance(d, Config): d = Config(d)
         for k in d:
-            if isinstance(d[k], dict) and not isinstance(d[k], Config):
-                d[k] = Config(d[k])
             if (k in self and isinstance(self[k], Config)
                 and isinstance(d[k], Config)):
                 self[k].merge(d[k])
@@ -83,7 +86,7 @@ path: a list of path names to search each file name; defaults to [].
         return (node, scope)
 
     
-    def resolve_inheritances(self):
+    def inherit(self):
         '''resolve inheritances. '''
         
         def walk(node, scope):

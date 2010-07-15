@@ -171,18 +171,16 @@ def getContentManager(styles, cur, style = ''):
     # Choose the wrapper
     try:
         i = words.index('wrapper')
-        wrapper_name = words[i + 1]
         words.pop(i)
-        words.pop(i)
+        wrapper_name = words.pop(i)
     except ValueError:
         wrapper_name = 'default'
 
     # Choose the translator
     try:
         i = words.index('translator')
-        translator_name = words[i + 1]
         words.pop(i)
-        words.pop(i)
+        translator_name = words.pop(i)
     except ValueError:
         translator_name = 'default'
 
@@ -190,18 +188,16 @@ def getContentManager(styles, cur, style = ''):
     # Choose the hyphenator
     try:
         i = words.index('hyphenator')
-        hyphenator_name = words[i + 1]
         words.pop(i)
-        words.pop(i)
+        hyphenator_name = words.pop(i)
     except ValueError:
         hyphenator_name = 'default'
 
     # Choose x_alignment
     try:
         i = words.index('x_align')
-        x_align_name = words[i + 1]
         words.pop(i)
-        words.pop(i)
+        x_align_name = words.pop(i)
     except ValueError:
         x_align_name = 'default'
         

@@ -62,6 +62,7 @@ class Transcriber:
         for s in stylenames:
             if not s.endswith('.yaml'): s += '.yaml'
             self.cfg.add(s, path = ['./', __path__[0] + '/styles/'])
+        self.cfg.inherit()
 
 
     def transcribe_file(self, infile = None, outfile = None):
