@@ -24,8 +24,7 @@ class TestRenderer(unittest.TestCase):
 
         input_files = ['../README.txt']
         input_files.extend(['./rst/' + name for name in os.listdir('./rst') if name.endswith('.rst')])
-        t = Transcriber(cmd_line = False)
-        t.make_styles()
+        t = Transcriber(cmd_line = False, styles = ['braille_en'])
         for name in input_files:
             logger.info('testrST: Processing %s...' % name)
             t.transcribe_file(infile = name,

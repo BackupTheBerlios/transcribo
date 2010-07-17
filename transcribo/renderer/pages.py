@@ -116,10 +116,6 @@ class Page:
         if self.footer:
             phys_lines.append(' ' * (phys_margin + self.footer.cache[0].get_x()))
             phys_lines[-1] += self.footer.cache[0].render()
-
-        # Add empty lines for bottom margin.
-        # The extra line is necessary as otherwise the final line break would not be added by the following join.
-        phys_lines.extend([''] * (self.page_spec['bottom_margin'] + 1))
         
         return self.page_spec['line_break'].join(phys_lines)
         

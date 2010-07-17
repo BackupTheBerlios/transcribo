@@ -7,17 +7,15 @@ page:
         inner_margin: 1
         length: 60
         width: 80
-        line_break: '
+        line_break: "\n"
+        page_break: "\f"
 
-            '
-        page_break: '
-
-            '
 
     braille_A4:
         inherits_from: A4
         width: 30
-        length: 29
+        length: 30
+        page_break: ''
 
     default:
         inherits_from: A4
@@ -219,7 +217,7 @@ translator:
         tables:
         - de-de-g2.ctb
         
-    louis-en:
+    louis-en2:
         inherits_from: louis-de
         tables:
         - en-US-g2.ctb

@@ -21,7 +21,7 @@ __all__ = ['renderer', 'yaconfig', 'rST', 'plaintext']
 
 class Transcriber:
 
-    def __init__(self, reader_name='rst', cmd_line = True):
+    def __init__(self, reader_name='rst', cmd_line = True, styles = []):
         # import Config once as class variable. This would not work outside the class.
         if not hasattr(Transcriber, 'Config'):
           m = __import__('transcribo.yaconfig',globals(), locals(),
@@ -30,7 +30,7 @@ class Transcriber:
         self.reader_name = reader_name
         if cmd_line:
             self.parse_cmd_line()
-            self.make_styles()
+        self.make_styles(stylenames = styles)
 
     def parse_cmd_line(self):
         from argparse import ArgumentParser
@@ -55,12 +55,14 @@ class Transcriber:
 
     def make_styles(self, stylenames = ['base.yaml']):
         if hasattr(self, 'args'): stylenames = self.args.styles
+        for i in range(len(stylenames)):
+            if not stylenames[i].endswith('.yaml'):
+                stylenames[i] += '.yaml'
         if not 'base.yaml' in stylenames:
             stylenames.insert(0, 'base.yaml')
 
         self.cfg = Transcriber.Config()
         for s in stylenames:
-            if not s.endswith('.yaml'): s += '.yaml'
             self.cfg.add(s, path = ['./', __path__[0] + '/styles/'])
         self.cfg.inherit()
 

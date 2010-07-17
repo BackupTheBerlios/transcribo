@@ -6,7 +6,7 @@ page:
         
 translator:
     default:
-        inherits_from: louis-en
+        inherits_from: louis-en2
         
 transition:
     standard:
