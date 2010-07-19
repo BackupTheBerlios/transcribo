@@ -14,8 +14,8 @@ page:
     braille_A4:
         inherits_from: A4
         width: 30
-        length: 30
-        page_break: ''
+        length: 29
+        bottom_margin: 0
 
     default:
         inherits_from: A4
