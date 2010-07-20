@@ -71,7 +71,7 @@ class Page:
             
     def render(self, cache):
     
-        phys_lines = [] # list of strings each of which represents a physical line
+        phys_lines = [''] # list of strings each of which represents a physical line
 
         # top margin
         phys_lines.extend([''] * self.page_spec['top_margin'])
