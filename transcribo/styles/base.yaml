@@ -122,7 +122,13 @@ frame:
     topic:
         inherits_from: section_title5
 
+    glossary_term:
+        inherits_from: standard
+        
 
+    glossary_definition:
+        inherits_from: standard
+        x_offset: 2
 
     # frames for lists
     list_body:

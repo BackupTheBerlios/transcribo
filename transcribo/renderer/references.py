@@ -1,57 +1,39 @@
-"""Base classes for references and targets.
-References are resolved as early as possible,
-i.e. when instantiating a new reference or target.
-A reference is resolved if and only if its render attribute is not None. The render attribute is then identical to the target's render method.
-References whose id attribute is None have no target, i.e. they have
-to provide their render method themselves. This can be interpreted as self-reference.
-A typical use for self-references might be page-numbers.
-
-There is no checking for unresolved references. This must be done by
-the other components such as the input parser.
-"""
-
-
-
-
-
-
-refs = []
-targets = []
-
-
-
 class Reference:
-    '''Base class for references.'''
-
-    def __init__(self, id = None):
-        if id:
-            partner = [t for t in targets if t.id == id]
-            if partner:
-                self.render = partner[0].render
-                targets.remove(partner[0])
-            else:
-                self.render = None
-                self.id = id
-                refs.append(self)
-            
-
-class Target:
-    '''Base class for target instances.'''
-
-    def __init__(self, id):
-        partner = [r for r in refs if r.id == id]
-        if partner:
-            partner[0].render = self.render
-            refs.remove(partner[0])
+    def __init__(self, id, property_name = 'page_num'):
+        self.id = id
+        self.property_name = property_name
+        self.target = None
+        
+    def resolve(self):
+        if self.target and self.property_name in self.target:
+            return self.target[self.property_name]
         else:
-            self.id = id
-            targets.append(self)
-            
-            
-            
-    def render(self):
-        '''Override in subclasses.'''
-        raise NotImplementedError
+            return None
         
 
+class Target(dict):
+    def __init__(self, id, **properties):
+        self.id = id
+        self.update(properties)
+        
+        
 
+class RefManager:
+    def __init__(self):
+        self.refs = {}
+        self.targets = {}
+        
+    def add_ref(self, r):
+        if r.id in self.refs:
+            self.refs[r.id] = tuple(list(self.refs[r.id]).append(r))
+        else:
+            self.refs[r.id] = (r,)
+        if r.id in self.targets:
+            r.target = self.targets[r.id]
+            
+    def add_target(self, target):
+        for i in target.id:
+            self.targets[i] = target
+            if i in self.refs:
+                for r in self.refs[target.id]:
+                    r.target = target

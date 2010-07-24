@@ -1,5 +1,6 @@
 """
-rst2txt - Docutils writer component for text rendering using Transcribo
+- Transcribo - Reader for reStructuredText. Requires Docutils.
+It is also a Docutils writer component.
 """
 # This software is licenced under the GPL.
 # Contact the author at fhaxbox66@googlemail.com
@@ -10,9 +11,10 @@ from docutils import writers, nodes
 from docutils.core import publish_string
 from docutils.nodes import Node, NodeVisitor
 from transcribo import logger
-from transcribo.renderer.frames import RootFrame, getFrame
-from transcribo.renderer import pages, utils
-from transcribo.renderer.content import getContentManager, GenericText
+from renderer.frames import RootFrame, getFrame
+from renderer import pages, utils
+from renderer.content import getContentManager, GenericText
+from renderer.references import Reference, Target, RefManager
 
 
 
@@ -50,7 +52,16 @@ class TxtVisitor(NodeVisitor):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = document.settings
         self.styles = self.settings.styles
+        self.ref_man = RefManager()
 
+    def make_refs(self, node):
+        r = None
+        if 'ids' in node and len(node['ids']):
+            self.ref_man.add_target(Target(node['ids']))
+        if 'refid' in node:
+            r = Reference(node['refid'])
+            self.ref_man.add_ref(r)
+        return r
 
         
     def visit_block_quote(self, node):
@@ -62,7 +73,6 @@ class TxtVisitor(NodeVisitor):
     def depart_block_quote(self, node):
         self.currentFrame = self.parent
         self.parent = self.parent.parent
-
     
 
     def visit_bullet_list(self, node):
@@ -77,8 +87,6 @@ class TxtVisitor(NodeVisitor):
         self.parent = self.parent.parent
         
         
-        
-
     def visit_document(self, node):
         current_page_spec = self.styles['page']['default']
         self.paginator = pages.Paginator(self.styles, page_spec = current_page_spec,
@@ -114,41 +122,42 @@ class TxtVisitor(NodeVisitor):
 
             
     def visit_list_item(self, node):
-        # First create a container frame for the whole item. Its first child}
+        # First create a container frame for the whole item. Its first child
         # carries the bullet point or enumerator, the following child frames carry the actual content.
         newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item_container')
         self.parent = self.currentFrame = newFrame
-        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item')
         if isinstance(node.parent, nodes.bullet_list):
-            itemtext = node.parent['bullet'] 
+            itemtext = u'-' # node.parent['bullet']
         else: # enumerated_list
             itemtext = node.parent['prefix']
             func = utils.__dict__['to_' + node.parent['enumtype']]
             number = node.parent.index(node) + 1
-            if node.parent.hasattr('start'):
+            if 'start' in node.parent:
                 number += node.parent['start'] - 1
             itemtext += func(number)
             itemtext += node.parent['suffix']
         content = getContentManager(self.styles, newFrame)
-        GenericText(content, text = itemtext, translator = self.styles['translator']['default']) # write a getGenericText factory function?
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item')
+        GenericText(content, text = itemtext, translator = self.styles['translator']['default'])
         self.currentFrame = newFrame
+        import pdb; pdb.set_trace()
 
 
 
     def depart_list_item(self, node):
         self.currentFrame = self.parent
         self.parent = self.parent.parent
-            
 
 
     def visit_paragraph(self, node):
+        r = self.make_refs(node)
         newFrame = getFrame(self.styles, self.currentFrame, self.parent)
         
         # handle the first paragraph within a list item frame
         if isinstance(node.parent, nodes.list_item):
             newFrame.update(**self.styles['frame']['list_body'])
             newFrame.update(x_anchor = self.parent[0])
-            if len(self.parent) == 2:
+            if len(node.parent) == 2:
                 newFrame.update(y_hook = 'top')
         self.currentFrame = newFrame
         self.currentContent = getContentManager(self.styles, self.currentFrame)
@@ -187,7 +196,8 @@ class TxtVisitor(NodeVisitor):
 
 
         
-    def visit_reference(self, node): pass
+    def visit_reference(self, node):
+        r = self.make_refs(node)
     
     def depart_reference(self, node): pass
         
@@ -315,6 +325,58 @@ class TxtVisitor(NodeVisitor):
 
     def depart_comment(self, node): pass
 
+
+
+    def visit_definition_list(self, node):
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_container')
+        if self.parent is not self.currentFrame:
+            newFrame.update(x_anchor = self.currentFrame)
+        self.currentFrame = self.parent = newFrame
+
+
+    def depart_definition_list(self, node):
+        self.currentFrame = self.parent
+        self.parent = self.parent.parent
+
+
+    def visit_definition_list_item(self, node):
+        # First create a container frame for the whole item. Its first child}
+        # carries the term and the classifiers, the second child frame carry the definition.
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item_container')
+        self.parent = self.currentFrame = newFrame
+        # Create frame for term and classifiers
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'glossary_term')
+        self.currentFrame = newFrame
+        content = getContentManager(self.styles, newFrame)
+        # assemble the string of item and classifiers, first the term:
+        term_str = node[0][0].astext() + ': '
+        # now any classifiers:
+        if len(node) > 2:
+            term_str += '('
+            term_str += '; '.join(n[0].astext() for n in node[1:-1])
+            term_str += ')'
+        GenericText(content, text = term_str, translator = self.styles['translator']['default']) 
+
+
+    def depart_definition_list_item(self, node):
+        self.currentFrame = self.parent
+        self.parent = self.parent.parent
+
+
+    def visit_term(self, node): pass
+    def depart_term(self, node): pass
+    def visit_classifier(self, node): pass
+    def depart_classifier(self, node): pass
+        
+        
+    def visit_definition(self, node):
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'glossary_definition')
+        self.currentFrame = self.parent = newFrame
+
+        
+    def depart_definition(self, node):
+        self.currentFrame = self.parent
+        self.parent = self.parent.parent
 
 
     def get_classes(self, node):
