@@ -55,13 +55,14 @@ class TxtVisitor(NodeVisitor):
         self.ref_man = RefManager()
 
     def make_refs(self, node):
-        r = None
-        if 'ids' in node and len(node['ids']):
-            self.ref_man.add_target(Target(node['ids']))
+        r = t = None
+        if 'ids' in node and node['ids']:
+            t = Target(node['ids'])
+            self.ref_man.add_target(t)
         if 'refid' in node:
             r = Reference(node['refid'])
             self.ref_man.add_ref(r)
-        return r
+        return r, t
 
         
     def visit_block_quote(self, node):
@@ -121,27 +122,26 @@ class TxtVisitor(NodeVisitor):
         self.parent = self.parent.parent
 
             
+    
     def visit_list_item(self, node):
-        # First create a container frame for the whole item. Its first child
+        # First create a container frame for the whole item. Its first child}
         # carries the bullet point or enumerator, the following child frames carry the actual content.
         newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item_container')
         self.parent = self.currentFrame = newFrame
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item')
         if isinstance(node.parent, nodes.bullet_list):
             itemtext = u'-' # node.parent['bullet']
         else: # enumerated_list
             itemtext = node.parent['prefix']
             func = utils.__dict__['to_' + node.parent['enumtype']]
             number = node.parent.index(node) + 1
-            if 'start' in node.parent:
+            if node.parent.hasattr('start'):
                 number += node.parent['start'] - 1
             itemtext += func(number)
             itemtext += node.parent['suffix']
         content = getContentManager(self.styles, newFrame)
-        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item')
-        GenericText(content, text = itemtext, translator = self.styles['translator']['default'])
+        GenericText(content, text = itemtext, translator = self.styles['translator']['default']) # write a getGenericText factory function?
         self.currentFrame = newFrame
-        import pdb; pdb.set_trace()
-
 
 
     def depart_list_item(self, node):
@@ -150,17 +150,19 @@ class TxtVisitor(NodeVisitor):
 
 
     def visit_paragraph(self, node):
-        r = self.make_refs(node)
+        r, t = self.make_refs(node)
         newFrame = getFrame(self.styles, self.currentFrame, self.parent)
-        
+
         # handle the first paragraph within a list item frame
         if isinstance(node.parent, nodes.list_item):
             newFrame.update(**self.styles['frame']['list_body'])
             newFrame.update(x_anchor = self.parent[0])
-            if len(node.parent) == 2:
+            if len(self.parent) == 2:
                 newFrame.update(y_hook = 'top')
         self.currentFrame = newFrame
         self.currentContent = getContentManager(self.styles, self.currentFrame)
+
+
 
             
             
@@ -176,6 +178,7 @@ class TxtVisitor(NodeVisitor):
         if self.parent is not self.currentFrame:
             newFrame.update(x_anchor = self.currentFrame)
         self.currentFrame = self.parent = newFrame
+        r, t = self.make_refs(node)
 
         
         
@@ -197,7 +200,7 @@ class TxtVisitor(NodeVisitor):
 
         
     def visit_reference(self, node):
-        r = self.make_refs(node)
+        r, t = self.make_refs(node)
     
     def depart_reference(self, node): pass
         
@@ -226,6 +229,7 @@ class TxtVisitor(NodeVisitor):
 
 
     def visit_title(self, node):
+        r, t = self.make_refs(node)
         if isinstance(node.parent, nodes.section):
             frame_style = 'section_title' + str(self.section_level)
         elif             isinstance(node.parent, nodes.document):

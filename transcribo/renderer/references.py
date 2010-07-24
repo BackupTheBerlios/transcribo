@@ -35,5 +35,5 @@ class RefManager:
         for i in target.id:
             self.targets[i] = target
             if i in self.refs:
-                for r in self.refs[target.id]:
+                for r in self.refs[i]:
                     r.target = target
