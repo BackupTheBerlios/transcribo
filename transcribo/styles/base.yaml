@@ -132,9 +132,11 @@ frame:
 
     # frames for lists
     list_body:
-        inherits_from: body0
+        inherits_from: standard
         x_hook: right
         x_offset: 1
+        y_hook: top
+        y_offset: 0
         
     list_container:
         inherits_from: standard
@@ -145,12 +147,11 @@ frame:
         height_mode: fixed
         max_height: 1
         width_mode: auto
-        y_hook: top
         
-    list_item_container:
-        inherits_from: standard
-        y_hook: top
-
+    toc_item:
+        inherits_from: list_item
+        
+        
     # frames for block_quotes
     block_quote_container:
         inherits_from: standard

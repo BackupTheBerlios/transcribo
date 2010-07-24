@@ -110,38 +110,48 @@ class TxtVisitor(NodeVisitor):
     def depart_emphasis(self, node): pass
     
     
-    def visit_enumerated_list(self, node):
-        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_container')
-        if self.parent is not self.currentFrame:
-            newFrame.update(x_anchor = self.currentFrame)
-        self.currentFrame = self.parent = newFrame
-
-
-    def depart_enumerated_list(self, node):
-        self.currentFrame = self.parent
-        self.parent = self.parent.parent
+    visit_enumerated_list= visit_bullet_list
+    depart_enumerated_list= depart_bullet_list
 
             
     
     def visit_list_item(self, node):
-        # First create a container frame for the whole item. Its first child}
-        # carries the bullet point or enumerator, the following child frames carry the actual content.
-        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item_container')
-        self.parent = self.currentFrame = newFrame
-        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item')
+        item_style = 'list_item'
         if isinstance(node.parent, nodes.bullet_list):
-            itemtext = u'-' # node.parent['bullet']
-        else: # enumerated_list
+            # is this a TOC?
+            if 'contents' in self.get_classes(node):
+                item_style = 'toc_item'
+                # autonumbered?
+                if 'auto-toc' in node.parent['classes']:
+                    itemtext = node[0][0][0][0].astext()
+                else: # empty place holder frame
+                    itemtext = u' '
+            else:
+                itemtext = node.parent['bullet']
+            
+        else: # enumerated list
             itemtext = node.parent['prefix']
             func = utils.__dict__['to_' + node.parent['enumtype']]
             number = node.parent.index(node) + 1
-            if node.parent.hasattr('start'):
+            if 'start' in node.parent:
                 number += node.parent['start'] - 1
             itemtext += func(number)
             itemtext += node.parent['suffix']
-        content = getContentManager(self.styles, newFrame)
-        GenericText(content, text = itemtext, translator = self.styles['translator']['default']) # write a getGenericText factory function?
+            
+        # frame for the TOC or simplly list item (the section number if present,
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = item_style)
         self.currentFrame = newFrame
+        if node is node.parent[0]:
+            newFrame.update(y_hook = 'top')
+
+        content = getContentManager(self.styles, newFrame, )
+        content.wrapper_cfg = None # this is ugly, I know
+        GenericText(content, text = itemtext, translator = self.styles['translator']['default'])
+        
+        # create a container for the list item body:
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_body')
+        newFrame.update(x_anchor = self.currentFrame)
+        self.currentFrame = self.parent = newFrame
 
 
     def depart_list_item(self, node):
@@ -152,18 +162,10 @@ class TxtVisitor(NodeVisitor):
     def visit_paragraph(self, node):
         r, t = self.make_refs(node)
         newFrame = getFrame(self.styles, self.currentFrame, self.parent)
-
-        # handle the first paragraph within a list item frame
-        if isinstance(node.parent, nodes.list_item):
-            newFrame.update(**self.styles['frame']['list_body'])
-            newFrame.update(x_anchor = self.parent[0])
-            if len(self.parent) == 2:
-                newFrame.update(y_hook = 'top')
+        if node is node.parent[0]:
+            newFrame.update(y_hook = 'top', y_offset = -1)
         self.currentFrame = newFrame
         self.currentContent = getContentManager(self.styles, self.currentFrame)
-
-
-
             
             
     def depart_paragraph(self, node): pass
@@ -344,9 +346,9 @@ class TxtVisitor(NodeVisitor):
 
 
     def visit_definition_list_item(self, node):
-        # First create a container frame for the whole item. Its first child}
+        # First create a container frame for the whole item. Its first child
         # carries the term and the classifiers, the second child frame carry the definition.
-        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_item_container')
+        newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'standard')
         self.parent = self.currentFrame = newFrame
         # Create frame for term and classifiers
         newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'glossary_term')

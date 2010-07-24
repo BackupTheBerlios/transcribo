@@ -1,0 +1,57 @@
+Transcribo
+
+To Do
+
+Frames:
+=================
+
+add width_groups and height_groups to adjust the width and height of groups of children to their maximum
+this is crucial for tables and list enumerators.
+
+fix_frames as generalized concept for
+frames to be placed at a fixed point on the current page. Examples: headers, footers, document title on cover page etc.
+
+
+rst
+===
+
+list_item: render TOC entries
+
+set properties of targets
+
+pass refs and targets on to ContentManagers
+
+implement text model. The current handling of text nodes is incomplete.
+
+support for field and option lists, tables etc.
+
+hard page breaks through directives
+
+empty pages
+
+document structure: roman page numbers for TOC, preface etc., volumes with cover pages
+
+
+content
+=======
+
+handle references and targets
+
+add FillChar content class
+
+pages
+=====
+
+handle targets and references concerning page numbers
+
+customizable headers and footers
+
+Hyphenators
+=============
+
+wrap liblouis's hyphenation feature
+
+translators
+============
+
+output as Braille unicode and encode later on for different printers

@@ -40,13 +40,15 @@ class ContentManager(BuildingBlock):
     def render(self, max_width, width_mode):
         self.render_count += 1 # count number of calls of render for efficiency reasons.
         
-        # Instantiate the wrapper. This is obligatory.
-        self.wrapper_cfg['width'] = max_width
-        # add optional hyphenator to the wrapper. this is
-        # supported by textwrap2 which is part of the PyHyphen hyphenation library.
-        if self.hyphenator_cfg:
-            self.wrapper_cfg['use_hyphenator'] = self.hyphenator_cfg 
-        self.wrapper = get_singleton(**self.wrapper_cfg)
+        # Instantiate the wrapper, if any
+        if self.wrapper_cfg:
+            self.wrapper_cfg['width'] = max_width
+            # add optional hyphenator to the wrapper. this is
+            # supported by textwrap2 which is part of the PyHyphen hyphenation library.
+            if self.hyphenator_cfg:
+                self.wrapper_cfg['use_hyphenator'] = self.hyphenator_cfg
+            self.wrapper = get_singleton(**self.wrapper_cfg)
+        else: self.wrapper = None
         
         # instantiate the optional translator. Note that each element may have
         # its own translator. However, the content manager's translator
@@ -87,7 +89,9 @@ class ContentManager(BuildingBlock):
         
         # and wrap it using the wrapper instance. Hyphenation can be implemented using
         # PyHyphen and textwrap2. But by default, the textwrap standard module is used.
-        raw_content = self.wrapper.wrap(raw_content)
+        if self.wrapper:
+            raw_content = self.wrapper.wrap(raw_content)
+        else: raw_content = [raw_content]
         
         # get the relevant width depending on the length of each
         # line and on whether width_mode is fixed or auto. The width is used when rendering each Line instance.
