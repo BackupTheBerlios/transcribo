@@ -13,8 +13,7 @@ from docutils.nodes import Node, NodeVisitor
 from transcribo import logger
 from renderer.frames import RootFrame, getFrame
 from renderer import pages, utils
-from renderer.content import getContentManager, GenericText
-from renderer.references import Reference, Target, RefManager
+from renderer.content import getContentManager, GenericText, Reference, Target, RefManager
 
 
 
