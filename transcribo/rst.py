@@ -53,19 +53,23 @@ class TxtVisitor(NodeVisitor):
         self.styles = self.settings.styles
         self.ref_man = RefManager()
 
-    def make_refs(self, node):
+    def make_refs(self, parent, node, **properties):
         r = t = None
+        if parent: 
+            while self.stored_targets:
+                parent += self.stored_targets.pop()
+
         if 'ids' in node and node['ids']:
-            t = Target(node['ids'])
-            self.ref_man.add_target(t)
+            properties['page_num'] = None # each target has this property
+            t = Target(parent, self.ref_man, node['ids'],
+                **properties)
+            if not parent: self.stored_targets.append(t)
         if 'refid' in node:
-            r = Reference(node['refid'])
-            self.ref_man.add_ref(r)
-        return r, t
+            r = Reference(parent, self.ref_man, node['refid'])
 
         
-    def visit_block_quote(self, node):
-        # create a container frame for the indentations
+    def visit_block_quote(self, node): 
+        # create a container frame for for i in self.stored_targetsthe indentations
         newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'block_quote_container')
         self.parent = self.currentFrame = newFrame
 
@@ -95,6 +99,7 @@ class TxtVisitor(NodeVisitor):
         self.root = RootFrame(self.paginator.width)
         self.parent = self.currentFrame = self.root
         self.section_level = 0
+        self.stored_targets = []
 
     
     
@@ -146,6 +151,7 @@ class TxtVisitor(NodeVisitor):
         content = getContentManager(self.styles, newFrame, )
         content.wrapper_cfg = None # this is ugly, I know
         GenericText(content, text = itemtext, translator = self.styles['translator']['default'])
+
         
         # create a container for the list item body:
         newFrame = getFrame(self.styles, self.currentFrame, self.parent, style = 'list_body')
@@ -159,13 +165,12 @@ class TxtVisitor(NodeVisitor):
 
 
     def visit_paragraph(self, node):
-        r, t = self.make_refs(node)
         newFrame = getFrame(self.styles, self.currentFrame, self.parent)
         if node is node.parent[0]:
             newFrame.update(y_hook = 'top', y_offset = -1)
         self.currentFrame = newFrame
-        self.currentContent = getContentManager(self.styles, self.currentFrame)
-            
+        self.current_content = getContentManager(self.styles, self.currentFrame)
+        self.make_refs(self.current_content, node)
             
     def depart_paragraph(self, node): pass
         
@@ -179,7 +184,7 @@ class TxtVisitor(NodeVisitor):
         if self.parent is not self.currentFrame:
             newFrame.update(x_anchor = self.currentFrame)
         self.currentFrame = self.parent = newFrame
-        r, t = self.make_refs(node)
+        self.make_refs(None, node)
 
         
         
@@ -201,7 +206,8 @@ class TxtVisitor(NodeVisitor):
 
         
     def visit_reference(self, node):
-        r, t = self.make_refs(node)
+        self.make_refs(self.current_content, node)
+    
     
     def depart_reference(self, node): pass
         
@@ -223,14 +229,13 @@ class TxtVisitor(NodeVisitor):
                 if attr in self.styles['translator']:
                     font_style = self.styles['translator'][attr]
                     break
-        GenericText(self.currentContent, text = node.astext(), translator = font_style)
+        GenericText(self.current_content, text = node.astext(), translator = font_style)
 
         
     def depart_Text(self, node): pass
 
 
     def visit_title(self, node):
-        r, t = self.make_refs(node)
         if isinstance(node.parent, nodes.section):
             frame_style = 'section_title' + str(self.section_level)
         elif             isinstance(node.parent, nodes.document):
@@ -241,8 +246,9 @@ class TxtVisitor(NodeVisitor):
         newFrame = getFrame(self.styles,
             self.currentFrame, self.parent, style = frame_style)
         self.currentFrame = newFrame
-        self.currentContent = getContentManager(self.styles, self.currentFrame,
-        style = 'x_align ' + frame_style)
+        self.current_content = getContentManager(self.styles, self.currentFrame,
+            style = 'x_align ' + frame_style)
+        self.make_refs(self.current_content, node)
         
 
     def depart_title(self, node): pass
@@ -258,7 +264,8 @@ class TxtVisitor(NodeVisitor):
         else:
             newFrame.update(y_hook = 'bottom')
         self.currentFrame = newFrame
-        self.currentContent = getContentManager(self.styles, self.currentFrame)
+        self.current_content = getContentManager(self.styles, self.currentFrame)
+        self.make_refs(self.current_content, node)
 
             
     def depart_subtitle(self, node): pass
@@ -282,7 +289,7 @@ class TxtVisitor(NodeVisitor):
     def visit_line(self, node):
         newFrame = getFrame(self.styles, self.currentFrame, self.parent)
         self.currentFrame = newFrame
-        self.currentContent = getContentManager(self.styles, self.currentFrame, style = 'wrapper pending2')
+        self.current_content = getContentManager(self.styles, self.currentFrame, style = 'wrapper pending2')
 
     def depart_line(self, node): pass
     
@@ -318,8 +325,8 @@ class TxtVisitor(NodeVisitor):
             # frame for the hor line
         newFrame = getFrame(self.styles, self.currentFrame, self.parent)
         self.currentFrame = newFrame
-        self.currentContent = getContentManager(self.styles, self.currentFrame)
-        GenericText(self.currentContent, text = s,
+        self.current_content = getContentManager(self.styles, self.currentFrame)
+        GenericText(self.current_content, text = s,
             translator = self.styles['transition']['default']['translator'])
         
     

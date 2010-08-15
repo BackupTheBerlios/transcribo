@@ -32,7 +32,6 @@ class Page:
     def get_width(self):
         return (self.page_spec['width'] - self.page_spec['left_margin']
             - self.page_spec['inner_margin'] - self.page_spec['right_margin'])
-
         
 
     def gross_length(self):
@@ -44,7 +43,19 @@ class Page:
         if self.footer_spec: result -= 1
         return result
 
-    def close(self):
+
+    def make_page_num(self, cache):
+        '''\
+        Assemble the page number string and propage it to any targets on this page.
+        '''
+        # Generate page number string. To be made configurable for Roman numbers etc.
+        self.page_num = unicode(self.index + 1)
+        for l in cache[self.first:self.last+1]:
+            l.receive_page_num(self.page_num)
+
+
+    def close(self, cache):
+        self.make_page_num(cache)
         '''Create header and footer.
         This is all hard-coded and needs to be made more configurable.'''
         
@@ -54,12 +65,10 @@ class Page:
             Frame(self.footer,
                 x_anchor = self.footer, y_anchor = self.footer,
                 **self.footer_spec['pagenum_cfg'])
-            # Generate page number string
-            pagenum_str = str(self.index + 1)
             ContentManager(self.footer[0],
                 wrapper = self.styles['wrapper']['default'],
                 **self.footer_spec['pagenumcontent_cfg'])
-            GenericText(self.footer[0][0] , text = pagenum_str, translator = self.translator_cfg)
+            GenericText(self.footer[0][0] , text = self.page_num, translator = self.translator_cfg)
             self.footer.render()
         else:
             self.footer = None
@@ -130,8 +139,6 @@ class Paginator:
         self.header_spec = header_spec
         self.footer_spec = footer_spec
         self.translator_cfg = translator_cfg
-        self.refs = [] # yet to be implemented
-        self.targets = []
         self.width = self.get_width()
 
 
@@ -171,27 +178,21 @@ class Paginator:
                 # finish current page
                 # set end marker of this page to the index of the previous Line object
                 cur_page.last = l - 1
-                cur_page.close()
+                cur_page.close(cache)
                 
-                # create new page
+                # create new pagefor l
                 cur_page = Page(self.styles, previous = cur_page, page_spec = self.page_spec,
                     header_spec = self.header_spec,
                     footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)
                 pages.append(cur_page)
                 net_len = cur_page.net_length()
-                
-            else:
-                # handle any references and targets. Not yet fully implemented. Please ignore.
-                if cache[l].targets:
-                    cache[l].page = pages.index(cur_page)
-                    self.targets.append(cache[l])
-                if cache[l].refs:
-                    self.refs.append(cache[l])
 
         # close last page, if necessary
         if not cur_page.closed:
             cur_page.last = l
-            cur_page.close()
+            cur_page.close(cache)
+            
+        
         
 
 

@@ -71,6 +71,7 @@ class Transcriber:
         if not infile: infile = self.args.infile
         with codecs.open(infile, 'r', 'utf8') as i:
             src = i.read()
+        logger.info('filename: %s, src type: %s' % (infile, type(src)))
 
         if self.reader_name == 'rst':
             from transcribo.rst import transcribe

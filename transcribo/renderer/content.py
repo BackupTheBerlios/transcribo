@@ -9,11 +9,15 @@ content object in its children attribute as list items.
 
 
 from transcribo import logger
-from transcribo.renderer.frames import BuildingBlock
-from lines import Line
+from frames import BuildingBlock
 from singleton import get_singleton
 
+import re
+ref_re = re.compile(r"\{_r\d+\}")
+target_re = re.compile(r"\{_t\d+\}")
+ref_target_re = re.compile(r"\{_[rt]\d+\}")
 
+from lines import Line
 
 
 class ContentManager(BuildingBlock):
@@ -32,12 +36,13 @@ class ContentManager(BuildingBlock):
         self.translator_cfg = translator
         self.x_align = x_align
         self.render_count = 0
-        self.lines = []
 
         
         
     def render(self, max_width, width_mode):
-        self.render_count += 1 # count number of calls of render for efficiency reasons.
+        # counting the calls is needed to decide if lines must be
+        # deleted from cache in case of multiple rendering due to unresolved references.
+        self.render_count += 1 
         
         # Instantiate the wrapper, if any
         if self.wrapper_cfg:
@@ -61,70 +66,100 @@ class ContentManager(BuildingBlock):
         # Render each element and put the results together. Future versions
         # may need to handle other content types.
         raw_content = []
-        refs = []
-        count = 0
+        # containers for all refs and targets whether resolved or not
+        self.refs = []
+        self.targets = []
         for child in self:
-            tmp = child.render()
-            if isinstance(tmp, basestring):
-                raw_content.append(tmp)
-                
-            # unresolved references have returned themselves rather than a string:
-            # a placeholder will be inserted instead and the reference instances will be
-            # stored separately to be rendered finally upon pagination.
-            else:
-                refs.append(tmp)
-                raw_content.append(str(count).join(('\{', '}')))
-                count += 1
+            if isinstance(child, GenericText):
+                    tmp = child.render()
+            elif isinstance(child, Reference):
+                tmp = child.render()
+                if not tmp: # unresolved Reference
+                    self.refs.append(child)
+                    tmp = u'{_r' + unicode(len(self.refs)) + u'_}'
+                elif isinstance(child, Target):
+                    tmp = u'{_t' + unicode(len(self.targets)) + u'}'
+                    self.targets.append(child)
+            raw_content.append(tmp)
 
 
         # Translate the frame's content altogether, if required,
         # skipping any placeholders for later substitution.
         if self.translator:
-            for i in range(len(raw_content)):
-                if not raw_content[i].startswith('\}'):
-                    raw_content[i] = self.translator.run(raw_content[i])
-        
+            i = 0
+            previous_matches = False
+            while i < len(raw_content):
+                matches = ref_target_re.match(raw_content[i])
+                if matches and matches.group() == raw_content[i]: # only then is it a reference or target marker
+                    if i > 0:
+                        raw_content[i-1] = self.translator.run(raw_content[i-1])
+                    i += 1
+                    previous_matches = True
+                else:
+                    # normal text:
+                    if not previous_matches and i > 0:
+                        raw_content[i-1] += raw_content[i]
+                        raw_content.pop(i)
+                    else: i += 1
+            if not matches:
+                raw_content[-1] = self.translator.run(raw_content[-1])
+                    
+        # join the translated results to a single string before wrapping it
         raw_content = ''.join(raw_content)
         
-        # and wrap it using the wrapper instance. Hyphenation can be implemented using
-        # PyHyphen and textwrap2. But by default, the textwrap standard module is used.
+        # and wrap it into lines 
         if self.wrapper:
             raw_content = self.wrapper.wrap(raw_content)
         else: raw_content = [raw_content]
         
         # get the relevant width depending on the length of each
         # line and on whether width_mode is fixed or auto. The width is used when rendering each Line instance.
+        # Note that due to unresolved references auto width can yield too large results at this stage.
         if width_mode == 'fixed': width = max_width
         else: # it must be 'auto':
             width = max((len(l) for l in raw_content))
-        
         
         # Get the lines cache:
         root = self.parent.parent
         while not hasattr(root, 'cache'): root = root.parent
         cache = root.cache
 
-        # in case this frame has already been rendered, remove the lines from the cache.
+
+# if this frame has been rendered before, remove its lines from the cache
+# as it will be rendered again, e.g. with resolved references.
         if self.render_count > 1:
             i=0
             while i < len(cache):
                 if cache[i].parent == self: cache.pop(i)
                 else: i += 1
             
-        # pack the strings into Line objects. Future versions will
-        # handle non-string content such as references, inline-commands etc.
+        # pack the strings into Line objects. 
         for j in range(len(raw_content)):
-            # Handle references
-            c = raw_content[j].count('\{')
-            r = refs[:c]
-            
+            # check for reference and target markers
+            # first, create containers for refs and targets to be passed on to the Lin instances
+            cur_refs = []
+            cur_targets = []
+            # Iterate over any reference and target markers within the line:
+            reftargets = ref_target_re.finditer(raw_content[j])
+            for r in reftargets:
+                # extract the index of the Reference or Target object
+                idx = int(r.group()[3:-2]) # this cuts off '{_r' and '}'
+                if r.group()[2] == 'r': # it is a reference
+                    cur_refs.append(self.refs[idx])
+                else: # it must be a target
+                    cur_targets.append(self.targets[idx])
+                    # delete the target marker. We do not need it anymore as we have found its Line instance
+                    raw_content[j] = raw_content[j].replace(r.group(), u'')
+                    
+
             # generate page break info to be used by the paginator:
             if (j == 0) or (j == len(raw_content) - 2): brk = 2 # avoid widows and orphans
             else: brk = 0 # simple soft page break
             
             cache.append(Line(raw_content[j], width, j,
-                self.parent, self.x_align, refs = r, page_break = brk))
-            refs[:c] = []
+                self.parent, self.x_align,
+                refs = cur_refs, targets = cur_targets,
+                page_break = brk))
         self.lines = raw_content # is this really needed?
         return (width, len(raw_content))
 
@@ -132,12 +167,10 @@ class ContentManager(BuildingBlock):
 class GenericText:
     '''Content class for text. '''
 
-    def __init__(self, parent, text = None, translator = None, **args):
+    def __init__(self, parent, text = None, translator = None):
         parent += self
         self.text = text
         self.translator_cfg = translator
-        for k,v in args.items():
-            setattr(self, k, v)
         if self.translator_cfg:
             self.translator = get_singleton(**self.translator_cfg)
         else:
@@ -206,7 +239,6 @@ def getContentManager(styles, cur, style = ''):
         
     if words: raise ValueError('Unknown content style: ' + str(words))
 
-
     # Get the corresponding styles
     wrapper_style = styles['wrapper'][wrapper_name]
     translator_style = styles['translator'][translator_name]
@@ -220,22 +252,29 @@ def getContentManager(styles, cur, style = ''):
 
 
 class Reference:
-    def __init__(self, id, property_name = 'page_num'):
+    def __init__(self, parent, refman, id, property_name = 'page_num'):
+        parent += self
         self.id = id
         self.property_name = property_name
         self.target = None
+        refman.add_ref(self)
 
-    def resolve(self):
-        if self.target and self.property_name in self.target:
-            return self.target[self.property_name]
-        else:
-            return None
+    def render(self):
+        if self.target:
+            result = self.target[self.property_name]
+        else: result = None
+        return result
 
 
 class Target(dict):
-    def __init__(self, id, **properties):
+    def __init__(self, parent, refman, id, **properties):
+        if parent: parent += self
         self.id = id
-        self.update(properties)
+        self.set_property(**properties)
+        refman.add_target(self)
+
+    def set_property(self, **kwargs):
+        self.update(kwargs)
 
 
 
@@ -258,3 +297,5 @@ class RefManager:
             if i in self.refs:
                 for r in self.refs[i]:
                     r.target = target
+                    
+                    

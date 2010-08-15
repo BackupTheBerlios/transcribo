@@ -3,7 +3,7 @@ import yaml, re, os.path
 
 
 # regex for string interpolation. '$' must enclose the path to the source string.
-interpolate_re = re.compile(r'\$[^\$]+\$')
+interpolate_re = re.compile(r'\$[^$]+\$')
 
 class Config(dict):
     '''

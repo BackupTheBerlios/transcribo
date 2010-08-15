@@ -1,6 +1,6 @@
 
-from transcribo.renderer.frames import BuildingBlock
-
+from frames import BuildingBlock
+from content import ref_re, target_re
 
 class Line(BuildingBlock):
     def __init__(self, text, width, number, parent,  align = 'left', refs = None, targets = None, page_break = 0):
@@ -27,12 +27,41 @@ class Line(BuildingBlock):
             text = self.render()
         return len(text)
         
-    def render(self):
-        if self.text: return self.text
-        if self.refs:
-            self.text = self.raw_text.format((r.render() for r in self.refs))
-        else:
-            self.text = self.raw_text
+    def receive_page_num(self, page_num):
+        '''\
+        Propagate the page number string to any targets.
+        '''
+        for t in self.targets:
+            t.set_property(page_num = page_num)
+
+        
+    def render(self, resolve = True):
+        '''\
+        return  the content of the line as unicode string.
+        If the line contains a reference marker,
+        the line can only be rendered properly if all references are resolved.
+        Note that unresolved
+        references are unresolved only because the
+        page number has been missing so far.
+        '''
+        
+        # Try to resolve any references
+        i = 0
+        if resolve:
+            while i < len(self.refs):
+                ref_text = self.refs[i].render()
+                if ref_text: # reference is resolved, replace the marker
+                    markers = ref_re.finditer(self.text)
+                    # get the span of the first reference marker found
+                    left = markers[0].start()
+                    right = markers.end()
+                    self.text[start:end] = ref_text
+                    self.refs.pop(i)
+                else: # unresolved reference, so keep it for later.
+                    i +=1
+                    # handle unresolved refs here.
+                    # the len method is a problem as it is called vera early in content.py to get the auto width of a frame.
+
         # alignment
         if self.align == 'right':
             self.text = self.text.rjust(self.width)
