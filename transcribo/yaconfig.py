@@ -1,4 +1,4 @@
-import yaml, re, os.path
+import yaml, re, codecs, os.path
 
 
 
@@ -37,11 +37,11 @@ path: a list of path names to search each file name; defaults to [].
             for p in path:
                 s = '/'.join((p, infile))
                 if os.path.exists(s):
-                    stream = open(s)
+                    stream = codecs.open(s, 'r', 'utf8')
                     break
                         
             # If no path was given, stream is still None. So open it
-            if not stream: stream = open(infile)
+            if not stream: stream = codecs.open(infile, 'r', 'utf8')
                     
         else: # must be a file-like object
             stream = infile

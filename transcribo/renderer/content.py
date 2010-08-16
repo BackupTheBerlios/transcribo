@@ -13,9 +13,9 @@ from frames import BuildingBlock
 from singleton import get_singleton
 
 import re
-ref_re = re.compile(r"\{_r\d+\}")
-target_re = re.compile(r"\{_t\d+\}")
-ref_target_re = re.compile(r"\{_[rt]\d+\}")
+ref_re = re.compile(ur"\{_r\d+\}")
+target_re = re.compile(ur"\{_t\d+\}")
+ref_target_re = re.compile(ur"\{_[rt]\d+\}")
 
 from lines import Line
 
@@ -76,7 +76,7 @@ class ContentManager(BuildingBlock):
                 tmp = child.render()
                 if not tmp: # unresolved Reference
                     self.refs.append(child)
-                    tmp = u'{_r' + unicode(len(self.refs)) + u'_}'
+                    tmp = u'{_r' + unicode(len(self.refs)) + u'}'
                 elif isinstance(child, Target):
                     tmp = u'{_t' + unicode(len(self.targets)) + u'}'
                     self.targets.append(child)
@@ -105,7 +105,7 @@ class ContentManager(BuildingBlock):
                 raw_content[-1] = self.translator.run(raw_content[-1])
                     
         # join the translated results to a single string before wrapping it
-        raw_content = ''.join(raw_content)
+        raw_content = u''.join(raw_content)
         
         # and wrap it into lines 
         if self.wrapper:
@@ -143,19 +143,20 @@ class ContentManager(BuildingBlock):
             reftargets = ref_target_re.finditer(raw_content[j])
             for r in reftargets:
                 # extract the index of the Reference or Target object
-                idx = int(r.group()[3:-2]) # this cuts off '{_r' and '}'
+                idx = int(r.group()[3:-1]) # this cuts off '{_r' and '}'
                 if r.group()[2] == 'r': # it is a reference
                     cur_refs.append(self.refs[idx])
                 else: # it must be a target
                     cur_targets.append(self.targets[idx])
                     # delete the target marker. We do not need it anymore as we have found its Line instance
-                    raw_content[j] = raw_content[j].replace(r.group(), u'')
+                    raw_content[j] = raw_content[j].strip(r.group())
                     
 
             # generate page break info to be used by the paginator:
             if (j == 0) or (j == len(raw_content) - 2): brk = 2 # avoid widows and orphans
             else: brk = 0 # simple soft page break
-            
+            if isinstance(raw_content[j], str):
+                logger.info('raw_content is string: %s' % raw_content[j])
             cache.append(Line(raw_content[j], width, j,
                 self.parent, self.x_align,
                 refs = cur_refs, targets = cur_targets,

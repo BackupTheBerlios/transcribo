@@ -6,7 +6,7 @@ from roman import toRoman
 
 
 def to_arabic(n):
-    return str(n)
+    return unicode(n)
 
 
 def to_loweralpha(n):
@@ -15,7 +15,7 @@ def to_loweralpha(n):
         digits.append(chr((n % 26) + 96))
         n = n // 26
     digits.reverse()
-    return ''.join(digits)
+    return unicode(''.join(digits))
 
 
 def to_upperalpha(n):

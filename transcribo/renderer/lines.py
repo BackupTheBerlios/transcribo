@@ -1,7 +1,7 @@
 
 from frames import BuildingBlock
 from content import ref_re, target_re
-
+from transcribo import logger
 class Line(BuildingBlock):
     def __init__(self, text, width, number, parent,  align = 'left', refs = None, targets = None, page_break = 0):
     
@@ -67,6 +67,7 @@ class Line(BuildingBlock):
             self.text = self.text.rjust(self.width)
         elif self.align == 'center':
              self.text = self.text.center(self.width)
+             if isinstance(self.text, str): logger.info('line is a string %s' % self.text)
         return self.text
 
     def __repr__(self):

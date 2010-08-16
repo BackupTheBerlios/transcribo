@@ -22,7 +22,7 @@ class TestRenderer(unittest.TestCase):
 
         from transcribo import Transcriber
 
-        input_files = ['../README.txt']
+        input_files = []
         input_files.extend(['./rst/' + name for name in os.listdir('./rst') if name.endswith('.rst')])
         t = Transcriber(cmd_line = False)
         for name in input_files:

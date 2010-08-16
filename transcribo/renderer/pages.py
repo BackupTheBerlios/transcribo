@@ -80,10 +80,10 @@ class Page:
             
     def render(self, cache):
     
-        phys_lines = [''] # list of strings each of which represents a physical line
+        phys_lines = [u''] # list of strings each of which represents a physical line
 
         # top margin
-        phys_lines.extend([''] * self.page_spec['top_margin'])
+        phys_lines.extend([u''] * self.page_spec['top_margin'])
 
         # physical left margin of this page. Reconsider inner and outer margin!
         phys_margin = self.page_spec['left_margin']
@@ -104,12 +104,12 @@ class Page:
             ly = l.get_y()
 
             # generate new physical line or lines if necessary to reach the y position of the new line
-            phys_lines.extend([''] * (ly - cur_y - 1))
+            phys_lines.extend([u''] * (ly - cur_y - 1))
             
             # add line with left margin, if new Line object has a different y pos
             # than the previous one
             if ly > cur_y:
-                phys_lines.append(' ' * phys_margin)
+                phys_lines.append(u' ' * phys_margin)
                 
             phys_lines[-1] = ''.join((phys_lines[-1].ljust(l.get_x() + phys_margin), l.render()))
             
@@ -119,11 +119,11 @@ class Page:
         # add blank lines at the bottom, if necessary to fill the page
         n = len(phys_lines) - self.page_spec['top_margin']
         if self.header: n -= 1
-        phys_lines.extend([''] * (self.net_length() - n))
+        phys_lines.extend([u''] * (self.net_length() - n))
 
         # add footer
         if self.footer:
-            phys_lines.append(' ' * (phys_margin + self.footer.cache[0].get_x()))
+            phys_lines.append(u' ' * (phys_margin + self.footer.cache[0].get_x()))
             phys_lines[-1] += self.footer.cache[0].render()
         
         return self.page_spec['line_break'].join(phys_lines)

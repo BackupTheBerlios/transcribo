@@ -364,9 +364,9 @@ class TxtVisitor(NodeVisitor):
         term_str = node[0][0].astext() + ': '
         # now any classifiers:
         if len(node) > 2:
-            term_str += '('
-            term_str += '; '.join(n[0].astext() for n in node[1:-1])
-            term_str += ')'
+            term_str += u'('
+            term_str += u'; '.join(n[0].astext() for n in node[1:-1])
+            term_str += u')'
         GenericText(content, text = term_str, translator = self.styles['translator']['default']) 
 
 
