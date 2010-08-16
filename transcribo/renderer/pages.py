@@ -191,9 +191,6 @@ class Paginator:
         if not cur_page.closed:
             cur_page.last = l
             cur_page.close(cache)
-            
-        
-        
 
 
 

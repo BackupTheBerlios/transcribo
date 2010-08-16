@@ -22,9 +22,9 @@ class TestRenderer(unittest.TestCase):
 
         from transcribo import Transcriber
 
-        input_files = []
+        input_files = ['../README.txt']
         input_files.extend(['./rst/' + name for name in os.listdir('./rst') if name.endswith('.rst')])
-        t = Transcriber(cmd_line = False)
+        t = Transcriber(cmd_line = False, styles = ['test'])
         for name in input_files:
             logger.info('testrST: Processing %s...' % name)
             t.transcribe_file(infile = name,

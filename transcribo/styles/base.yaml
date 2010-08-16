@@ -7,8 +7,8 @@ page:
         inner_margin: 1
         length: 60
         width: 80
-        line_break: "\n"
-        page_break: "\f"
+        line_break: !!python/unicode "\n"
+        page_break: !!python/unicode "\f"
 
 
     braille_A4:

@@ -54,7 +54,9 @@ class TxtVisitor(NodeVisitor):
         self.ref_man = RefManager()
 
     def make_refs(self, parent, node, **properties):
-        r = t = None
+        # attach any pending targets to the now present
+        # ContentManager.
+        # Target API should in the futre disregard any parent relationship. Reconsider?
         if parent: 
             while self.stored_targets:
                 parent += self.stored_targets.pop()
@@ -63,7 +65,9 @@ class TxtVisitor(NodeVisitor):
             properties['page_num'] = None # each target has this property
             t = Target(parent, self.ref_man, node['ids'],
                 **properties)
-            if not parent: self.stored_targets.append(t)
+            if not parent:
+                self.stored_targets.append(t)
+        # Create reference
         if 'refid' in node:
             r = Reference(parent, self.ref_man, node['refid'])
 

@@ -75,11 +75,11 @@ class ContentManager(BuildingBlock):
             elif isinstance(child, Reference):
                 tmp = child.render()
                 if not tmp: # unresolved Reference
-                    self.refs.append(child)
                     tmp = u'{_r' + unicode(len(self.refs)) + u'}'
-                elif isinstance(child, Target):
-                    tmp = u'{_t' + unicode(len(self.targets)) + u'}'
-                    self.targets.append(child)
+                    self.refs.append(child)
+            elif isinstance(child, Target):
+                tmp = u'{_t' + unicode(len(self.targets)) + u'}'
+                self.targets.append(child)
             raw_content.append(tmp)
 
 
@@ -87,21 +87,26 @@ class ContentManager(BuildingBlock):
         # skipping any placeholders for later substitution.
         if self.translator:
             i = 0
-            previous_matches = False
+            previous_is_marker = False
             while i < len(raw_content):
-                matches = ref_target_re.match(raw_content[i])
-                if matches and matches.group() == raw_content[i]: # only then is it a reference or target marker
-                    if i > 0:
+                is_marker = ref_target_re.match(raw_content[i])
+                if is_marker and is_marker.group() == raw_content[i]: # only then is it a reference or target marker
+                    # check if previous element must be translated
+                    if i > 0 and not previous_is_marker:
                         raw_content[i-1] = self.translator.run(raw_content[i-1])
+                    previous_is_marker = True # retain this for next iteration
                     i += 1
-                    previous_matches = True
                 else:
                     # normal text:
-                    if not previous_matches and i > 0:
+                    # join with previous text element if any
+                    if i == 0: i += 1
+                    elif not previous_is_marker:
                         raw_content[i-1] += raw_content[i]
                         raw_content.pop(i)
-                    else: i += 1
-            if not matches:
+                    previous_is_marker = False
+                    
+            # Translate the last text element
+            if not previous_is_marker:
                 raw_content[-1] = self.translator.run(raw_content[-1])
                     
         # join the translated results to a single string before wrapping it
@@ -132,7 +137,7 @@ class ContentManager(BuildingBlock):
             while i < len(cache):
                 if cache[i].parent == self: cache.pop(i)
                 else: i += 1
-            
+                
         # pack the strings into Line objects. 
         for j in range(len(raw_content)):
             # check for reference and target markers
@@ -155,12 +160,12 @@ class ContentManager(BuildingBlock):
             # generate page break info to be used by the paginator:
             if (j == 0) or (j == len(raw_content) - 2): brk = 2 # avoid widows and orphans
             else: brk = 0 # simple soft page break
-            if isinstance(raw_content[j], str):
-                logger.info('raw_content is string: %s' % raw_content[j])
+            
             cache.append(Line(raw_content[j], width, j,
                 self.parent, self.x_align,
                 refs = cur_refs, targets = cur_targets,
                 page_break = brk))
+            
         self.lines = raw_content # is this really needed?
         return (width, len(raw_content))
 
@@ -260,6 +265,13 @@ class Reference:
         self.target = None
         refman.add_ref(self)
 
+    def __repr__(self):
+        result = u'<transcribo.renderer.Reference instance. id: %s; target: %s' % (unicode(self.id), unicode(self.target))
+        r = self.render()
+        if r: result += u'resolved as %s' % r
+        else: result += u'unresolved.'
+        return result
+        
     def render(self):
         if self.target:
             result = self.target[self.property_name]
@@ -274,6 +286,11 @@ class Target(dict):
         self.set_property(**properties)
         refman.add_target(self)
 
+
+    def __repr__(self):
+        return u'<transcribo.renderer.content.target instance. id: %s, page_num: %s' %(unicode(self.id), unicode(self['page_num']))
+        
+        
     def set_property(self, **kwargs):
         self.update(kwargs)
 

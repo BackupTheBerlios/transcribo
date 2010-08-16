@@ -44,31 +44,29 @@ class Line(BuildingBlock):
         references are unresolved only because the
         page number has been missing so far.
         '''
-        
+        text = self.raw_text
         # Try to resolve any references
-        i = 0
         if resolve:
-            while i < len(self.refs):
-                ref_text = self.refs[i].render()
+            markers = ref_re.findall(text)
+            i = 0
+            for r in self.refs:
+                ref_text = r.render()
                 if ref_text: # reference is resolved, replace the marker
-                    markers = ref_re.finditer(self.text)
-                    # get the span of the first reference marker found
-                    left = markers[0].start()
-                    right = markers.end()
-                    self.text[start:end] = ref_text
-                    self.refs.pop(i)
+                    logger.info(str(r))
+                    text = text.replace(markers[i], ref_text)
+                    i += 1
                 else: # unresolved reference, so keep it for later.
-                    i +=1
+                    i += 1
                     # handle unresolved refs here.
                     # the len method is a problem as it is called vera early in content.py to get the auto width of a frame.
 
         # alignment
         if self.align == 'right':
-            self.text = self.text.rjust(self.width)
+            text = text.rjust(self.width)
         elif self.align == 'center':
-             self.text = self.text.center(self.width)
-             if isinstance(self.text, str): logger.info('line is a string %s' % self.text)
-        return self.text
+             text = text.center(self.width)
+        self.text = text
+        return text
 
     def __repr__(self):
         result = 'x:'
@@ -77,7 +75,8 @@ class Line(BuildingBlock):
         result += ', y:'
         if hasattr(self, 'y'): result += str(self.y)
         else: result += '?'
-        return ' '.join((result, self.raw_text))
+        result = unicode(result)
+        return u' '.join((result, self.raw_text))
 
 
     def get_x(self):
