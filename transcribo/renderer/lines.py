@@ -50,15 +50,15 @@ class Line(BuildingBlock):
             markers = ref_re.findall(text)
             i = 0
             for r in self.refs:
-                ref_text = r.render()
-                if ref_text: # reference is resolved, replace the marker
-                    logger.info(str(r))
-                    text = text.replace(markers[i], ref_text)
-                    i += 1
-                else: # unresolved reference, so keep it for later.
-                    i += 1
-                    # handle unresolved refs here.
-                    # the len method is a problem as it is called vera early in content.py to get the auto width of a frame.
+                if r.enabled:
+                    ref_text = r.render()
+                    if ref_text: # reference is resolved, replace the marker
+                        text = text.replace(markers[i], ref_text)
+                        i += 1
+                    else: # unresolved reference, so keep it for later.
+                        i += 1
+                        # handle unresolved refs here.
+                        # the len method is a problem as it is called vera early in content.py to get the auto width of a frame.
 
         # alignment
         if self.align == 'right':

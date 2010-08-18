@@ -13,9 +13,9 @@ from frames import BuildingBlock
 from singleton import get_singleton
 
 import re
-ref_re = re.compile(ur"\{_r\d+\}")
-target_re = re.compile(ur"\{_t\d+\}")
-ref_target_re = re.compile(ur"\{_[rt]\d+\}")
+ref_re = re.compile(ur"\{r\d+\}")
+target_re = re.compile(ur"\{t\d+\}")
+ref_target_re = re.compile(ur"\{[rt]\d+\}")
 
 from lines import Line
 
@@ -74,11 +74,13 @@ class ContentManager(BuildingBlock):
                     tmp = child.render()
             elif isinstance(child, Reference):
                 tmp = child.render()
-                if not tmp: # unresolved Reference
-                    tmp = u'{_r' + unicode(len(self.refs)) + u'}'
-                    self.refs.append(child)
+                if not tmp:
+                    if child.enabled: # unresolved Reference
+                        tmp = u'{r' + unicode(len(self.refs)) + u'}'
+                        self.refs.append(child)
+                    else: tmp = u''
             elif isinstance(child, Target):
-                tmp = u'{_t' + unicode(len(self.targets)) + u'}'
+                tmp = u'{t' + unicode(len(self.targets)) + u'}'
                 self.targets.append(child)
             raw_content.append(tmp)
 
@@ -129,15 +131,6 @@ class ContentManager(BuildingBlock):
         while not hasattr(root, 'cache'): root = root.parent
         cache = root.cache
 
-
-# if this frame has been rendered before, remove its lines from the cache
-# as it will be rendered again, e.g. with resolved references.
-        if self.render_count > 1:
-            i=0
-            while i < len(cache):
-                if cache[i].parent == self: cache.pop(i)
-                else: i += 1
-                
         # pack the strings into Line objects. 
         for j in range(len(raw_content)):
             # check for reference and target markers
@@ -148,14 +141,13 @@ class ContentManager(BuildingBlock):
             reftargets = ref_target_re.finditer(raw_content[j])
             for r in reftargets:
                 # extract the index of the Reference or Target object
-                idx = int(r.group()[3:-1]) # this cuts off '{_r' and '}'
-                if r.group()[2] == 'r': # it is a reference
+                idx = int(r.group()[2:-1]) # this cuts off '{r' and '}'
+                if r.group()[1] == 'r': # it is a reference
                     cur_refs.append(self.refs[idx])
                 else: # it must be a target
                     cur_targets.append(self.targets[idx])
                     # delete the target marker. We do not need it anymore as we have found its Line instance
                     raw_content[j] = raw_content[j].strip(r.group())
-                    
 
             # generate page break info to be used by the paginator:
             if (j == 0) or (j == len(raw_content) - 2): brk = 2 # avoid widows and orphans
@@ -258,12 +250,13 @@ def getContentManager(styles, cur, style = ''):
 
 
 class Reference:
-    def __init__(self, parent, refman, id, property_name = 'page_num'):
+    def __init__(self, parent, ref_man, id, property_name = 'page_num'):
         parent += self
         self.id = id
         self.property_name = property_name
         self.target = None
-        refman.add_ref(self)
+        self.enabled = True
+        ref_man.add_ref(self)
 
     def __repr__(self):
         result = u'<transcribo.renderer.Reference instance. id: %s; target: %s' % (unicode(self.id), unicode(self.target))
@@ -274,32 +267,35 @@ class Reference:
         
     def render(self):
         if self.target:
-            result = self.target[self.property_name]
+            result = self.target.get_property(self.property_name)
         else: result = None
         return result
 
 
-class Target(dict):
-    def __init__(self, parent, refman, id, **properties):
-        if parent: parent += self
-        self.id = id
-        self.set_property(**properties)
-        refman.add_target(self)
+class Target:
+    def __init__(self, parent, ref_man, id, **properties):
+            if parent: parent += self
+            self.id = id
+            self.properties = {}
+            self.set_property(**properties)
+            ref_man.add_target(self)
 
 
     def __repr__(self):
-        return u'<transcribo.renderer.content.target instance. id: %s, page_num: %s' %(unicode(self.id), unicode(self['page_num']))
+        return u'<transcribo.renderer.content.target instance. id: %s, page_num: %s' %(unicode(self.id), unicode(self.properties['page_num']))
         
         
     def set_property(self, **kwargs):
-        self.update(kwargs)
+        self.properties.update(kwargs)
 
-
+    def get_property(self, name):
+        return self.properties[name]
 
 class RefManager:
     def __init__(self):
         self.refs = {}
         self.targets = {}
+        
 
     def add_ref(self, r):
         if r.id in self.refs:
@@ -312,8 +308,14 @@ class RefManager:
     def add_target(self, target):
         for i in target.id:
             self.targets[i] = target
+            # resolve related references
             if i in self.refs:
                 for r in self.refs[i]:
                     r.target = target
                     
                     
+    def disable_unresolved(self):
+        for id in self.refs:
+            for r in self.refs[id]:
+                if not r.render():
+                    r.enabled = False

@@ -109,6 +109,11 @@ class TxtVisitor(NodeVisitor):
     
     def depart_document(self, node):
         self.root.render()
+        if self.ref_man.refs:
+            # self.ref_man.disable_unresolved()
+            self.root.render()
+            self.root.render()
+
         self.output = self.paginator.render(self.root.cache)
             
 
@@ -174,9 +179,10 @@ class TxtVisitor(NodeVisitor):
             newFrame.update(y_hook = 'top', y_offset = -1)
         self.currentFrame = newFrame
         self.current_content = getContentManager(self.styles, self.currentFrame)
-        self.make_refs(self.current_content, node)
+        
             
-    def depart_paragraph(self, node): pass
+    def depart_paragraph(self, node):
+        self.make_refs(self.current_content, node)
         
         
     def visit_section(self, node):

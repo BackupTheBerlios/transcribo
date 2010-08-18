@@ -240,7 +240,6 @@ class RootFrame(BuildingBlock):
 
         BuildingBlock.__init__(self, None)
         self.width = self.max_width = max_width
-        self.cache = []
 
 
     def get_x(self):
@@ -252,6 +251,7 @@ class RootFrame(BuildingBlock):
 
 
     def render(self):
+        self.cache = []
         for c in self.children: c.render()
         self.cache.sort()
         return self.cache
