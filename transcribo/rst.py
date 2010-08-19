@@ -216,10 +216,22 @@ class TxtVisitor(NodeVisitor):
 
         
     def visit_reference(self, node):
-        self.make_refs(self.current_content, node)
+        cls = self.get_classes(node)
+        if 'contents' in cls:
+            raise nodes.SkipChildren
+        else:
+            self.make_refs(self.current_content, node)
     
     
-    def depart_reference(self, node): pass
+    def depart_reference(self, node):
+        cls = self.get_classes(node)
+        if 'contents' in cls:
+            if 'auto-toc' in cls:
+                n = 1
+            else: n = 0
+            txt = node[n].astext() + u' ...'
+            GenericText(self.current_content, text =txt)
+            self.make_refs(self.current_content, node)
         
         
     def visit_target(self, node): pass
@@ -258,12 +270,17 @@ class TxtVisitor(NodeVisitor):
         self.currentFrame = newFrame
         self.current_content = getContentManager(self.styles, self.currentFrame,
             style = 'x_align ' + frame_style)
-        self.make_refs(self.current_content, node)
+        if not isinstance(node.parent, nodes.section): # don't know when this might be true, but anyway.
+            self.make_refs(self.current_content, node)
         
 
     def depart_title(self, node): pass
 
-    def visit_generated(self, node): pass
+    def visit_generated(self, node):
+        cls = self.get_classes(node)
+        if 'auto-toc' in cls:
+            raise nodes.SkipChildren
+
     def depart_generated(self, node): pass
 
 
