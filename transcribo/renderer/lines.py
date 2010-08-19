@@ -1,11 +1,11 @@
 
-from frames import BuildingBlock
+from transcribo.renderer import BuildingBlock
 from content import ref_re, target_re
 from transcribo import logger
 class Line(BuildingBlock):
     def __init__(self, text, width, number, parent,  align = 'left', refs = None, targets = None, page_break = 0):
     
-        BuildingBlock.__init__(self, parent) # parent is the frame the line belongs to.
+        BuildingBlock.__init__(self, parent, add_to_parent = False) # parent is the frame the line belongs to.
         self.raw_text = text # text may contain unresolved ref markers. Hence we call it raw text for now.
         self.width = width
         self.number = number # counter for lines within a frame. Used to get the y pos.

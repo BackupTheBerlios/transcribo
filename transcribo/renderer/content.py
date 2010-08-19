@@ -9,7 +9,7 @@ content object in its children attribute as list items.
 
 
 from transcribo import logger
-from frames import BuildingBlock
+from transcribo.renderer import BuildingBlock
 from singleton import get_singleton
 
 import re
@@ -142,7 +142,7 @@ class ContentManager(BuildingBlock):
             for r in reftargets:
                 # extract the index of the Reference or Target object
                 idx = int(r.group()[2:-1]) # this cuts off '{r' and '}'
-                if r.group()[1] == 'r': # it is a reference
+                if r.group()[1] == u'r': # it is a reference
                     cur_refs.append(self.refs[idx])
                 else: # it must be a target
                     cur_targets.append(self.targets[idx])
@@ -153,6 +153,7 @@ class ContentManager(BuildingBlock):
             if (j == 0) or (j == len(raw_content) - 2): brk = 2 # avoid widows and orphans
             else: brk = 0 # simple soft page break
             
+            # Generate and store the Line instance
             cache.append(Line(raw_content[j], width, j,
                 self.parent, self.x_align,
                 refs = cur_refs, targets = cur_targets,
