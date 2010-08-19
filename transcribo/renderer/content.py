@@ -144,11 +144,11 @@ class ContentManager(BuildingBlock):
                 idx = int(r.group()[2:-1]) # this cuts off '{r' and '}'
                 if r.group()[1] == u'r': # it is a reference
                     cur_refs.append(self.refs[idx])
-                else: # it must be a target
+                else: # it   must be a target
                     cur_targets.append(self.targets[idx])
                     # delete the target marker. We do not need it anymore as we have found its Line instance
-                    raw_content[j] = raw_content[j].strip(r.group())
-
+                    raw_content[j] = raw_content[j].replace(r.group(), u'')
+                    
             # generate page break info to be used by the paginator:
             if (j == 0) or (j == len(raw_content) - 2): brk = 2 # avoid widows and orphans
             else: brk = 0 # simple soft page break
