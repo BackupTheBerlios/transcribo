@@ -1,0 +1,5 @@
+# block alignment
+
+content:
+    default:
+        x_align: block

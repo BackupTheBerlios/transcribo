@@ -4,7 +4,7 @@ from content import ref_re, target_re
 from transcribo import logger
 import re
 fillchar_re = re.compile(ur'\{f.\}')
-
+space_re = re.compile(ur'\S\s+\S')
 
 
 class Line(BuildingBlock):
@@ -79,6 +79,26 @@ class Line(BuildingBlock):
             text = text.rjust(self.width)
         elif self.align == 'center':
              text = text.center(self.width)
+        elif self.align == 'block':
+            delta = self.width - len(text)
+            matches = [i for i in space_re.finditer(text)]
+            l = len(matches)
+            if l: # any spaces found that can be expanded?
+                q = float(delta) / l
+                if q >= 1:
+                    z = int(q)
+                    for i in range(l):
+                        m = matches[i]
+                        text = u''.join((text[:m.start()+1], m.group()[1:-1], u' ' * z, text[m.end() - 1:]))
+                        matches = [j for j in space_re.finditer(text)]
+                        delta -= z
+                if delta: # so 0 < q < 1
+                    p = float(l) / delta
+                    for i in range(delta):
+                        m = matches[int(i * p)]
+                        text = u''.join((text[:m.start()+1], m.group()[1:-1], u' ', text[m.end() - 1:]))
+                        matches = [j for j in space_re.finditer(text)]
+                
         self.text = text
         return text
 
