@@ -15,7 +15,7 @@ from singleton import get_singleton
 import re
 ref_re = re.compile(ur"\{r\d+\}")
 target_re = re.compile(ur"\{t\d+\}")
-ref_target_re = re.compile(ur"\{[rt]\d+\}")
+markers_re = re.compile(ur"\{[rt]\d+\}")
 
 from lines import Line
 
@@ -91,7 +91,7 @@ class ContentManager(BuildingBlock):
             i = 0
             previous_is_marker = False
             while i < len(raw_content):
-                is_marker = ref_target_re.match(raw_content[i])
+                is_marker = markers_re.match(raw_content[i])
                 if is_marker and is_marker.group() == raw_content[i]: # only then is it a reference or target marker
                     # check if previous element must be translated
                     if i > 0 and not previous_is_marker:
@@ -138,13 +138,13 @@ class ContentManager(BuildingBlock):
             cur_refs = []
             cur_targets = []
             # Iterate over any reference and target markers within the line:
-            reftargets = ref_target_re.finditer(raw_content[j])
+            reftargets = markers_re.finditer(raw_content[j])
             for r in reftargets:
                 # extract the index of the Reference or Target object
                 idx = int(r.group()[2:-1]) # this cuts off '{r' and '}'
                 if r.group()[1] == u'r': # it is a reference
                     cur_refs.append(self.refs[idx])
-                else: # it   must be a target
+                elif r.group()[1] == u't': # it is a target
                     cur_targets.append(self.targets[idx])
                     # delete the target marker. We do not need it anymore as we have found its Line instance
                     raw_content[j] = raw_content[j].replace(r.group(), u'')
