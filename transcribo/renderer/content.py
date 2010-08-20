@@ -181,7 +181,15 @@ class GenericText:
         else:
             return self.text
 
-
+class FillChar(GenericText):
+    '''\
+    Fill a line with a character. It is mainly used for the dotted lines in a table of contents.
+    The render method returns a marker that is replaced by lines.Line.render().
+    '''
+    
+    def render(self):
+        return u'{f' + self.text + u'}'
+    
 
 # Factory functions
 

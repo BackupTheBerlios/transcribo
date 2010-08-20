@@ -2,6 +2,11 @@
 from transcribo.renderer import BuildingBlock
 from content import ref_re, target_re
 from transcribo import logger
+import re
+fillchar_re = re.compile(ur'\{f.\}')
+
+
+
 class Line(BuildingBlock):
     def __init__(self, text, width, number, parent,  align = 'left', refs = None, targets = None, page_break = 0):
     
@@ -59,6 +64,15 @@ class Line(BuildingBlock):
                         i += 1
                         # handle unresolved refs here.
                         # the len method is a problem as it is called vera early in content.py to get the auto width of a frame.
+                        
+                        
+        # FillChar markers:
+        match = fillchar_re.search(text)
+        if match:
+            # calculate number of chars to be inserted. 4 is the length of the fillchar marker: e.g. "{fX}"
+            l = self.width - len(text) + 4
+            c = match.group()[2] # char to use
+            text = text.replace(match.group(), c * l)
 
         # alignment
         if self.align == 'right':

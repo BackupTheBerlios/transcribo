@@ -13,7 +13,7 @@ from docutils.nodes import Node, NodeVisitor
 from transcribo import logger
 from renderer.frames import RootFrame, getFrame
 from renderer import pages, utils
-from renderer.content import getContentManager, GenericText, Reference, Target, RefManager
+from renderer.content import getContentManager, GenericText, FillChar, Reference, Target, RefManager
 
 
 
@@ -229,8 +229,9 @@ class TxtVisitor(NodeVisitor):
             if 'auto-toc' in cls:
                 n = 1
             else: n = 0
-            txt = node[n].astext() + u' ...'
+            txt = node[n].astext()
             GenericText(self.current_content, text =txt)
+            FillChar(self.current_content, text = u'.')
             self.make_refs(self.current_content, node)
         
         
