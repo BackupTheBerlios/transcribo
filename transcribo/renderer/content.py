@@ -15,7 +15,8 @@ from singleton import get_singleton
 import re
 ref_re = re.compile(ur"\{r\d+\}")
 target_re = re.compile(ur"\{t\d+\}")
-markers_re = re.compile(ur"\{[rt]\d+\}")
+ref_targets_re = re.compile(ur"\{[rt]\d\}")
+markers_re = re.compile(ur"\{[rtf].\}")
 
 from lines import Line
 
@@ -138,7 +139,7 @@ class ContentManager(BuildingBlock):
             cur_refs = []
             cur_targets = []
             # Iterate over any reference and target markers within the line:
-            reftargets = markers_re.finditer(raw_content[j])
+            reftargets = ref_targets_re.finditer(raw_content[j])
             for r in reftargets:
                 # extract the index of the Reference or Target object
                 idx = int(r.group()[2:-1]) # this cuts off '{r' and '}'
