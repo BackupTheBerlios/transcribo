@@ -8,7 +8,7 @@ space_re = re.compile(ur'\S\s+\S')
 
 
 class Line(BuildingBlock):
-    def __init__(self, text, width, number, parent,  align = 'left', refs = None, targets = None, page_break = 0):
+    def __init__(self, text, width, number, parent,  align = 'left', last_in_para = False, refs = None, targets = None, page_break = 0):
     
         BuildingBlock.__init__(self, parent, add_to_parent = False) # parent is the frame the line belongs to.
         self.raw_text = text # text may contain unresolved ref markers. Hence we call it raw text for now.
@@ -24,7 +24,9 @@ class Line(BuildingBlock):
         # 2: make hard page break before this line
         # if it would otherwise be the last on current page.
         # This is to avoid widows and orphans.
+        # 3: last line of paragraph
         self.page_break = page_break
+        self.last_in_para = last_in_para # avoid block alignment of last line in paragraph
         
         
     def __len__(self):
@@ -79,7 +81,7 @@ class Line(BuildingBlock):
             text = text.rjust(self.width)
         elif self.align == 'center':
              text = text.center(self.width)
-        elif self.align == 'block':
+        elif self.align == 'block' and (not self.last_in_para):
             delta = self.width - len(text)
             matches = [i for i in space_re.finditer(text)]
             l = len(matches)
@@ -87,16 +89,17 @@ class Line(BuildingBlock):
                 q = float(delta) / l
                 if q >= 1:
                     z = int(q)
+                    spaces = u' ' * z
                     for i in range(l):
                         m = matches[i]
-                        text = u''.join((text[:m.start()+1], m.group()[1:-1], u' ' * z, text[m.end() - 1:]))
+                        text = spaces.join((text[:m.end() - 1], text[m.end() - 1:]))
                         matches = [j for j in space_re.finditer(text)]
                         delta -= z
                 if delta: # so 0 < q < 1
                     p = float(l) / delta
                     for i in range(delta):
                         m = matches[int(i * p)]
-                        text = u''.join((text[:m.start()+1], m.group()[1:-1], u' ', text[m.end() - 1:]))
+                        text = u' '.join((text[:m.end() - 1], text[m.end() - 1:]))
                         matches = [j for j in space_re.finditer(text)]
                 
         self.text = text

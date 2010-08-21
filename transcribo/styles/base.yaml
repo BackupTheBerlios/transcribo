@@ -1,9 +1,9 @@
 page:
     A4:
-        top_margin: 0
-        bottom_margin: 1
-        left_margin: 1
-        right_margin: 0
+        top_margin: 2
+        bottom_margin: 2
+        left_margin: 2
+        right_margin: 2
         inner_margin: 1
         length: 60
         width: 80
@@ -15,7 +15,10 @@ page:
         inherits_from: A4
         width: 30
         length: 29
+        top_margin: 0
         bottom_margin: 0
+        left_margin: 1
+        right_margin: 0
 
     default:
         inherits_from: A4

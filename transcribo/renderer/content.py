@@ -132,8 +132,9 @@ class ContentManager(BuildingBlock):
         while not hasattr(root, 'cache'): root = root.parent
         cache = root.cache
 
-        # pack the strings into Line objects. 
-        for j in range(len(raw_content)):
+        # pack the strings into Line objects.
+        lrc = len(raw_content)
+        for j in range(lrc):
             # check for reference and target markers
             # first, create containers for refs and targets to be passed on to the Lin instances
             cur_refs = []
@@ -151,12 +152,14 @@ class ContentManager(BuildingBlock):
                     raw_content[j] = raw_content[j].replace(r.group(), u'')
                     
             # generate page break info to be used by the paginator:
-            if (j == 0) or (j == len(raw_content) - 2): brk = 2 # avoid widows and orphans
-            else: brk = 0 # simple soft page break
+            brk = 0 # simplesoft page break if needed
+            if (j == 0) or (j == lrc - 2): brk = 2 # avoid widows and orphans
+            if j == lrc - 1: last_in_para = True # last line of paragraph should not be block-aligned by Line-render()
+            else: last_in_para = False
             
             # Generate and store the Line instance
             cache.append(Line(raw_content[j], width, j,
-                self.parent, self.x_align,
+                self.parent, self.x_align, last_in_para,
                 refs = cur_refs, targets = cur_targets,
                 page_break = brk))
             
