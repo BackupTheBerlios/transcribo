@@ -28,7 +28,8 @@ class Frame(BuildingBlock):
         y_anchor = None, y_hook = '', y_align = '',
         y_offset = 0, lines_below = 0,
         max_width = 0, width_mode = 'auto',
-        max_height = 0, height_mode = 'auto'):
+        max_height = 0, height_mode = 'auto',
+        new_page_after = False):
 
         BuildingBlock.__init__(self, parent)
 
@@ -58,6 +59,7 @@ class Frame(BuildingBlock):
         self.max_height = max_height
         self.height_mode = height_mode
         self.lines_below = lines_below
+        # we don't need to save the new_page_after here.
         
         
             

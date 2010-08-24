@@ -70,6 +70,8 @@ class ContentManager(BuildingBlock):
         # containers for all refs and targets whether resolved or not
         self.refs = []
         self.targets = []
+        break_at_last_line = False
+        
         for child in self:
             if isinstance(child, GenericText):
                     tmp = child.render()
@@ -83,6 +85,8 @@ class ContentManager(BuildingBlock):
             elif isinstance(child, Target):
                 tmp = u'{t' + unicode(len(self.targets)) + u'}'
                 self.targets.append(child)
+            elif isinstance(child, Pager):
+                break_at_last_line = True
             raw_content.append(tmp)
 
 
@@ -154,6 +158,8 @@ class ContentManager(BuildingBlock):
             # generate page break info to be used by the paginator:
             brk = 0 # simplesoft page break if needed
             if (j == 0) or (j == lrc - 2): brk = 2 # avoid widows and orphans
+            if break_at_last_line and (j == lrc - 1):
+                brk = 1
             if j == lrc - 1: last_in_para = True # last line of paragraph should not be block-aligned by Line-render()
             else: last_in_para = False
             
@@ -332,3 +338,13 @@ class RefManager:
             for r in self.refs[id]:
                 if not r.render():
                     r.enabled = False
+
+
+class Pager:
+    '''\
+    Hard page break after last line of this content manager.
+    Other functions should be added in the future such as continuing on next odd/even page etc.
+    '''
+    def __init__(self, parent):
+        parent += self
+        

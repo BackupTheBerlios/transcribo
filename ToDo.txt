@@ -15,11 +15,7 @@ frames to be placed at a fixed point on the current page. Examples: headers, foo
 rst
 ===
 
-list_item: render TOC entries
-
-set properties of targets
-
-pass refs and targets on to ContentManagers
+footnotes
 
 implement text model. The current handling of text nodes is incomplete.
 
@@ -35,14 +31,10 @@ document structure: roman page numbers for TOC, preface etc., volumes with cover
 content
 =======
 
-handle references and targets
-
-add FillChar content class
+hare page breaks
 
 pages
 =====
-
-handle targets and references concerning page numbers
 
 customizable headers and footers
 

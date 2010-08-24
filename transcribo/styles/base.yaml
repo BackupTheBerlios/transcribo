@@ -76,12 +76,13 @@ frame:
     section_container1:
         inherits_from: standard
         y_offset: 1
-        lines_below: 2
+        new_page_after: True
 
         
     section_container2:
         inherits_from: standard
         lines_below: 1
+        new_page_after: False
         
     section_container3:
         inherits_from: section_container2

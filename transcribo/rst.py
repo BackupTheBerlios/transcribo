@@ -13,7 +13,7 @@ from docutils.nodes import Node, NodeVisitor
 from transcribo import logger
 from renderer.frames import RootFrame, getFrame
 from renderer import pages, utils
-from renderer.content import getContentManager, GenericText, FillChar, Reference, Target, RefManager
+from renderer.content import getContentManager, GenericText, FillChar, Reference, Target, RefManager, Pager
 
 
 
@@ -200,6 +200,9 @@ class TxtVisitor(NodeVisitor):
         
         
     def depart_section(self, node):
+        # insert page break if needed
+        if self.styles.frame['section_container' + str(self.section_level)].new_page_after:
+            Pager(self.current_content)
         self.section_level -= 1
         self.currentFrame = self.parent
         self.parent = self.parent.parent
