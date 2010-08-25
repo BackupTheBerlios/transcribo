@@ -38,7 +38,7 @@ What's new?
 
 *Version 0.5.3:*
 
-This is a bug fix release.
+This is a minor bug fix release.
 
 
 Introduction

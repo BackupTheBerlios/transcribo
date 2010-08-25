@@ -87,6 +87,7 @@ class ContentManager(BuildingBlock):
                 self.targets.append(child)
             elif isinstance(child, Pager):
                 break_at_last_line = True
+                tmp = u''
             raw_content.append(tmp)
 
 

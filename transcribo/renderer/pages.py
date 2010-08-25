@@ -177,6 +177,8 @@ class Paginator:
 
                 # finish current page
                 # set end marker of this page to the index of the previous Line object
+                
+                
                 cur_page.last = l - 1
                 cur_page.close(cache)
                 
