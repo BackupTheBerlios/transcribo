@@ -167,13 +167,17 @@ class Paginator:
             # page break needed
             # For the semantics of page_break see in the lines module.
             
-            page_break = cache[l].page_break
-            
+            if cache[l].pager:
+                page_break = cache[l].pager.page_break
+            else:
+                page_break = 0
+                
             if ((page_break == 0 and cache[l].get_y() >= cur_page.y + net_len) or # soft page break, i.e. page is full
                 (page_break == 2 and cache[l].get_y() + 1 >= cur_page.y + net_len) or
                             # avoid widows and orphans, i.e.
                             # break at second last line of the page
-                    (l > 0 and cache[l-1].page_break == 1)): # hard page break
+                    (l > 0 and cache[l-1].pager and
+                        cache[l-1].pager.page_break == 1)): # hard page break
 
                 # finish current page
                 # set end marker of this page to the index of the previous Line object

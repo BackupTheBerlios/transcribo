@@ -8,7 +8,7 @@ space_re = re.compile(ur'\S\s+\S')
 
 
 class Line(BuildingBlock):
-    def __init__(self, text, width, number, parent,  align = 'left', last_in_para = False, refs = None, targets = None, page_break = 0):
+    def __init__(self, text, width, number, parent,  align = 'left', last_in_para = False, refs = None, targets = None, pager = None):
     
         BuildingBlock.__init__(self, parent, add_to_parent = False) # parent is the frame the line belongs to.
         self.raw_text = text # text may contain unresolved ref markers. Hence we call it raw text for now.
@@ -18,14 +18,7 @@ class Line(BuildingBlock):
         self.refs = refs # list of references.
         self.targets = targets # list of targets
         self.text = '' # to store the text after resolving the refs
-        # page_break: semantics of values:
-        # 0: let Paginator do whatever it sees fit
-        # 1: make hard page_break before this line
-        # 2: make hard page break before this line
-        # if it would otherwise be the last on current page.
-        # This is to avoid widows and orphans.
-        # 3: last line of paragraph
-        self.page_break = page_break
+        self.pager = pager
         self.last_in_para = last_in_para # avoid block alignment of last line in paragraph
         
         

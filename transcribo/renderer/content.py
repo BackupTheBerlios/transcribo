@@ -70,11 +70,11 @@ class ContentManager(BuildingBlock):
         # containers for all refs and targets whether resolved or not
         self.refs = []
         self.targets = []
-        break_at_last_line = False
+        given_pager = None # to store a potential Pager instance
         
         for child in self:
             if isinstance(child, GenericText):
-                    tmp = child.render()
+                raw_content.append(child.render())
             elif isinstance(child, Reference):
                 tmp = child.render()
                 if not tmp:
@@ -82,13 +82,12 @@ class ContentManager(BuildingBlock):
                         tmp = u'{r' + unicode(len(self.refs)) + u'}'
                         self.refs.append(child)
                     else: tmp = u''
+                raw_content.append(tmp)
             elif isinstance(child, Target):
-                tmp = u'{t' + unicode(len(self.targets)) + u'}'
+                raw_content.append(u'{t' + unicode(len(self.targets)) + u'}')
                 self.targets.append(child)
             elif isinstance(child, Pager):
-                break_at_last_line = True
-                tmp = u''
-            raw_content.append(tmp)
+                given_pager = child
 
 
         # Translate the frame's content altogether, if required,
@@ -157,18 +156,21 @@ class ContentManager(BuildingBlock):
                     raw_content[j] = raw_content[j].replace(r.group(), u'')
                     
             # generate page break info to be used by the paginator:
-            brk = 0 # simplesoft page break if needed
-            if (j == 0) or (j == lrc - 2): brk = 2 # avoid widows and orphans
-            if break_at_last_line and (j == lrc - 1):
-                brk = 1
-            if j == lrc - 1: last_in_para = True # last line of paragraph should not be block-aligned by Line-render()
+            cur_pager = None
+            if (j == 0) or (j == lrc - 2):
+                cur_pager = Pager(self, page_break = 2) # avoid widows and orphans
+            if given_pager and (j == lrc - 1):
+                cur_pager = given_pager
+
+            # last line of paragraph should not be block-aligned by Line-render()
+            if j == lrc - 1: last_in_para = True 
             else: last_in_para = False
             
             # Generate and store the Line instance
             cache.append(Line(raw_content[j], width, j,
                 self.parent, self.x_align, last_in_para,
                 refs = cur_refs, targets = cur_targets,
-                page_break = brk))
+                pager = cur_pager))
             
         self.lines = raw_content # is this really needed?
         return (width, len(raw_content))
@@ -346,6 +348,11 @@ class Pager:
     Hard page break after last line of this content manager.
     Other functions should be added in the future such as continuing on next odd/even page etc.
     '''
-    def __init__(self, parent):
+    def __init__(self, parent, page_break = 0, cfg = None, styles = None):
         parent += self
+        self.page_break = page_break
+        if cfg is None or isinstance(cfg, dict):
+            self.cfg = cfg
+        else:
+            self.cfg = styles.cfg
         
