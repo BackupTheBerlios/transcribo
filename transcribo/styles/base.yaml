@@ -1,4 +1,4 @@
-page:
+page_format:
     A4:
         top_margin: 2
         bottom_margin: 2
@@ -24,11 +24,18 @@ page:
         inherits_from: A4
 
 
-
-
+page_layout:
+	standard:
+		footer: standard
+		header: standard
+		
+	blank:
+		footer: null
+		header: null
+    
     
 footer:
-    default:
+    standard:
         pagenum_cfg:
             height_mode: fixed
             lines_below: 0
