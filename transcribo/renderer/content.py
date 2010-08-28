@@ -158,7 +158,7 @@ class ContentManager(BuildingBlock):
             # generate page break info to be used by the paginator:
             cur_pager = None
             if (j == 0) or (j == lrc - 2):
-                cur_pager = Pager(self, page_break = 2) # avoid widows and orphans
+                cur_pager = Pager(self, mode = 2) # avoid widows and orphans
             if given_pager and (j == lrc - 1):
                 cur_pager = given_pager
 
@@ -348,9 +348,10 @@ class Pager:
     Hard page break after last line of this content manager.
     Other functions should be added in the future such as continuing on next odd/even page etc.
     '''
-    def __init__(self, parent, page_break = 0, cfg = None, styles = None):
+    def __init__(self, parent, mode = 0, n = 1, cfg = None, styles = None):
         parent += self
-        self.page_break = page_break
+        self.mode = mode
+        self.n = n
         if cfg is None or isinstance(cfg, dict):
             self.cfg = cfg
         else:

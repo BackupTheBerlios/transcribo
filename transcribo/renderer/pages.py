@@ -165,19 +165,19 @@ class Paginator:
         for l in range(len(cache)):
             # put the line on current page unless the page is full or a hard
             # page break needed
-            # For the semantics of page_break see in the lines module.
+            # For the semantics of mode see in the lines module.
             
             if cache[l].pager:
-                page_break = cache[l].pager.page_break
+                mode = cache[l].pager.mode
             else:
-                page_break = 0
+                mode = 0
                 
-            if ((page_break == 0 and cache[l].get_y() >= cur_page.y + net_len) or # soft page break, i.e. page is full
-                (page_break == 2 and cache[l].get_y() + 1 >= cur_page.y + net_len) or
+            if ((mode == 0 and cache[l].get_y() >= cur_page.y + net_len) or # soft page break, i.e. page is full
+                (mode == 2 and cache[l].get_y() + 1 >= cur_page.y + net_len) or
                             # avoid widows and orphans, i.e.
                             # break at second last line of the page
                     (l > 0 and cache[l-1].pager and
-                        cache[l-1].pager.page_break == 1)): # hard page break
+                        cache[l-1].pager.mode == 1)): # hard page break
 
                 # finish current page
                 # set end marker of this page to the index of the previous Line object
@@ -186,7 +186,7 @@ class Paginator:
                 cur_page.last = l - 1
                 cur_page.close(cache)
                 
-                # create new pagefor l
+                # create new page for l
                 cur_page = Page(self.styles, previous = cur_page, page_spec = self.page_spec,
                     header_spec = self.header_spec,
                     footer_spec = self.footer_spec, translator_cfg = self.translator_cfg)
