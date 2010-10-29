@@ -40,12 +40,13 @@ This is a milestone release with many new features. Much of the code has been re
 
       * references and targets (not yet footnotes)
       * table of contents with or without page numbers
-      * definition lists
-      * transitions
-      * rST reader (the module that reads rST files using Docutils; it is essentially a Docutils writer component!)
-        is fully configurable through cascading style sheets in YAML format;
-        this means that the Docutils own configuration system is no longer visible to the Transcribo user.
+      * definition lists, literal blocks and transitions
+      * use the class directive to change hyphenation, wrapper, translator etc. on the fly
 
+    * readers (the components that read the input files such as rST
+      are fully configurable through cascading style sheets in YAML format.
+      In case of rST this means that the Docutils own configuration system is no longer visible to the Transcribo user.
+      Note that Transcribo when used with the rst reader acts as a Docutils writer component.
     * no longer depends on a Braille translator such as YABT
     * hard page breaks improved; can be used with rST reader through style sheets: break page after end of section etc.
 
@@ -123,7 +124,7 @@ from the shell prompt something like: ::
     python setup.py install
 
 The test/test.py script demonstrates how to use Transcribo programmatically.
-Use the *transcribo.py* script from the shell prompt to generate paginated plain text from
+Use the *transcribe.py* script from the shell prompt to generate paginated plain text from
 rST or plain text documents. Type 'transcribo.py --help' to read an argparse-generated help text
 on the available commands. Examples::
 

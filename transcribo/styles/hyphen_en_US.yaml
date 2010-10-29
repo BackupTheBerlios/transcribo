@@ -5,7 +5,7 @@ wrapper:
     default:
         inherits_from: standard2
         
-            indent2:
+    indent2:
         inherits_from: standard2
         initial_indent: !!python/unicode '  '
 

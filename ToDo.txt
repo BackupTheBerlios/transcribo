@@ -1,6 +1,7 @@
 Transcribo
-
+======
 To Do
+======
 
 Frames:
 =================
@@ -17,9 +18,9 @@ rst
 
 footnotes
 
-implement text model. The current handling of text nodes is incomplete.
+fully implement text model. The current handling of text and inline nodes etc. is incomplete.
 
-support for field and option lists, tables etc.
+support for inline literals, field and option lists, tables etc.
 
 hard page breaks through directives
 
@@ -31,7 +32,7 @@ document structure: roman page numbers for TOC, preface etc., volumes with cover
 content
 =======
 
-hare page breaks
+more powerful API for hard page breaks
 
 pages
 =====
@@ -41,7 +42,7 @@ customizable headers and footers
 Hyphenators
 =============
 
-wrap liblouis's hyphenation feature
+Braille: wrap liblouis's hyphenation feature
 
 translators
 ============
@@ -53,3 +54,4 @@ Documentation
 ===============
 
 Start documentation with Sphinx
+
