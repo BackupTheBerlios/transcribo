@@ -12,7 +12,7 @@ all_cfg_files.extend(['styles/' + fn
     for fn in os.listdir('transcribo/styles/')])
 
 arg_dict = dict(
-    name = "Transcribo", version = "0.7",
+    name = "Transcribo", version = "0.7.1",
     author = "Dr. Leo",
     author_email = "dr-leo@berlios.de",
     url = "http://transcribo.berlios.de",
