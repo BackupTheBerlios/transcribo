@@ -7,10 +7,9 @@ plaintext - frontend for the Transcribo text renderer
 
 
 import transcribo
-from transcribo.renderer.frames import RootFrame, Frame
+from transcribo.renderer.frames import RootFrame, Frame, getFrame
 from transcribo.renderer import pages, utils
-from transcribo.renderer.content import GenericText, ContentManager
-from renderer.factory import getContentManager, getFrame
+from transcribo.renderer.content import GenericText, ContentManager, getContentManager
 from transcribo import logger
 
 
@@ -22,7 +21,7 @@ def transcribe(src, styles):
 class Writer:
 
     def __init__(self, styles, page_sty = 'default', frame_sty = 'default',
-        translator_sty = 'default', wrapper_sty = 'indent2', footer_sty = 'default'):
+        translator_sty = 'default', wrapper_sty = 'indent2', footer_sty = 'standard'):
         self.styles = styles
         self.page_sty = page_sty
         self.frame_sty = frame_sty
@@ -32,9 +31,9 @@ class Writer:
         
 
     def render(self, text):
-        self.paginator = pages.Paginator(page_spec = self.styles['page'][self.page_sty],
-        header_spec = None, footer_spec = self.styles['footer'][self.footer_sty],
-        translator_cfg = self.styles['translator'][self.translator_sty])
+        self.paginator = pages.Paginator(self.styles, page_spec = self.styles.page[self.page_sty],
+        header_spec = None, footer_spec = self.styles.footer[self.footer_sty],
+        translator_cfg = self.styles.translator[self.translator_sty])
         self.root = RootFrame(max_width = self.paginator.width)
         
         # prepare the text

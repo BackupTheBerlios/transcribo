@@ -2,7 +2,7 @@
 Transcribo Test
 This script contains the following unittests:
 
-1. a test of the rst front end. It processes all .rst files in the ./rst subdir
+a test of the rst reader. It processes all .rst files in the ./rst subdir
 as well as the readme.txt file.
 
 """

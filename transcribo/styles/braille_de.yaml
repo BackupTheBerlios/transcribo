@@ -1,0 +1,13 @@
+# default settings for Braille printing
+
+page:
+    default:
+        inherits_from: braille_A4
+        
+translator:
+    default:
+        inherits_from: louis-de2
+        
+transition:
+    standard:
+        text: c

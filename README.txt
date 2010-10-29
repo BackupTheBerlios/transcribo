@@ -129,12 +129,12 @@ rST or plain text documents. Type 'transcribo.py --help' to read an argparse-gen
 on the available commands. Examples::
 
     # Generate a block-aligned text with en_US hyphenation dictionary. Requires PyHyphen!
-    transcribo infile.rst outfile.out --styles align-block hyphen_en_US
+    transcribe infile.rst outfile.out --styles align-block hyphen_en_US
     # Note that '--reader rst' is used by default. the 'base.yaml' style file is
     # loaded automatically.
     # Generate paginatd plain text from plain text. Each blank line
     # is interpreted as a paragraph separator.
-    transcribo infile.txt outfile.out --reader plaintext --styles align-block
+    transcribe infile.txt outfile.out --reader txt
 
 
 Downloading and contributing
