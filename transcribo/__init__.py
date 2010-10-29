@@ -60,6 +60,9 @@ class Transcriber:
                 stylenames[i] += '.yaml'
         if not 'base.yaml' in stylenames:
             stylenames.insert(0, 'base.yaml')
+        if os.path.exists('./transcribo.yaml'):
+                stylenames.insert(1, 'transcribo.yaml')
+                
 
         self.cfg = Transcriber.Config()
         for s in stylenames:

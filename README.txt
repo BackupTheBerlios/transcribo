@@ -27,7 +27,28 @@ What's new?
 
 *Version 0.7*
 
-* styles are now in YAML format
+This is a milestone release with many new features. Much of the code has been refactored.
+
+    * unified command line front end using argparse (dependency under Python2.6)
+    * new generic configuration system named yaconfig with cascading style sheets using PyYAML (new dependency)
+
+      * supports multiple YAML files which are successively mixed into a tree of nested dictionaries
+      * multiple inheritance from any node specified by absolute or local paths (relative paths not fully supported)
+      * supports string interpolation similar to configparser from the stdlib (this feature is not used though)
+
+    * more rST features including
+
+      * references and targets (not yet footnotes)
+      * table of contents with or without page numbers
+      * definition lists
+      * transitions
+      * rST reader (the module that reads rST files using Docutils; it is essentially a Docutils writer component!)
+        is fully configurable through cascading style sheets in YAML format;
+        this means that the Docutils own configuration system is no longer visible to the Transcribo user.
+
+    * no longer depends on a Braille translator such as YABT
+    * hard page breaks improved; can be used with rST reader through style sheets: break page after end of section etc.
+
 
 *Version 0.6*
 
@@ -50,14 +71,14 @@ into accurate plain text. What might seem a somewhat strange goal in the age of 
 be very useful, e.g., for output devices which can only handle plain text such as Braille
 embossers. Indeed, Transcribo has been designed with the objective in mind to allow printing
 documents in high-quality Braille. However, Transcribo should be useful in all
-contexts where plain text in complex layouts is needed.
+contexts where text-based output formats in highly customizable layouts are needed.
 
 Transcribo has been designed so as to separate the processing of the input file from the actual rendering
-algorithm. Hence, there are two layers: In the input layer various format-specific frontends parse the input streams and feed
+algorithm. Hence, there are two layers: In the input layer various format-specific readers parse the input streams and feed
 them into the renderer (second layer).
 
-More specifically, the input layer may contain front ends specific to
-each supported  input format. Front ends do the following:
+More specifically, the input layer may contain readers specific to
+each supported  input format. readers do the following:
 
 * parse the input file,
 * derive from it the layout structure and
@@ -67,38 +88,33 @@ each supported  input format. Front ends do the following:
   + traverse the tree creating a line-by-line representation of the document.
 
 * Thereafter, the renderer's paginator
-  is called to insert white space as margins, page breaks, create headers and footers etc.
+  is called to insert white space as margins, page breaks, create headers and footers, resolve page references  etc.
 * Finally, the paginated line-by-line
   representation is assembled to a plain text file.
 
 The renderer allows to attach to each content block (paragraph, heading, reference etc.) a
 specific *translator* and *wrapper including optional hyphenation* to perform translations and achieve the required text outline. In combination with
-frontends for mark-up languages, this
-feature allows the user to control the output at a very high level of granularity.
+readers for mark-up languages, this
+feature allows the user to control the output at a high level of granularity.
 
-Currently there are frontends for .. `reStructuredText <http://docutils.sourceforge.net/rst.html>`_ and plain text. Additional frontends
+Currently there are readers for `reStructuredText <http://docutils.sourceforge.net/rst.html>`_ and plain text. Additional readers
 for formats such as LaTeX, ODF, RTF, XML formats such as DocBook and HTML appear useful.
 
 Installation and usage
 =====================================
 
-General
-----------------
-
 Transcribo is developed with Python 2.6. It should run on older versions, possibly with
-small changes. There are a few dependencies. Well, you can live without, but some functions may not work or require minor
-modifications, eg. in the styles module.
+small changes. There are a few mandatory and optional dependencies:
 
-* As per version 0.6, Transcribo requires the hyphenation package
-  `PyHyphen <http://pypi.python.org/pypi/PyHyphen/>`_
+* `PyYAML <http://pypi.python.org/pypi/PyYAML>`_ 
+* `argparse <http://pypi.python.org/pypi/argparse>`_
+  It is already included in the stdlib of Python 2.7.
+* if you want to have hyphenated output, you'll need `PyHyphen <http://pypi.python.org/pypi/PyHyphen/>`_
 * If you want to
   use the translation features for Braille, you may wish to install a Braille translator such as
-  `liblouis <http://liblouis.googlecode.com>`_ or `YABT <http://pypi.python.org/pypi/YABT>`_. In addition,
-  if you want to use the frontend for reStructuredText,
-  you will need `Docutils <http://docutils.sourceforge.net>`_, because the frontend for reStructuredText is essentially a docutils
-  writer component. Use the *transcribo-rst.py* script, a Docutils frontend tool, to generate plain text from rST documents.
-  Without Docutils, you can only generate plain text from plain text using the *transcribo-txt.py* script.
-  Type python transcribo-txt.py --help to see the command line options.
+  `liblouis <http://liblouis.googlecode.com>`_ or `YABT <http://pypi.python.org/pypi/YABT>`_.
+* `Docutils <http://docutils.sourceforge.net>`_, because Transcribo's rST reader is essentially a docutils
+  writer component. Well, if you are happy with txt2txt, forget this.
 
 Transcribo is a pure Python package. It is installed by unpacking the archive and typing
 from the shell prompt something like: ::
@@ -106,18 +122,18 @@ from the shell prompt something like: ::
     cd <package dir>
     python setup.py install
 
-Then run one of the scripts in the scripts/ or test/ subdirectory (see above).
+The test/test.py script demonstrates how to use Transcribo programmatically.
+Use the *transcribo.py* script from the shell prompt to generate paginated plain text from
+rST or plain text documents. Type 'transcribo.py --help' to read an argparse-generated help text
+on the available commands. Examples::
 
-Using the rST frontend
------------------------
-
-The module transcribo.rST.py is a Docutils writer component. See the Docutils documentation for background info.
-It supports a reasonable subset of the rST features. Implemented features include paragraphs, sections,
-section numbers (basic support), bullet lists,
-enumerations, block quotes, line blocks, references (page references are on the wish list), strong and emphasis
-(represented by cappitalized letters), inline literals. To translate an rST document into plain text, use the
-transcribo-rst.py frontend tool. Use the command line or the configuration file to modify the page width and the
-translator to be used (default is None). All other configurations are contained in ``transcribo.renderer.styles.py``.
+    # Generate a block-aligned text with en_US hyphenation dictionary. Requires PyHyphen!
+    transcribo infile.rst outfile.out --styles align-block hyphen_en_US
+    # Note that '--reader rst' is used by default. the 'base.yaml' style file is
+    # loaded automatically.
+    # Generate paginatd plain text from plain text. Each blank line
+    # is interpreted as a paragraph separator.
+    transcribo infile.txt outfile.out --reader plaintext --styles align-block
 
 
 Downloading and contributing

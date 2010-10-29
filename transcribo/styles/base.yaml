@@ -1,4 +1,18 @@
-page_format:
+# Basic configuration for Transcribo
+
+
+# Containers for reader configurations
+rst:
+    output_encoding: unicode
+    input_encoding: unicode
+    language_code: de
+
+plaintext: {}
+ 
+
+
+
+page:
     A4:
         top_margin: 2
         bottom_margin: 2
@@ -24,14 +38,6 @@ page_format:
         inherits_from: A4
 
 
-page_layout:
-	standard:
-		footer: standard
-		header: standard
-		
-	blank:
-		footer: null
-		header: null
     
     
 footer:
@@ -173,7 +179,9 @@ frame:
         y_hook: top
         y_offset: 1
 
-    
+    literal_block_container:
+        inherits_from: block_quote_container
+        
     # frames for page numbers
     #pagenum_right: *id011
     

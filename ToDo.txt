@@ -47,3 +47,9 @@ translators
 ============
 
 output as Braille unicode and encode later on for different printers
+
+
+Documentation
+===============
+
+Start documentation with Sphinx

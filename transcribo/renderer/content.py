@@ -1,9 +1,8 @@
-
-
-"""This module contains the ContentManager class and various content classes
+"""\
+This module contains the ContentManager class and various content classes
 to be passed on to a ContentManager instance. Each leaf frame must have exactly
  one ContentManager instance to render. Each ContentManager stores at least one
-content object in its children attribute as list items.
+conobject in its children attribute as list items.
 """
 
 
