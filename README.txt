@@ -164,8 +164,8 @@ Downloading and contributing
 Documentation
 =================
 
-Documentation to be built with Sphinx is planned. The renderer's API is illustrated by test/test.py which renders a nested
-enumeration. A simple example is provided by transcribo/plaintext.py, the plain text frontend. More complex examples including extensive usage
+Documentation to be built with Sphinx is planned. The renderer's API
+is demonstrated by transcribo/plaintext.py, the plain text reader. More complex examples including extensive usage
 of styles can be found in rST.py. Please feel free to submit any questions to the mailing list or directly to the author.
 
 .. _mailing list: http://developer.berlios.de/mail/?group_id=10799
