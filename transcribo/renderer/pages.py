@@ -165,7 +165,6 @@ class Paginator:
         for l in range(len(cache)):
             # put the line on current page unless the page is full or a hard
             # page break needed
-            # For the semantics of mode see in the lines module.
             
             if cache[l].pager:
                 mode = cache[l].pager.mode
